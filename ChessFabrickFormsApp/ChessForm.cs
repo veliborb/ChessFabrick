@@ -27,7 +27,7 @@ namespace ChessFabrickFormsApp
 
         private void InitializeBoard()
         {
-            panBoard.SuspendLayout();
+            panTable.SuspendLayout();
             for (int i = 0; i < 8; ++i)
             {
                 for (int j = 0; j < 8; ++j)
@@ -37,11 +37,11 @@ namespace ChessFabrickFormsApp
                     fieldBox.BackColor = (i + j) % 2 == 1 ? Color.Peru : Color.Cornsilk;
                     fieldBox.Click += FieldBox_Click;
                     fieldBox.Tag = Tuple.Create(i, j);
-                    panBoard.Controls.Add(fieldBox);
+                    panTable.Controls.Add(fieldBox);
                     fieldBoxes[i, j] = fieldBox;
                 }
             }
-            panBoard.ResumeLayout(false);
+            panTable.ResumeLayout(false);
         }
 
         private void FieldBox_Click(object sender, EventArgs e)

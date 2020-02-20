@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panBoard = new System.Windows.Forms.Panel();
+            this.panTable = new System.Windows.Forms.Panel();
             this.panKilledWhite = new System.Windows.Forms.Panel();
             this.panKilledBlack = new System.Windows.Forms.Panel();
             this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
@@ -43,13 +43,13 @@
             this.panKilledBlack.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panBoard
+            // panTable
             // 
-            this.panBoard.BackColor = System.Drawing.Color.FloralWhite;
-            this.panBoard.Location = new System.Drawing.Point(12, 88);
-            this.panBoard.Name = "panBoard";
-            this.panBoard.Size = new System.Drawing.Size(435, 435);
-            this.panBoard.TabIndex = 0;
+            this.panTable.BackColor = System.Drawing.Color.FloralWhite;
+            this.panTable.Location = new System.Drawing.Point(12, 88);
+            this.panTable.Name = "panTable";
+            this.panTable.Size = new System.Drawing.Size(435, 435);
+            this.panTable.TabIndex = 0;
             // 
             // panKilledWhite
             // 
@@ -152,7 +152,7 @@
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.panKilledBlack);
             this.Controls.Add(this.panKilledWhite);
-            this.Controls.Add(this.panBoard);
+            this.Controls.Add(this.panTable);
             this.Name = "ChessForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.ChessForm_Load);
@@ -165,7 +165,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panBoard;
+        private System.Windows.Forms.Panel panTable;
         private System.Windows.Forms.Panel panKilledWhite;
         private System.Windows.Forms.HScrollBar hScrollBar2;
         private System.Windows.Forms.Panel panKilledBlack;
