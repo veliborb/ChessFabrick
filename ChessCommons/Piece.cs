@@ -5,15 +5,15 @@ using System.Text;
 
 namespace ChessCommons
 {
-    public abstract class Figure
+    public abstract class Piece
     {
         public int X { get; internal set; }
         public int Y { get; internal set; }
-        public FigureColor Color { get; private set; }
+        public PieceColor Color { get; private set; }
         public Board Board { get; private set; }
         public bool HasMoved { get; internal set; }
 
-        public Figure(FigureColor color, Board board, int x, int y, bool hasMoved = false)
+        public Piece(PieceColor color, Board board, int x, int y, bool hasMoved = false)
         {
             this.Color = color;
             this.Board = board;
@@ -22,23 +22,23 @@ namespace ChessCommons
             this.HasMoved = hasMoved;
         }
 
-        public Figure(Figure figure)
+        public Piece(Piece piece)
         {
-            CopyFrom(figure);
+            CopyFrom(piece);
         }
 
-        public void CopyFrom(Figure figure)
+        public void CopyFrom(Piece piece)
         {
-            X = figure.X;
-            Y = figure.Y;
-            Color = figure.Color;
-            Board = figure.Board;
-            HasMoved = figure.HasMoved;
+            X = piece.X;
+            Y = piece.Y;
+            Color = piece.Color;
+            Board = piece.Board;
+            HasMoved = piece.HasMoved;
         }
 
-        public Figure Clone()
+        public Piece Clone()
         {
-            return MemberwiseClone() as Figure;
+            return MemberwiseClone() as Piece;
         }
 
         public List<Tuple<int, int>> GetPossibleMoves()
@@ -56,7 +56,7 @@ namespace ChessCommons
             {
                 return false;
             }
-            return Board.MoveFigure(this, x, y);
+            return Board.MovePiece(this, x, y);
         }
     }
 }

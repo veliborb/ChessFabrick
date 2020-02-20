@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ChessCommons
 {
-    public class King : Figure
+    public class King : Piece
     {
-        public King(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
+        public King(PieceColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
@@ -44,7 +44,7 @@ namespace ChessCommons
             }
         }
 
-        internal Tuple<Figure, int, int> Rokada(int x, int y)
+        internal Tuple<Piece, int, int> Rokada(int x, int y)
         {
             if (X == 3 && x == 1)
             {

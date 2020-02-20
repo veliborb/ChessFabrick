@@ -4,23 +4,23 @@ using System.Text;
 
 namespace ChessCommons
 {
-    public class Rook : Figure
+    public class Rook : Piece
     {
-        public Rook(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
+        public Rook(PieceColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
-        internal static void CalculatePossibleMoves(Figure rook, List<Tuple<int, int>> moves)
+        internal static void CalculatePossibleMoves(Piece rook, List<Tuple<int, int>> moves)
         {
             for (int x = rook.X; x < Board.SIZE; ++x)
             {
-                var figure = rook.Board[x, rook.Y];
-                if (figure == null)
+                var piece = rook.Board[x, rook.Y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, rook.Y));
                 }
                 else
                 {
-                    if (figure == rook) continue;
-                    if (figure.Color != rook.Color)
+                    if (piece == rook) continue;
+                    if (piece.Color != rook.Color)
                     {
                         moves.Add(Tuple.Create(x, rook.Y));
                     }
@@ -30,15 +30,15 @@ namespace ChessCommons
 
             for (int x = rook.X; x >= 0; --x)
             {
-                var figure = rook.Board[x, rook.Y];
-                if (figure == null)
+                var piece = rook.Board[x, rook.Y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, rook.Y));
                 }
                 else
                 {
-                    if (figure == rook) continue;
-                    if (figure.Color != rook.Color)
+                    if (piece == rook) continue;
+                    if (piece.Color != rook.Color)
                     {
                         moves.Add(Tuple.Create(x, rook.Y));
                     }
@@ -48,15 +48,15 @@ namespace ChessCommons
 
             for (int y = rook.Y; y < Board.SIZE; ++y)
             {
-                var figure = rook.Board[rook.X, y];
-                if (figure == null)
+                var piece = rook.Board[rook.X, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(rook.X, y));
                 }
                 else
                 {
-                    if (figure == rook) continue;
-                    if (figure.Color != rook.Color)
+                    if (piece == rook) continue;
+                    if (piece.Color != rook.Color)
                     {
                         moves.Add(Tuple.Create(rook.X, y));
                     }
@@ -66,15 +66,15 @@ namespace ChessCommons
 
             for (int y = rook.Y; y >= 0; --y)
             {
-                var figure = rook.Board[rook.X, y];
-                if (figure == null)
+                var piece = rook.Board[rook.X, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(rook.X, y));
                 }
                 else
                 {
-                    if (figure == rook) continue;
-                    if (figure.Color != rook.Color)
+                    if (piece == rook) continue;
+                    if (piece.Color != rook.Color)
                     {
                         moves.Add(Tuple.Create(rook.X, y));
                     }

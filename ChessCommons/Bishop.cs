@@ -4,11 +4,11 @@ using System.Text;
 
 namespace ChessCommons
 {
-    public class Bishop : Figure
+    public class Bishop : Piece
     {
-        public Bishop(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
+        public Bishop(PieceColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
-        internal static void CalculatePossibleMoves(Figure bishop, List<Tuple<int, int>> moves)
+        internal static void CalculatePossibleMoves(Piece bishop, List<Tuple<int, int>> moves)
         {
             var size = Math.Min(Board.SIZE, Board.SIZE);
 
@@ -20,14 +20,14 @@ namespace ChessCommons
                 {
                     break;
                 }
-                var figure = bishop.Board[x, y];
-                if (figure == null)
+                var piece = bishop.Board[x, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, y));
                 }
                 else
                 {
-                    if (figure.Color != bishop.Color)
+                    if (piece.Color != bishop.Color)
                     {
                         moves.Add(Tuple.Create(x, y));
                     }
@@ -43,14 +43,14 @@ namespace ChessCommons
                 {
                     break;
                 }
-                var figure = bishop.Board[x, y];
-                if (figure == null)
+                var piece = bishop.Board[x, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, y));
                 }
                 else
                 {
-                    if (figure.Color != bishop.Color)
+                    if (piece.Color != bishop.Color)
                     {
                         moves.Add(Tuple.Create(x, y));
                     }
@@ -66,14 +66,14 @@ namespace ChessCommons
                 {
                     break;
                 }
-                var figure = bishop.Board[x, y];
-                if (figure == null)
+                var piece = bishop.Board[x, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, y));
                 }
                 else
                 {
-                    if (figure.Color != bishop.Color)
+                    if (piece.Color != bishop.Color)
                     {
                         moves.Add(Tuple.Create(x, y));
                     }
@@ -89,14 +89,14 @@ namespace ChessCommons
                 {
                     break;
                 }
-                var figure = bishop.Board[x, y];
-                if (figure == null)
+                var piece = bishop.Board[x, y];
+                if (piece == null)
                 {
                     moves.Add(Tuple.Create(x, y));
                 }
                 else
                 {
-                    if (figure.Color != bishop.Color)
+                    if (piece.Color != bishop.Color)
                     {
                         moves.Add(Tuple.Create(x, y));
                     }

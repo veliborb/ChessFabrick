@@ -14,7 +14,7 @@ namespace ChessFabrickFormsApp
     public partial class ChessForm : Form
     {
         private Board board;
-        private Figure selectedFigure;
+        private Piece selectedFigure;
         private List<Tuple<int, int>> possibleMoves;
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
@@ -79,14 +79,14 @@ namespace ChessFabrickFormsApp
             labTurn.Text = board.TurnColor.ToString();
 
             var sb = new StringBuilder();
-            foreach (var killed in board.GetKilled(FigureColor.White))
+            foreach (var killed in board.GetKilled(PieceColor.White))
             {
                 sb.Append(killed.GetType().Name).Append(", ");
             }
             labKilledWhite.Text = sb.ToString();
 
             sb.Clear();
-            foreach (var killed in board.GetKilled(FigureColor.Black))
+            foreach (var killed in board.GetKilled(PieceColor.Black))
             {
                 sb.Append(killed.GetType().Name).Append(", ");
             }

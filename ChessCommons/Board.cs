@@ -9,90 +9,90 @@ namespace ChessCommons
     {
         public static readonly int SIZE = 8;
 
-        private readonly Figure[,] fields;
-        private readonly List<Figure> alive;
-        private readonly List<Figure> killed;
-        public FigureMove LastMove { get; private set; }
-        public FigureColor TurnColor { get; private set; } = FigureColor.White;
+        private readonly Piece[,] fields;
+        private readonly List<Piece> alive;
+        private readonly List<Piece> killed;
+        public PieceMove LastMove { get; private set; }
+        public PieceColor TurnColor { get; private set; } = PieceColor.White;
 
         public Board()
         {
-            fields = new Figure[SIZE, SIZE];
-            alive = new List<Figure>(32);
-            killed = new List<Figure>(30);
+            fields = new Piece[SIZE, SIZE];
+            alive = new List<Piece>(32);
+            killed = new List<Piece>(30);
             for (int i = 0; i < SIZE; ++i)
             {
-               alive.Add(new Pawn(FigureColor.White, this, i, 1));
-               alive.Add(new Pawn(FigureColor.Black, this, i, 6));
+               alive.Add(new Pawn(PieceColor.White, this, i, 1));
+               alive.Add(new Pawn(PieceColor.Black, this, i, 6));
             }
-            alive.Add(new Rook(FigureColor.White, this, 0, 0));
-            alive.Add(new Rook(FigureColor.White, this, 7, 0));
-            alive.Add(new Knight(FigureColor.White, this, 1, 0));
-            alive.Add(new Knight(FigureColor.White, this, 6, 0));
-            alive.Add(new Bishop(FigureColor.White, this, 2, 0));
-            alive.Add(new Bishop(FigureColor.White, this, 5, 0));
-            alive.Add(new Queen(FigureColor.White, this, 4, 0));
-            alive.Add(new King(FigureColor.White, this, 3, 0));
-            alive.Add(new Rook(FigureColor.Black, this, 0, 7));
-            alive.Add(new Rook(FigureColor.Black, this, 7, 7));
-            alive.Add(new Knight(FigureColor.Black, this, 1, 7));
-            alive.Add(new Knight(FigureColor.Black, this, 6, 7));
-            alive.Add(new Bishop(FigureColor.Black, this, 2, 7));
-            alive.Add(new Bishop(FigureColor.Black, this, 5, 7));
-            alive.Add(new Queen(FigureColor.Black, this, 4, 7));
-            alive.Add(new King(FigureColor.Black, this, 3, 7));
-            foreach (var figure in alive)
+            alive.Add(new Rook(PieceColor.White, this, 0, 0));
+            alive.Add(new Rook(PieceColor.White, this, 7, 0));
+            alive.Add(new Knight(PieceColor.White, this, 1, 0));
+            alive.Add(new Knight(PieceColor.White, this, 6, 0));
+            alive.Add(new Bishop(PieceColor.White, this, 2, 0));
+            alive.Add(new Bishop(PieceColor.White, this, 5, 0));
+            alive.Add(new Queen(PieceColor.White, this, 4, 0));
+            alive.Add(new King(PieceColor.White, this, 3, 0));
+            alive.Add(new Rook(PieceColor.Black, this, 0, 7));
+            alive.Add(new Rook(PieceColor.Black, this, 7, 7));
+            alive.Add(new Knight(PieceColor.Black, this, 1, 7));
+            alive.Add(new Knight(PieceColor.Black, this, 6, 7));
+            alive.Add(new Bishop(PieceColor.Black, this, 2, 7));
+            alive.Add(new Bishop(PieceColor.Black, this, 5, 7));
+            alive.Add(new Queen(PieceColor.Black, this, 4, 7));
+            alive.Add(new King(PieceColor.Black, this, 3, 7));
+            foreach (var piece in alive)
             {
-                fields[figure.X, figure.Y] = figure;
+                fields[piece.X, piece.Y] = piece;
             }
         }
 
-        public List<Figure> GetAlive(FigureColor? color = null)
-            => alive.FindAll(figure => color == null || figure.Color == color);
+        public List<Piece> GetAlive(PieceColor? color = null)
+            => alive.FindAll(piece => color == null || piece.Color == color);
 
-        public List<Figure> GetKilled(FigureColor? color = null)
-            => killed.FindAll(figure => color == null || figure.Color == color);
+        public List<Piece> GetKilled(PieceColor? color = null)
+            => killed.FindAll(piece => color == null || piece.Color == color);
 
-        internal bool MoveFigure(Figure figure, int x, int y)
+        internal bool MovePiece(Piece piece, int x, int y)
         {
-            if (fields[figure.X, figure.Y] != figure || figure.Color != TurnColor)
+            if (fields[piece.X, piece.Y] != piece || piece.Color != TurnColor)
             {
                 return false;
             }
 
-            var destFigure = fields[x, y];
-            if (figure is Pawn)
+            var destPiece = fields[x, y];
+            if (piece is Pawn)
             {
-                if (destFigure == null && figure.X != x)
+                if (destPiece == null && piece.X != x)
                 {
-                    destFigure = LastMove.MovedFigure;
+                    destPiece = LastMove.MovedPiece;
                 }
             }
-            var rokada = (figure as King)?.Rokada(x, y);
+            var rokada = (piece as King)?.Rokada(x, y);
 
-            LastMove = new FigureMove(figure, x, y, destFigure, LastMove, rokada != null);
+            LastMove = new PieceMove(piece, x, y, destPiece, LastMove, rokada != null);
 
-            if (destFigure != null)
+            if (destPiece != null)
             {
-                fields[destFigure.X, destFigure.Y] = null;
-                alive.Remove(destFigure);
-                killed.Add(destFigure);
+                fields[destPiece.X, destPiece.Y] = null;
+                alive.Remove(destPiece);
+                killed.Add(destPiece);
             }
 
-            fields[figure.X, figure.Y] = null;
-            figure.X = x;
-            figure.Y = y;
-            figure.HasMoved = true;
-            fields[x, y] = figure;
+            fields[piece.X, piece.Y] = null;
+            piece.X = x;
+            piece.Y = y;
+            piece.HasMoved = true;
+            fields[x, y] = piece;
 
-            if ((rokada == null && CheckCheck(figure.Color.Other()).Count > 0)
-                || (rokada != null && !MoveFigure(rokada.Item1, rokada.Item2, rokada.Item3)))
+            if ((rokada == null && CheckCheck(piece.Color.Other()).Count > 0)
+                || (rokada != null && !MovePiece(rokada.Item1, rokada.Item2, rokada.Item3)))
             {
                 UndoMove();
                 return false;
             }
 
-            TurnColor = figure.Color.Other();
+            TurnColor = piece.Color.Other();
             return true;
         }
 
@@ -103,17 +103,17 @@ namespace ChessCommons
                 return;
             }
 
-            fields[LastMove.FromX, LastMove.FromY] = LastMove.MovedFigure;
-            LastMove.MovedFigure.X = LastMove.FromX;
-            LastMove.MovedFigure.Y = LastMove.FromY;
-            LastMove.MovedFigure.HasMoved = LastMove.FigureHasMoved;
+            fields[LastMove.FromX, LastMove.FromY] = LastMove.MovedPiece;
+            LastMove.MovedPiece.X = LastMove.FromX;
+            LastMove.MovedPiece.Y = LastMove.FromY;
+            LastMove.MovedPiece.HasMoved = LastMove.PieceHasMoved;
 
             fields[LastMove.ToX, LastMove.ToY] = null;
-            if (LastMove.KilledFigure != null)
+            if (LastMove.KilledPiece != null)
             {
-                fields[LastMove.KilledFigure.X, LastMove.KilledFigure.Y] = LastMove.KilledFigure;
-                killed.Remove(LastMove.KilledFigure);
-                alive.Add(LastMove.KilledFigure);
+                fields[LastMove.KilledPiece.X, LastMove.KilledPiece.Y] = LastMove.KilledPiece;
+                killed.Remove(LastMove.KilledPiece);
+                alive.Add(LastMove.KilledPiece);
             }
 
             LastMove = LastMove.LastMove;
@@ -123,32 +123,32 @@ namespace ChessCommons
             }
             else
             {
-                TurnColor = LastMove?.MovedFigure?.Color.Other() ?? FigureColor.White;
+                TurnColor = LastMove?.MovedPiece?.Color.Other() ?? PieceColor.White;
             }
         }
 
-        public List<Figure> CheckCheck(FigureColor color)
+        public List<Piece> CheckCheck(PieceColor color)
         {
-            var checkFigures = new List<Figure>();
-            var figures = GetAlive(color);
-            foreach (var figure in figures)
+            var checkPieces = new List<Piece>();
+            var pieces = GetAlive(color);
+            foreach (var piece in pieces)
             {
-                if (figure.GetPossibleMoves().Find(field => fields[field.Item1, field.Item2] is King) != null)
+                if (piece.GetPossibleMoves().Find(field => fields[field.Item1, field.Item2] is King) != null)
                 {
-                    checkFigures.Add(figure);
+                    checkPieces.Add(piece);
                 }
             }
-            return checkFigures;
+            return checkPieces;
         }
 
-        public bool CheckCheckmate(FigureColor color)
+        public bool CheckCheckmate(PieceColor color)
         {
-            var figures = GetAlive(color.Other());
-            foreach (var figure in figures)
+            var pieces = GetAlive(color.Other());
+            foreach (var piece in pieces)
             {
-                foreach (var move in figure.GetPossibleMoves())
+                foreach (var move in piece.GetPossibleMoves())
                 {
-                    figure.MoveTo(move.Item1, move.Item2);
+                    piece.MoveTo(move.Item1, move.Item2);
                     var check = CheckCheck(color);
                     UndoMove();
                     if (check.Count == 0)
@@ -165,7 +165,7 @@ namespace ChessCommons
             return x >= 0 && x < SIZE && y >= 0 && y < SIZE;
         }
 
-        public Figure this[int x, int y]
+        public Piece this[int x, int y]
         {
             get => fields[x, y];
         }

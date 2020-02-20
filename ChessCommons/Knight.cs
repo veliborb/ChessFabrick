@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ChessCommons
 {
-    public class Knight : Figure
+    public class Knight : Piece
     {
-        public Knight(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
+        public Knight(PieceColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
