@@ -554,16 +554,16 @@
   var EVENT_KEY$2 = "." + DATA_KEY$2;
   var DATA_API_KEY$2 = '.data-api';
   var JQUERY_NO_CONFLICT$2 = $.fn[NAME$2];
-  var ARROW_LEFT_KEYCODE = 37; // KeyboardEvent.which value for left arrow key
+  var ARROW_LEFT_KEYCODE = 37; // KeytableEvent.which value for left arrow key
 
-  var ARROW_RIGHT_KEYCODE = 39; // KeyboardEvent.which value for right arrow key
+  var ARROW_RIGHT_KEYCODE = 39; // KeytableEvent.which value for right arrow key
 
   var TOUCHEVENT_COMPAT_WAIT = 500; // Time for mouse compat events to fire after touch
 
   var SWIPE_THRESHOLD = 40;
   var Default = {
     interval: 5000,
-    keyboard: true,
+    keytable: true,
     slide: false,
     pause: 'hover',
     wrap: true,
@@ -571,7 +571,7 @@
   };
   var DefaultType = {
     interval: '(number|boolean)',
-    keyboard: 'boolean',
+    keytable: 'boolean',
     slide: '(boolean|string)',
     pause: '(string|boolean)',
     wrap: 'boolean',
@@ -775,7 +775,7 @@
     _proto._addEventListeners = function _addEventListeners() {
       var _this2 = this;
 
-      if (this._config.keyboard) {
+      if (this._config.keytable) {
         $(this._element).on(Event$2.KEYDOWN, function (event) {
           return _this2._keydown(event);
         });
@@ -1514,15 +1514,15 @@
   var EVENT_KEY$4 = "." + DATA_KEY$4;
   var DATA_API_KEY$4 = '.data-api';
   var JQUERY_NO_CONFLICT$4 = $.fn[NAME$4];
-  var ESCAPE_KEYCODE = 27; // KeyboardEvent.which value for Escape (Esc) key
+  var ESCAPE_KEYCODE = 27; // KeytableEvent.which value for Escape (Esc) key
 
-  var SPACE_KEYCODE = 32; // KeyboardEvent.which value for space key
+  var SPACE_KEYCODE = 32; // KeytableEvent.which value for space key
 
-  var TAB_KEYCODE = 9; // KeyboardEvent.which value for tab key
+  var TAB_KEYCODE = 9; // KeytableEvent.which value for tab key
 
-  var ARROW_UP_KEYCODE = 38; // KeyboardEvent.which value for up arrow key
+  var ARROW_UP_KEYCODE = 38; // KeytableEvent.which value for up arrow key
 
-  var ARROW_DOWN_KEYCODE = 40; // KeyboardEvent.which value for down arrow key
+  var ARROW_DOWN_KEYCODE = 40; // KeytableEvent.which value for down arrow key
 
   var RIGHT_MOUSE_BUTTON_WHICH = 3; // MouseEvent.which value for the right button (assuming a right-handed mouse)
 
@@ -2040,17 +2040,17 @@
   var EVENT_KEY$5 = "." + DATA_KEY$5;
   var DATA_API_KEY$5 = '.data-api';
   var JQUERY_NO_CONFLICT$5 = $.fn[NAME$5];
-  var ESCAPE_KEYCODE$1 = 27; // KeyboardEvent.which value for Escape (Esc) key
+  var ESCAPE_KEYCODE$1 = 27; // KeytableEvent.which value for Escape (Esc) key
 
   var Default$3 = {
     backdrop: true,
-    keyboard: true,
+    keytable: true,
     focus: true,
     show: true
   };
   var DefaultType$3 = {
     backdrop: '(boolean|string)',
-    keyboard: 'boolean',
+    keytable: 'boolean',
     focus: 'boolean',
     show: 'boolean'
   };
@@ -2306,7 +2306,7 @@
     _proto._setEscapeEvent = function _setEscapeEvent() {
       var _this5 = this;
 
-      if (this._isShown && this._config.keyboard) {
+      if (this._isShown && this._config.keytable) {
         $(this._element).on(Event$5.KEYDOWN_DISMISS, function (event) {
           if (event.which === ESCAPE_KEYCODE$1) {
             event.preventDefault();

@@ -13,7 +13,7 @@ namespace ChessFabrickFormsApp
 {
     public partial class ChessForm : Form
     {
-        private ChessTable table;
+        private Board board;
         private Figure selectedFigure;
         private List<Tuple<int, int>> possibleMoves;
 
@@ -27,7 +27,7 @@ namespace ChessFabrickFormsApp
 
         private void InitializeBoard()
         {
-            panTable.SuspendLayout();
+            panBoard.SuspendLayout();
             for (int i = 0; i < 8; ++i)
             {
                 for (int j = 0; j < 8; ++j)
@@ -37,11 +37,11 @@ namespace ChessFabrickFormsApp
                     fieldBox.BackColor = (i + j) % 2 == 1 ? Color.Peru : Color.Cornsilk;
                     fieldBox.Click += FieldBox_Click;
                     fieldBox.Tag = Tuple.Create(i, j);
-                    panTable.Controls.Add(fieldBox);
+                    panBoard.Controls.Add(fieldBox);
                     fieldBoxes[i, j] = fieldBox;
                 }
             }
-            panTable.ResumeLayout(false);
+            panBoard.ResumeLayout(false);
         }
 
         private void FieldBox_Click(object sender, EventArgs e)
@@ -49,8 +49,8 @@ namespace ChessFabrickFormsApp
             var field = (sender as ChessFieldBox).Tag as Tuple<int, int>;
             if (selectedFigure == null)
             {
-                selectedFigure = table[field.Item1, field.Item2];
-                if (selectedFigure?.Color != table.TurnColor)
+                selectedFigure = board[field.Item1, field.Item2];
+                if (selectedFigure?.Color != board.TurnColor)
                 {
                     selectedFigure = null;
                 }
@@ -70,23 +70,23 @@ namespace ChessFabrickFormsApp
 
         private void ChessForm_Load(object sender, EventArgs e)
         {
-            table = new ChessTable();
+            board = new Board();
             RefreshViews();
         }
 
         private void RefreshViews()
         {
-            labTurn.Text = table.TurnColor.ToString();
+            labTurn.Text = board.TurnColor.ToString();
 
             var sb = new StringBuilder();
-            foreach (var killed in table.GetKilled(FigureColor.White))
+            foreach (var killed in board.GetKilled(FigureColor.White))
             {
                 sb.Append(killed.GetType().Name).Append(", ");
             }
             labKilledWhite.Text = sb.ToString();
 
             sb.Clear();
-            foreach (var killed in table.GetKilled(FigureColor.Black))
+            foreach (var killed in board.GetKilled(FigureColor.Black))
             {
                 sb.Append(killed.GetType().Name).Append(", ");
             }
@@ -99,7 +99,7 @@ namespace ChessFabrickFormsApp
                     var fieldBox = fieldBoxes[i, j];
                     fieldBox.SuspendLayout();
                     fieldBox.BorderColor = null;
-                    fieldBox.Image = table[i, j]?.Image();
+                    fieldBox.Image = board[i, j]?.Image();
                 }
             }
 
@@ -109,9 +109,9 @@ namespace ChessFabrickFormsApp
                 foreach (var field in possibleMoves)
                 {
                     fieldBoxes[field.Item1, field.Item2].BorderColor = 
-                        table[field.Item1, field.Item2] != null ? Color.Red : Color.Green;
+                        board[field.Item1, field.Item2] != null ? Color.Red : Color.Green;
                 }
-                var checkFigures = table.CheckCheck(table.TurnColor);
+                var checkFigures = board.CheckCheck(board.TurnColor);
                 if (checkFigures.Count > 0)
                 {
                     
@@ -131,13 +131,13 @@ namespace ChessFabrickFormsApp
 
         private void btnUndo_Click(object sender, EventArgs e)
         {
-            table.UndoMove();
+            board.UndoMove();
             RefreshViews();
         }
 
         private void btnCheckCheckmate_Click(object sender, EventArgs e)
         {
-            labCheckmate.Text = table.CheckCheckmate(table.TurnColor).ToString();
+            labCheckmate.Text = board.CheckCheckmate(board.TurnColor).ToString();
         }
     }
 }

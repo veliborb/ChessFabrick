@@ -6,7 +6,7 @@ namespace ChessCommons
 {
     public class Knight : Figure
     {
-        public Knight(FigureColor color, Board table, int x, int y) : base(color, table, x, y) { }
+        public Knight(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
@@ -23,7 +23,7 @@ namespace ChessCommons
             };
             foreach (var move in possibleMoves)
             {
-                if (Table.FieldExists(move.Item1, move.Item2) && Table[move.Item1, move.Item2]?.Color != Color)
+                if (Board.FieldExists(move.Item1, move.Item2) && Board[move.Item1, move.Item2]?.Color != Color)
                 {
                     moves.Add(move);
                 }

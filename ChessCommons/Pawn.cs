@@ -6,39 +6,39 @@ namespace ChessCommons
 {
     public class Pawn : Figure
     {
-        public Pawn(FigureColor color, ChessTable table, int x, int y) : base(color, table, x, y) { }
+        public Pawn(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
             var moveDirection = (Color == FigureColor.White) ? 1 : -1;
 
-            if (Table[X, Y + moveDirection] == null)
+            if (Board[X, Y + moveDirection] == null)
             {
                 moves.Add(Tuple.Create(X, Y + moveDirection));
-                if (!HasMoved && Table[X, Y + 2 * moveDirection] == null)
+                if (!HasMoved && Board[X, Y + 2 * moveDirection] == null)
                 {
                     moves.Add(Tuple.Create(X, Y + 2 * moveDirection));
                 }
             }
 
-            if (X > 0 && Table[X - 1, Y + moveDirection] != null && Table[X - 1, Y + moveDirection].Color != Color)
+            if (X > 0 && Board[X - 1, Y + moveDirection] != null && Board[X - 1, Y + moveDirection].Color != Color)
             {
                 moves.Add(Tuple.Create(X - 1, Y + moveDirection));
             }
-            if (X < (ChessTable.SIZE - 1) && Table[X + 1, Y + moveDirection] != null && Table[X + 1, Y + moveDirection].Color != Color)
+            if (X < (Board.SIZE - 1) && Board[X + 1, Y + moveDirection] != null && Board[X + 1, Y + moveDirection].Color != Color)
             {
                 moves.Add(Tuple.Create(X + 1, Y + moveDirection));
             }
 
-            if (Table?.LastMove?.MovedFigure is Pawn)
+            if (Board?.LastMove?.MovedFigure is Pawn)
             {
-                if (X > 0 && Table.LastMove.ToX == X - 1 
-                    && (Table.LastMove.FromY == Y + moveDirection || Table.LastMove.ToY == Y))
+                if (X > 0 && Board.LastMove.ToX == X - 1 
+                    && (Board.LastMove.FromY == Y + moveDirection || Board.LastMove.ToY == Y))
                 {
                     moves.Add(Tuple.Create(X - 1, Y + moveDirection));
                 }
-                if (X < (ChessTable.SIZE - 1) && Table.LastMove.ToX == X + 1
-                    && (Table.LastMove.FromY == Y + moveDirection || Table.LastMove.ToY == Y))
+                if (X < (Board.SIZE - 1) && Board.LastMove.ToX == X + 1
+                    && (Board.LastMove.FromY == Y + moveDirection || Board.LastMove.ToY == Y))
                 {
                     moves.Add(Tuple.Create(X + 1, Y + moveDirection));
                 }

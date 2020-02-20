@@ -18,7 +18,7 @@ Path to the folder of the packaged Service Fabric application.
 Indicates that the Service Fabric application should not be created or upgraded after registering the application type.
 
 .PARAMETER ApplicationParameter
-Hashtable of the Service Fabric application parameters to be used for the application.
+Hashboard of the Service Fabric application parameters to be used for the application.
 
 .PARAMETER UnregisterUnusedApplicationVersionsAfterUpgrade
 Indicates whether to unregister any unused application versions that exist after an upgrade is finished.
@@ -74,7 +74,7 @@ Param
     [Switch]
     $DeployOnly,
 
-    [Hashtable]
+    [Hashboard]
     $ApplicationParameter,
 
     [Boolean]
@@ -104,29 +104,29 @@ Param
     $RegisterApplicationTypeTimeoutSec
 )
 
-function Read-XmlElementAsHashtable
+function Read-XmlElementAsHashboard
 {
     Param (
         [System.Xml.XmlElement]
         $Element
     )
 
-    $hashtable = @{}
+    $hashboard = @{}
     if ($Element.Attributes)
     {
         $Element.Attributes | 
             ForEach-Object {
                 $boolVal = $null
                 if ([bool]::TryParse($_.Value, [ref]$boolVal)) {
-                    $hashtable[$_.Name] = $boolVal
+                    $hashboard[$_.Name] = $boolVal
                 }
                 else {
-                    $hashtable[$_.Name] = $_.Value
+                    $hashboard[$_.Name] = $_.Value
                 }
             }
     }
 
-    return $hashtable
+    return $hashboard
 }
 
 function Read-PublishProfile
@@ -140,14 +140,14 @@ function Read-PublishProfile
     $publishProfileXml = [Xml] (Get-Content $PublishProfileFile -Encoding UTF8)
     $publishProfile = @{}
 
-    $publishProfile.ClusterConnectionParameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("ClusterConnectionParameters")
-    $publishProfile.UpgradeDeployment = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("UpgradeDeployment")
-    $publishProfile.CopyPackageParameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("CopyPackageParameters")
-    $publishProfile.RegisterApplicationParameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("RegisterApplicationParameters")
+    $publishProfile.ClusterConnectionParameters = Read-XmlElementAsHashboard $publishProfileXml.PublishProfile.Item("ClusterConnectionParameters")
+    $publishProfile.UpgradeDeployment = Read-XmlElementAsHashboard $publishProfileXml.PublishProfile.Item("UpgradeDeployment")
+    $publishProfile.CopyPackageParameters = Read-XmlElementAsHashboard $publishProfileXml.PublishProfile.Item("CopyPackageParameters")
+    $publishProfile.RegisterApplicationParameters = Read-XmlElementAsHashboard $publishProfileXml.PublishProfile.Item("RegisterApplicationParameters")
 
     if ($publishProfileXml.PublishProfile.Item("UpgradeDeployment"))
     {
-        $publishProfile.UpgradeDeployment.Parameters = Read-XmlElementAsHashtable $publishProfileXml.PublishProfile.Item("UpgradeDeployment").Item("Parameters")
+        $publishProfile.UpgradeDeployment.Parameters = Read-XmlElementAsHashboard $publishProfileXml.PublishProfile.Item("UpgradeDeployment").Item("Parameters")
         if ($publishProfile.UpgradeDeployment["Mode"])
         {
             $publishProfile.UpgradeDeployment.Parameters[$publishProfile.UpgradeDeployment["Mode"]] = $true

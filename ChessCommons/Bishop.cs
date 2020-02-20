@@ -6,7 +6,7 @@ namespace ChessCommons
 {
     public class Bishop : Figure
     {
-        public Bishop(FigureColor color, Board table, int x, int y) : base(color, table, x, y) { }
+        public Bishop(FigureColor color, Board board, int x, int y) : base(color, board, x, y) { }
 
         internal static void CalculatePossibleMoves(Figure bishop, List<Tuple<int, int>> moves)
         {
@@ -16,11 +16,11 @@ namespace ChessCommons
             {
                 int x = bishop.X + i;
                 int y = bishop.Y + i;
-                if (!bishop.Table.FieldExists(x, y))
+                if (!bishop.Board.FieldExists(x, y))
                 {
                     break;
                 }
-                var figure = bishop.Table[x, y];
+                var figure = bishop.Board[x, y];
                 if (figure == null)
                 {
                     moves.Add(Tuple.Create(x, y));
@@ -39,11 +39,11 @@ namespace ChessCommons
             {
                 int x = bishop.X + i;
                 int y = bishop.Y - i;
-                if (!bishop.Table.FieldExists(x, y))
+                if (!bishop.Board.FieldExists(x, y))
                 {
                     break;
                 }
-                var figure = bishop.Table[x, y];
+                var figure = bishop.Board[x, y];
                 if (figure == null)
                 {
                     moves.Add(Tuple.Create(x, y));
@@ -62,11 +62,11 @@ namespace ChessCommons
             {
                 int x = bishop.X - i;
                 int y = bishop.Y + i;
-                if (!bishop.Table.FieldExists(x, y))
+                if (!bishop.Board.FieldExists(x, y))
                 {
                     break;
                 }
-                var figure = bishop.Table[x, y];
+                var figure = bishop.Board[x, y];
                 if (figure == null)
                 {
                     moves.Add(Tuple.Create(x, y));
@@ -85,11 +85,11 @@ namespace ChessCommons
             {
                 int x = bishop.X - i;
                 int y = bishop.Y - i;
-                if (!bishop.Table.FieldExists(x, y))
+                if (!bishop.Board.FieldExists(x, y))
                 {
                     break;
                 }
-                var figure = bishop.Table[x, y];
+                var figure = bishop.Board[x, y];
                 if (figure == null)
                 {
                     moves.Add(Tuple.Create(x, y));
