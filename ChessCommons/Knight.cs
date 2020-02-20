@@ -6,7 +6,7 @@ namespace ChessCommons
 {
     public class Knight : Figure
     {
-        public Knight(FigureColor color, ChessTable table, int x, int y) : base(color, table, x, y) { }
+        public Knight(FigureColor color, Board table, int x, int y) : base(color, table, x, y) { }
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {

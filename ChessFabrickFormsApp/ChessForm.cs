@@ -50,6 +50,10 @@ namespace ChessFabrickFormsApp
             if (selectedFigure == null)
             {
                 selectedFigure = table[field.Item1, field.Item2];
+                if (selectedFigure?.Color != table.TurnColor)
+                {
+                    selectedFigure = null;
+                }
                 possibleMoves = selectedFigure?.GetPossibleMoves();
             }
             else
@@ -72,6 +76,22 @@ namespace ChessFabrickFormsApp
 
         private void RefreshViews()
         {
+            labTurn.Text = table.TurnColor.ToString();
+
+            var sb = new StringBuilder();
+            foreach (var killed in table.GetKilled(FigureColor.White))
+            {
+                sb.Append(killed.GetType().Name).Append(", ");
+            }
+            labKilledWhite.Text = sb.ToString();
+
+            sb.Clear();
+            foreach (var killed in table.GetKilled(FigureColor.Black))
+            {
+                sb.Append(killed.GetType().Name).Append(", ");
+            }
+            labKilledBlack.Text = sb.ToString();
+
             for (int i = 0; i < 8; ++i)
             {
                 for (int j = 0; j < 8; ++j)
@@ -82,6 +102,7 @@ namespace ChessFabrickFormsApp
                     fieldBox.Image = table[i, j]?.Image();
                 }
             }
+
             if (selectedFigure != null)
             {
                 fieldBoxes[selectedFigure.X, selectedFigure.Y].BorderColor = Color.Blue;
@@ -90,12 +111,33 @@ namespace ChessFabrickFormsApp
                     fieldBoxes[field.Item1, field.Item2].BorderColor = 
                         table[field.Item1, field.Item2] != null ? Color.Red : Color.Green;
                 }
+                var checkFigures = table.CheckCheck(table.TurnColor);
+                if (checkFigures.Count > 0)
+                {
+                    
+                }
+                foreach (var figure in checkFigures)
+                {
+                    fieldBoxes[figure.X, figure.Y].BorderColor = Color.Black;
+                }
             }
+
             foreach (var fieldBox in fieldBoxes)
             {
                 fieldBox.ResumeLayout(false);
                 fieldBox.Invalidate();
             }
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            table.UndoMove();
+            RefreshViews();
+        }
+
+        private void btnCheckCheckmate_Click(object sender, EventArgs e)
+        {
+            labCheckmate.Text = table.CheckCheckmate(table.TurnColor).ToString();
         }
     }
 }

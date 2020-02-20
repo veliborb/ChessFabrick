@@ -11,6 +11,7 @@ namespace ChessCommons
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
             var moveDirection = (Color == FigureColor.White) ? 1 : -1;
+
             if (Table[X, Y + moveDirection] == null)
             {
                 moves.Add(Tuple.Create(X, Y + moveDirection));
@@ -19,6 +20,7 @@ namespace ChessCommons
                     moves.Add(Tuple.Create(X, Y + 2 * moveDirection));
                 }
             }
+
             if (X > 0 && Table[X - 1, Y + moveDirection] != null && Table[X - 1, Y + moveDirection].Color != Color)
             {
                 moves.Add(Tuple.Create(X - 1, Y + moveDirection));
@@ -26,6 +28,20 @@ namespace ChessCommons
             if (X < (ChessTable.SIZE - 1) && Table[X + 1, Y + moveDirection] != null && Table[X + 1, Y + moveDirection].Color != Color)
             {
                 moves.Add(Tuple.Create(X + 1, Y + moveDirection));
+            }
+
+            if (Table?.LastMove?.MovedFigure is Pawn)
+            {
+                if (X > 0 && Table.LastMove.ToX == X - 1 
+                    && (Table.LastMove.FromY == Y + moveDirection || Table.LastMove.ToY == Y))
+                {
+                    moves.Add(Tuple.Create(X - 1, Y + moveDirection));
+                }
+                if (X < (ChessTable.SIZE - 1) && Table.LastMove.ToX == X + 1
+                    && (Table.LastMove.FromY == Y + moveDirection || Table.LastMove.ToY == Y))
+                {
+                    moves.Add(Tuple.Create(X + 1, Y + moveDirection));
+                }
             }
         }
     }

@@ -10,15 +10,35 @@ namespace ChessCommons
         public int X { get; internal set; }
         public int Y { get; internal set; }
         public FigureColor Color { get; private set; }
-        public ChessTable Table { get; private set; }
-        public bool HasMoved { get; private set; }
+        public Board Table { get; private set; }
+        public bool HasMoved { get; internal set; }
 
-        public Figure(FigureColor color, ChessTable table, int x, int y)
+        public Figure(FigureColor color, Board table, int x, int y, bool hasMoved = false)
         {
             this.Color = color;
             this.Table = table;
             this.X = x;
             this.Y = y;
+            this.HasMoved = hasMoved;
+        }
+
+        public Figure(Figure figure)
+        {
+            CopyFrom(figure);
+        }
+
+        public void CopyFrom(Figure figure)
+        {
+            X = figure.X;
+            Y = figure.Y;
+            Color = figure.Color;
+            Table = figure.Table;
+            HasMoved = figure.HasMoved;
+        }
+
+        public Figure Clone()
+        {
+            return MemberwiseClone() as Figure;
         }
 
         public List<Tuple<int, int>> GetPossibleMoves()
@@ -32,12 +52,11 @@ namespace ChessCommons
 
         public bool MoveTo(int x, int y)
         {
-            if (Table.MoveFigure(this, x, y))
+            if (!GetPossibleMoves().Contains(Tuple.Create(x, y)))
             {
-                HasMoved = true;
-                return true;
+                return false;
             }
-            return false;
+            return Table.MoveFigure(this, x, y);
         }
     }
 }

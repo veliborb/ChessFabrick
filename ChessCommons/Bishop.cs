@@ -6,11 +6,12 @@ namespace ChessCommons
 {
     public class Bishop : Figure
     {
-        public Bishop(FigureColor color, ChessTable table, int x, int y) : base(color, table, x, y) { }
+        public Bishop(FigureColor color, Board table, int x, int y) : base(color, table, x, y) { }
 
         internal static void CalculatePossibleMoves(Figure bishop, List<Tuple<int, int>> moves)
         {
-            var size = Math.Min(ChessTable.SIZE, ChessTable.SIZE);
+            var size = Math.Min(Board.SIZE, Board.SIZE);
+
             for (int i = 1; i < size; ++i)
             {
                 int x = bishop.X + i;
@@ -33,6 +34,7 @@ namespace ChessCommons
                     break;
                 }
             }
+
             for (int i = 1; i < size; ++i)
             {
                 int x = bishop.X + i;
@@ -55,6 +57,7 @@ namespace ChessCommons
                     break;
                 }
             }
+
             for (int i = 1; i < size; ++i)
             {
                 int x = bishop.X - i;
@@ -77,6 +80,7 @@ namespace ChessCommons
                     break;
                 }
             }
+
             for (int i = 1; i < size; ++i)
             {
                 int x = bishop.X - i;
