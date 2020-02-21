@@ -77,6 +77,8 @@ namespace ChessFabrickFormsApp
         private void RefreshViews()
         {
             labTurn.Text = board.TurnColor.ToString();
+            btnCheckCheckmate.Text = board.IsCheck.ToString();
+            labCheckmate.Text = board.IsCheckmate.ToString();
 
             var sb = new StringBuilder();
             foreach (var killed in board.GetKilled(PieceColor.White))
@@ -111,7 +113,7 @@ namespace ChessFabrickFormsApp
                     fieldBoxes[field.Item1, field.Item2].BorderColor = 
                         board[field.Item1, field.Item2] != null ? Color.Red : Color.Green;
                 }
-                var checkFigures = board.CheckCheck(board.TurnColor);
+                var checkFigures = board.CheckPieces;
                 if (checkFigures.Count > 0)
                 {
                     
@@ -131,13 +133,12 @@ namespace ChessFabrickFormsApp
 
         private void btnUndo_Click(object sender, EventArgs e)
         {
-            board.UndoMove();
+            board.UndoMovePiece();
             RefreshViews();
         }
 
         private void btnCheckCheckmate_Click(object sender, EventArgs e)
         {
-            labCheckmate.Text = board.CheckCheckmate(board.TurnColor).ToString();
         }
     }
 }

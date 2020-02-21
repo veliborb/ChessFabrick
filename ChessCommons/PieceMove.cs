@@ -15,7 +15,7 @@ namespace ChessCommons
         public int ToY { get; private set; }
         public Piece KilledPiece { get; private set; }
         public PieceMove LastMove { get; private set; }
-        public bool ConnectedMove { get; private set; }
+        public bool ConnectedMove { get; internal set; }
 
         public PieceMove(Piece movedPiece, int toX, int toY, Piece killedPiece = null, PieceMove lastMove = null, bool connectedMove = false)
         {

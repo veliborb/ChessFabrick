@@ -12,14 +12,16 @@ namespace ChessCommons
         public PieceColor Color { get; private set; }
         public Board Board { get; private set; }
         public bool HasMoved { get; internal set; }
+        public bool IsAlive { get; internal set; }
 
-        public Piece(PieceColor color, Board board, int x, int y, bool hasMoved = false)
+        public Piece(PieceColor color, Board board, int x, int y, bool hasMoved = false, bool isAlive = true)
         {
             this.Color = color;
             this.Board = board;
             this.X = x;
             this.Y = y;
             this.HasMoved = hasMoved;
+            this.IsAlive = isAlive;
         }
 
         public Piece(Piece piece)
@@ -34,6 +36,7 @@ namespace ChessCommons
             Color = piece.Color;
             Board = piece.Board;
             HasMoved = piece.HasMoved;
+            IsAlive = piece.IsAlive;
         }
 
         public Piece Clone()
@@ -52,10 +55,6 @@ namespace ChessCommons
 
         public bool MoveTo(int x, int y)
         {
-            if (!GetPossibleMoves().Contains(Tuple.Create(x, y)))
-            {
-                return false;
-            }
             return Board.MovePiece(this, x, y);
         }
     }

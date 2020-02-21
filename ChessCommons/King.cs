@@ -10,7 +10,7 @@ namespace ChessCommons
 
         protected override void CalculatePossibleMoves(List<Tuple<int, int>> moves)
         {
-            if (!HasMoved)
+            if (!HasMoved && !Board.IsCheck)
             {
                 var rook1 = Board[0, Y];
                 if (rook1 != null && !rook1.HasMoved && Board[1, Y] == null && Board[2, Y] == null)
