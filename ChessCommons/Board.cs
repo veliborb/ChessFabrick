@@ -16,6 +16,7 @@ namespace ChessCommons
         public List<Piece> CheckPieces { get; private set; }
         public bool IsCheck => CheckPieces.Count > 0;
         public bool IsCheckmate { get; private set; }
+        public bool IsDraw => GetAlive().Count == 2;
 
         public Board()
         {

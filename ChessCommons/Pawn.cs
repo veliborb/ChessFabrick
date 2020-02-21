@@ -33,12 +33,12 @@ namespace ChessCommons
             if (Board?.LastMove?.MovedPiece is Pawn)
             {
                 if (X > 0 && Board.LastMove.ToX == X - 1 
-                    && (Board.LastMove.FromY == Y + moveDirection || Board.LastMove.ToY == Y))
+                    && (Board.LastMove.FromY == Y + moveDirection * 2 && Board.LastMove.ToY == Y))
                 {
                     moves.Add(Tuple.Create(X - 1, Y + moveDirection));
                 }
                 if (X < (Board.SIZE - 1) && Board.LastMove.ToX == X + 1
-                    && (Board.LastMove.FromY == Y + moveDirection || Board.LastMove.ToY == Y))
+                    && (Board.LastMove.FromY == Y + moveDirection * 2 && Board.LastMove.ToY == Y))
                 {
                     moves.Add(Tuple.Create(X + 1, Y + moveDirection));
                 }

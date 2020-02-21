@@ -11,6 +11,7 @@ namespace ChessFabrickFormsApp
     class ChessFieldBox : PictureBox
     {
         public Color? BorderColor { get; set; }
+        public ButtonBorderStyle FieldBorderStyle { get; set; }
 
         public ChessFieldBox() : base()
         {
@@ -36,7 +37,11 @@ namespace ChessFabrickFormsApp
             base.OnPaint(e);
             if (BorderColor.HasValue)
             {
-                ControlPaint.DrawBorder(e.Graphics, e.ClipRectangle, BorderColor.Value, ButtonBorderStyle.Solid);
+                ControlPaint.DrawBorder(e.Graphics, e.ClipRectangle,
+                    BorderColor.Value, 4, FieldBorderStyle,
+                    BorderColor.Value, 4, FieldBorderStyle,
+                    BorderColor.Value, 4, FieldBorderStyle,
+                    BorderColor.Value, 4, FieldBorderStyle);
             }
         }
     }

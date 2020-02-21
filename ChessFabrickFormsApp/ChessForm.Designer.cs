@@ -30,17 +30,16 @@
         {
             this.panTable = new System.Windows.Forms.Panel();
             this.panKilledWhite = new System.Windows.Forms.Panel();
+            this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
             this.panKilledBlack = new System.Windows.Forms.Panel();
             this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
-            this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
             this.btnUndo = new System.Windows.Forms.Button();
-            this.btnCheckCheckmate = new System.Windows.Forms.Button();
-            this.labCheckmate = new System.Windows.Forms.Label();
-            this.labKilledWhite = new System.Windows.Forms.Label();
-            this.labKilledBlack = new System.Windows.Forms.Label();
-            this.labTurn = new System.Windows.Forms.Label();
+            this.labPlaying = new System.Windows.Forms.Label();
+            this.btnNewGame = new System.Windows.Forms.Button();
+            this.cfbPlaying = new ChessFabrickFormsApp.ChessFieldBox();
             this.panKilledWhite.SuspendLayout();
             this.panKilledBlack.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).BeginInit();
             this.SuspendLayout();
             // 
             // panTable
@@ -53,6 +52,7 @@
             // 
             // panKilledWhite
             // 
+            this.panKilledWhite.AutoScroll = true;
             this.panKilledWhite.BackColor = System.Drawing.Color.Peru;
             this.panKilledWhite.Controls.Add(this.hScrollBar2);
             this.panKilledWhite.Location = new System.Drawing.Point(12, 529);
@@ -60,8 +60,17 @@
             this.panKilledWhite.Size = new System.Drawing.Size(435, 70);
             this.panKilledWhite.TabIndex = 1;
             // 
+            // hScrollBar2
+            // 
+            this.hScrollBar2.Enabled = false;
+            this.hScrollBar2.Location = new System.Drawing.Point(0, 53);
+            this.hScrollBar2.Name = "hScrollBar2";
+            this.hScrollBar2.Size = new System.Drawing.Size(435, 17);
+            this.hScrollBar2.TabIndex = 0;
+            // 
             // panKilledBlack
             // 
+            this.panKilledBlack.AutoScroll = true;
             this.panKilledBlack.BackColor = System.Drawing.Color.Cornsilk;
             this.panKilledBlack.Controls.Add(this.hScrollBar1);
             this.panKilledBlack.Location = new System.Drawing.Point(12, 12);
@@ -71,21 +80,15 @@
             // 
             // hScrollBar1
             // 
+            this.hScrollBar1.Enabled = false;
             this.hScrollBar1.Location = new System.Drawing.Point(0, 0);
             this.hScrollBar1.Name = "hScrollBar1";
             this.hScrollBar1.Size = new System.Drawing.Size(435, 17);
             this.hScrollBar1.TabIndex = 0;
             // 
-            // hScrollBar2
-            // 
-            this.hScrollBar2.Location = new System.Drawing.Point(0, 53);
-            this.hScrollBar2.Name = "hScrollBar2";
-            this.hScrollBar2.Size = new System.Drawing.Size(435, 17);
-            this.hScrollBar2.TabIndex = 0;
-            // 
             // btnUndo
             // 
-            this.btnUndo.Location = new System.Drawing.Point(453, 12);
+            this.btnUndo.Location = new System.Drawing.Point(453, 88);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(75, 23);
             this.btnUndo.TabIndex = 3;
@@ -93,73 +96,56 @@
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
-            // btnCheckCheckmate
+            // labPlaying
             // 
-            this.btnCheckCheckmate.Location = new System.Drawing.Point(453, 41);
-            this.btnCheckCheckmate.Name = "btnCheckCheckmate";
-            this.btnCheckCheckmate.Size = new System.Drawing.Size(75, 23);
-            this.btnCheckCheckmate.TabIndex = 4;
-            this.btnCheckCheckmate.Text = "Checkmate?";
-            this.btnCheckCheckmate.UseVisualStyleBackColor = true;
-            this.btnCheckCheckmate.Click += new System.EventHandler(this.btnCheckCheckmate_Click);
+            this.labPlaying.Location = new System.Drawing.Point(453, 9);
+            this.labPlaying.Name = "labPlaying";
+            this.labPlaying.Size = new System.Drawing.Size(75, 20);
+            this.labPlaying.TabIndex = 5;
+            this.labPlaying.Text = "Now playing";
+            this.labPlaying.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // labCheckmate
+            // btnNewGame
             // 
-            this.labCheckmate.AutoSize = true;
-            this.labCheckmate.Location = new System.Drawing.Point(534, 46);
-            this.labCheckmate.Name = "labCheckmate";
-            this.labCheckmate.Size = new System.Drawing.Size(29, 13);
-            this.labCheckmate.TabIndex = 5;
-            this.labCheckmate.Text = "false";
+            this.btnNewGame.Location = new System.Drawing.Point(453, 576);
+            this.btnNewGame.Name = "btnNewGame";
+            this.btnNewGame.Size = new System.Drawing.Size(75, 23);
+            this.btnNewGame.TabIndex = 6;
+            this.btnNewGame.Text = "New Game";
+            this.btnNewGame.UseVisualStyleBackColor = true;
+            this.btnNewGame.Click += new System.EventHandler(this.btnNewGame_Click);
             // 
-            // labKilledWhite
+            // cfbPlaying
             // 
-            this.labKilledWhite.AutoSize = true;
-            this.labKilledWhite.Location = new System.Drawing.Point(453, 88);
-            this.labKilledWhite.Name = "labKilledWhite";
-            this.labKilledWhite.Size = new System.Drawing.Size(60, 13);
-            this.labKilledWhite.TabIndex = 6;
-            this.labKilledWhite.Text = "Killed white";
-            // 
-            // labKilledBlack
-            // 
-            this.labKilledBlack.AutoSize = true;
-            this.labKilledBlack.Location = new System.Drawing.Point(453, 119);
-            this.labKilledBlack.Name = "labKilledBlack";
-            this.labKilledBlack.Size = new System.Drawing.Size(61, 13);
-            this.labKilledBlack.TabIndex = 7;
-            this.labKilledBlack.Text = "Killed black";
-            // 
-            // labTurn
-            // 
-            this.labTurn.AutoSize = true;
-            this.labTurn.Location = new System.Drawing.Point(534, 17);
-            this.labTurn.Name = "labTurn";
-            this.labTurn.Size = new System.Drawing.Size(32, 13);
-            this.labTurn.TabIndex = 8;
-            this.labTurn.Text = "Turn:";
+            this.cfbPlaying.BorderColor = null;
+            this.cfbPlaying.Location = new System.Drawing.Point(464, 32);
+            this.cfbPlaying.Name = "cfbPlaying";
+            this.cfbPlaying.Size = new System.Drawing.Size(50, 50);
+            this.cfbPlaying.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.cfbPlaying.TabIndex = 4;
+            this.cfbPlaying.TabStop = false;
             // 
             // ChessForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(824, 620);
-            this.Controls.Add(this.labTurn);
-            this.Controls.Add(this.labKilledBlack);
-            this.Controls.Add(this.labKilledWhite);
-            this.Controls.Add(this.labCheckmate);
-            this.Controls.Add(this.btnCheckCheckmate);
+            this.ClientSize = new System.Drawing.Size(538, 614);
+            this.Controls.Add(this.btnNewGame);
+            this.Controls.Add(this.labPlaying);
+            this.Controls.Add(this.cfbPlaying);
             this.Controls.Add(this.btnUndo);
             this.Controls.Add(this.panKilledBlack);
             this.Controls.Add(this.panKilledWhite);
             this.Controls.Add(this.panTable);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "ChessForm";
-            this.Text = "Form1";
+            this.Text = "ChessFabrick";
             this.Load += new System.EventHandler(this.ChessForm_Load);
             this.panKilledWhite.ResumeLayout(false);
             this.panKilledBlack.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -171,11 +157,9 @@
         private System.Windows.Forms.Panel panKilledBlack;
         private System.Windows.Forms.HScrollBar hScrollBar1;
         private System.Windows.Forms.Button btnUndo;
-        private System.Windows.Forms.Button btnCheckCheckmate;
-        private System.Windows.Forms.Label labCheckmate;
-        private System.Windows.Forms.Label labKilledWhite;
-        private System.Windows.Forms.Label labKilledBlack;
-        private System.Windows.Forms.Label labTurn;
+        private ChessFieldBox cfbPlaying;
+        private System.Windows.Forms.Label labPlaying;
+        private System.Windows.Forms.Button btnNewGame;
     }
 }
 

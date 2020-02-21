@@ -14,13 +14,14 @@ namespace ChessFabrickFormsApp
     public partial class ChessForm : Form
     {
         private Board board;
-        private Piece selectedFigure;
+        private Piece selectedPiece;
         private List<Tuple<int, int>> possibleMoves;
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
 
         public ChessForm()
         {
+            Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             InitializeComponent();
             InitializeBoard();
         }
@@ -47,22 +48,22 @@ namespace ChessFabrickFormsApp
         private void FieldBox_Click(object sender, EventArgs e)
         {
             var field = (sender as ChessFieldBox).Tag as Tuple<int, int>;
-            if (selectedFigure == null)
+            if (selectedPiece == null)
             {
-                selectedFigure = board[field.Item1, field.Item2];
-                if (selectedFigure?.Color != board.TurnColor)
+                selectedPiece = board[field.Item1, field.Item2];
+                if (selectedPiece?.Color != board.TurnColor)
                 {
-                    selectedFigure = null;
+                    selectedPiece = null;
                 }
-                possibleMoves = selectedFigure?.GetPossibleMoves();
+                possibleMoves = selectedPiece?.GetPossibleMoves();
             }
             else
             {
                 if (possibleMoves.Contains(field))
                 {
-                    selectedFigure.MoveTo(field.Item1, field.Item2);
+                    selectedPiece.MoveTo(field.Item1, field.Item2);
                 }
-                selectedFigure = null;
+                selectedPiece = null;
                 possibleMoves = null;
             }
             RefreshViews();
@@ -70,29 +71,56 @@ namespace ChessFabrickFormsApp
 
         private void ChessForm_Load(object sender, EventArgs e)
         {
+            NewGame();
+        }
+
+        private void NewGame()
+        {
             board = new Board();
             RefreshViews();
         }
 
         private void RefreshViews()
         {
-            labTurn.Text = board.TurnColor.ToString();
-            btnCheckCheckmate.Text = board.IsCheck.ToString();
-            labCheckmate.Text = board.IsCheckmate.ToString();
+            if (board.IsCheckmate)
+            {
+                labPlaying.Text = "Victory";
+                cfbPlaying.Image = PieceImageUtils.King(board.TurnColor);
+            }
+            else if (board.IsDraw)
+            {
+                labPlaying.Text = "Draw";
+                cfbPlaying.Image = null;
+            }
+            else
+            {
+                labPlaying.Text = "Now playing";
+                cfbPlaying.Image = PieceImageUtils.Pawn(board.TurnColor);
+            }
 
-            var sb = new StringBuilder();
+            panKilledWhite.SuspendLayout();
+            panKilledWhite.Controls.Clear();
+            var k = 0;
             foreach (var killed in board.GetKilled(PieceColor.White))
             {
-                sb.Append(killed.GetType().Name).Append(", ");
+                var fieldBox = new ChessFieldBox();
+                fieldBox.Location = new Point(3 + 53 * k++, 20);
+                fieldBox.Image = killed.Image();
+                panKilledWhite.Controls.Add(fieldBox);
             }
-            labKilledWhite.Text = sb.ToString();
+            panKilledWhite.ResumeLayout(false);
 
-            sb.Clear();
+            panKilledBlack.SuspendLayout();
+            panKilledBlack.Controls.Clear();
+            k = 0;
             foreach (var killed in board.GetKilled(PieceColor.Black))
             {
-                sb.Append(killed.GetType().Name).Append(", ");
+                var fieldBox = new ChessFieldBox();
+                fieldBox.Location = new Point(3 + 53 * k++, 3);
+                fieldBox.Image = killed.Image();
+                panKilledBlack.Controls.Add(fieldBox);
             }
-            labKilledBlack.Text = sb.ToString();
+            panKilledBlack.ResumeLayout(false);
 
             for (int i = 0; i < 8; ++i)
             {
@@ -105,22 +133,29 @@ namespace ChessFabrickFormsApp
                 }
             }
 
-            if (selectedFigure != null)
+            if (board.IsCheck)
             {
-                fieldBoxes[selectedFigure.X, selectedFigure.Y].BorderColor = Color.Blue;
+                var king = board.King(board.TurnColor);
+                fieldBoxes[king.X, king.Y].BorderColor = Color.Red;
+                fieldBoxes[king.X, king.Y].FieldBorderStyle = ButtonBorderStyle.Solid;
+                foreach (var piece in board.CheckPieces)
+                {
+                    fieldBoxes[piece.X, piece.Y].BorderColor = Color.Red;
+                    fieldBoxes[piece.X, piece.Y].FieldBorderStyle = ButtonBorderStyle.Dashed;
+                }
+            }
+
+            if (selectedPiece != null)
+            {
+                fieldBoxes[selectedPiece.X, selectedPiece.Y].BorderColor = Color.Blue;
+                fieldBoxes[selectedPiece.X, selectedPiece.Y].FieldBorderStyle = ButtonBorderStyle.Inset;
                 foreach (var field in possibleMoves)
                 {
                     fieldBoxes[field.Item1, field.Item2].BorderColor = 
-                        board[field.Item1, field.Item2] != null ? Color.Red : Color.Green;
-                }
-                var checkFigures = board.CheckPieces;
-                if (checkFigures.Count > 0)
-                {
-                    
-                }
-                foreach (var figure in checkFigures)
-                {
-                    fieldBoxes[figure.X, figure.Y].BorderColor = Color.Black;
+                        board[field.Item1, field.Item2] != null || 
+                        (selectedPiece is Pawn && selectedPiece.X != field.Item1) ? Color.Red : Color.Green;
+                    fieldBoxes[field.Item1, field.Item2].FieldBorderStyle =
+                        ButtonBorderStyle.Outset;
                 }
             }
 
@@ -137,8 +172,9 @@ namespace ChessFabrickFormsApp
             RefreshViews();
         }
 
-        private void btnCheckCheckmate_Click(object sender, EventArgs e)
+        private void btnNewGame_Click(object sender, EventArgs e)
         {
+            NewGame();
         }
     }
 }
