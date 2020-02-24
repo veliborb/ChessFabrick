@@ -35,16 +35,16 @@ namespace ChessCommons
             pieces.Add(new Knight(PieceColor.White, this, 6, 0));
             pieces.Add(new Bishop(PieceColor.White, this, 2, 0));
             pieces.Add(new Bishop(PieceColor.White, this, 5, 0));
-            pieces.Add(new Queen(PieceColor.White, this, 4, 0));
-            pieces.Add(new King(PieceColor.White, this, 3, 0));
+            pieces.Add(new Queen(PieceColor.White, this, 3, 0));
+            pieces.Add(new King(PieceColor.White, this, 4, 0));
             pieces.Add(new Rook(PieceColor.Black, this, 0, 7));
             pieces.Add(new Rook(PieceColor.Black, this, 7, 7));
             pieces.Add(new Knight(PieceColor.Black, this, 1, 7));
             pieces.Add(new Knight(PieceColor.Black, this, 6, 7));
             pieces.Add(new Bishop(PieceColor.Black, this, 2, 7));
             pieces.Add(new Bishop(PieceColor.Black, this, 5, 7));
-            pieces.Add(new Queen(PieceColor.Black, this, 4, 7));
-            pieces.Add(new King(PieceColor.Black, this, 3, 7));
+            pieces.Add(new Queen(PieceColor.Black, this, 3, 7));
+            pieces.Add(new King(PieceColor.Black, this, 4, 7));
             foreach (var piece in pieces)
             {
                 fields[piece.X, piece.Y] = piece;
@@ -62,7 +62,8 @@ namespace ChessCommons
 
         public bool MovePiece(Piece piece, int x, int y)
         {
-            if (fields[piece.X, piece.Y] != piece 
+            if (IsCheckmate || IsDraw
+                || fields[piece.X, piece.Y] != piece 
                 || piece.Color != TurnColor 
                 || !piece.GetPossibleMoves().Contains(Tuple.Create(x, y)))
             {

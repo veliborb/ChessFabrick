@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessCommons;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,8 +11,64 @@ namespace ChessFabrickFormsApp
 {
     class ChessFieldBox : PictureBox
     {
-        public Color? BorderColor { get; set; }
-        public ButtonBorderStyle FieldBorderStyle { get; set; }
+        public enum BoxStyle
+        {
+            None = 0,
+            Selected,
+            Move,
+            Attack,
+            Checked,
+            Checking,
+            MouseoverPossible,
+            MouseoverImpossible
+        }
+
+        private Color? borderColor;
+        private ButtonBorderStyle borderStyle;
+
+        private BoxStyle _boxStyle;
+        public BoxStyle Style {
+            get => _boxStyle;
+            set
+            {
+                _boxStyle = value;
+                switch (_boxStyle)
+                {
+                    case BoxStyle.None:
+                        borderColor = null;
+                        borderStyle = ButtonBorderStyle.None;
+                        break;
+                    case BoxStyle.Selected:
+                        borderColor = Color.Blue;
+                        borderStyle = ButtonBorderStyle.Inset;
+                        break;
+                    case BoxStyle.Move:
+                        borderColor = Color.Green;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                    case BoxStyle.Attack:
+                        borderColor = Color.Red;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                    case BoxStyle.Checked:
+                        borderColor = Color.Red;
+                        borderStyle = ButtonBorderStyle.Solid;
+                        break;
+                    case BoxStyle.Checking:
+                        borderColor = Color.Red;
+                        borderStyle = ButtonBorderStyle.Dashed;
+                        break;
+                    case BoxStyle.MouseoverPossible:
+                        borderColor = Color.Blue;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                    case BoxStyle.MouseoverImpossible:
+                        borderColor = Color.Blue;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                }
+            }
+        }
 
         public ChessFieldBox() : base()
         {
@@ -35,13 +92,13 @@ namespace ChessFabrickFormsApp
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (BorderColor.HasValue)
+            if (borderColor.HasValue || borderStyle != ButtonBorderStyle.None)
             {
                 ControlPaint.DrawBorder(e.Graphics, e.ClipRectangle,
-                    BorderColor.Value, 4, FieldBorderStyle,
-                    BorderColor.Value, 4, FieldBorderStyle,
-                    BorderColor.Value, 4, FieldBorderStyle,
-                    BorderColor.Value, 4, FieldBorderStyle);
+                    borderColor.Value, 4, borderStyle,
+                    borderColor.Value, 4, borderStyle,
+                    borderColor.Value, 4, borderStyle,
+                    borderColor.Value, 4, borderStyle);
             }
         }
     }

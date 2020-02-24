@@ -13,14 +13,14 @@ namespace ChessCommons
             if (!HasMoved && !Board.IsCheck)
             {
                 var rook1 = Board[0, Y];
-                if (rook1 != null && !rook1.HasMoved && Board[1, Y] == null && Board[2, Y] == null)
+                if (rook1 != null && !rook1.HasMoved && Board[1, Y] == null && Board[2, Y] == null && Board[3, Y] == null)
                 {
-                    moves.Add(Tuple.Create(1, Y));
+                    moves.Add(Tuple.Create(2, Y));
                 }
                 var rook2 = Board[7, Y];
-                if (rook2 != null && !rook2.HasMoved && Board[6, Y] == null && Board[5, Y] == null && Board[4, Y] == null)
+                if (rook2 != null && !rook2.HasMoved && Board[6, Y] == null && Board[5, Y] == null)
                 {
-                    moves.Add(Tuple.Create(5, Y));
+                    moves.Add(Tuple.Create(6, Y));
                 }
             }
 
@@ -46,13 +46,13 @@ namespace ChessCommons
 
         internal Tuple<Piece, int, int> Rokada(int x, int y)
         {
-            if (X == 3 && x == 1)
+            if (X == 4 && x == 2)
             {
-                return Tuple.Create(Board[0, Y], 2, Y);
+                return Tuple.Create(Board[0, Y], 3, Y);
             }
-            if (X == 3 && x == 5)
+            if (X == 4 && x == 6)
             {
-                return Tuple.Create(Board[7, Y], 4, Y);
+                return Tuple.Create(Board[7, Y], 5, Y);
             }
             return null;
         }

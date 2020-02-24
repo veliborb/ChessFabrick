@@ -56,6 +56,9 @@
       <DependentUpon>ChessForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PieceImageUtils.cs" />
+    <Compile Include="PieceListPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ChessFieldBox.resx">
@@ -63,6 +66,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ChessForm.resx">
       <DependentUpon>ChessForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PieceListPanel.resx">
+      <DependentUpon>PieceListPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

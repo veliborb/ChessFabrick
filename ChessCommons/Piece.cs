@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ChessCommons
@@ -56,6 +57,11 @@ namespace ChessCommons
         public bool MoveTo(int x, int y)
         {
             return Board.MovePiece(this, x, y);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }
