@@ -114,15 +114,15 @@ namespace ChessCommons
 
             if (rokada != null)
             {
-                LastMove.ConnectedMove = true;
                 PerformMove(rokada.Item1, rokada.Item2, rokada.Item3);
+                LastMove.ConnectedMove = true;
             }
             else if (piece is Pawn && (piece.Y == 0 || piece.Y == SIZE - 1))
             {
                 var queen = new Queen(piece.Color, this, -1, -1);
 
-                LastMove.ConnectedMove = true;
                 LastMove = new PieceMove(queen, piece.X, piece.Y, piece, LastMove);
+                LastMove.ConnectedMove = true;
 
                 fields[x, y] = queen;
                 queen.X = x;
@@ -161,8 +161,9 @@ namespace ChessCommons
                 LastMove.KilledPiece.IsAlive = true;
             }
 
+            var connected = LastMove.ConnectedMove;
             LastMove = LastMove.LastMove;
-            if (LastMove?.ConnectedMove ?? false)
+            if (connected)
             {
                 PerformUndoMove();
             }

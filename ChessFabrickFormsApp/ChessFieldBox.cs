@@ -39,15 +39,15 @@ namespace ChessFabrickFormsApp
                         borderStyle = ButtonBorderStyle.None;
                         break;
                     case BoxStyle.Selected:
-                        borderColor = Color.Blue;
+                        borderColor = Color.DarkBlue;
                         borderStyle = ButtonBorderStyle.Inset;
                         break;
                     case BoxStyle.Move:
-                        borderColor = Color.Green;
+                        borderColor = Color.GreenYellow;
                         borderStyle = ButtonBorderStyle.Outset;
                         break;
                     case BoxStyle.Attack:
-                        borderColor = Color.Red;
+                        borderColor = Color.OrangeRed;
                         borderStyle = ButtonBorderStyle.Outset;
                         break;
                     case BoxStyle.Checked:
@@ -59,11 +59,11 @@ namespace ChessFabrickFormsApp
                         borderStyle = ButtonBorderStyle.Dashed;
                         break;
                     case BoxStyle.MouseoverPossible:
-                        borderColor = Color.Blue;
+                        borderColor = Color.DarkBlue;
                         borderStyle = ButtonBorderStyle.Outset;
                         break;
                     case BoxStyle.MouseoverImpossible:
-                        borderColor = Color.Blue;
+                        borderColor = Color.LightGray;
                         borderStyle = ButtonBorderStyle.Outset;
                         break;
                 }

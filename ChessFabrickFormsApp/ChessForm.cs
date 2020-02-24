@@ -65,7 +65,6 @@ namespace ChessFabrickFormsApp
         private void FieldBox_Click(object sender, EventArgs e)
         {
             var field = (sender as ChessFieldBox).Tag as Tuple<int, int>;
-            labSelected.Text = $"Selected:\n{field?.Item1},{field?.Item2}";
             if (selectedPiece == null)
             {
                 selectedPiece = board[field.Item1, field.Item2];
@@ -95,6 +94,14 @@ namespace ChessFabrickFormsApp
         private void NewGame()
         {
             board = new Board();
+            try
+            {
+                board.PerformMoves(txbMoves.Text);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             RefreshViews();
         }
 
@@ -170,6 +177,16 @@ namespace ChessFabrickFormsApp
         private void btnNewGame_Click(object sender, EventArgs e)
         {
             NewGame();
+        }
+
+        private void btnWriteMoves_Click(object sender, EventArgs e)
+        {
+            txbMoves.Text = board.ToMovesString();
+        }
+
+        private void btnClearMoves_Click(object sender, EventArgs e)
+        {
+            txbMoves.Text = "";
         }
     }
 }
