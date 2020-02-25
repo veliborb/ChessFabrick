@@ -7,7 +7,6 @@ namespace ChessCommons
 {
     public static class ChessGameUtils
     {
-
         public static string ToMoveString(this PieceMove pieceMove)
         {
             return new StringBuilder(FieldToString(pieceMove.FromX, pieceMove.FromY)).Append(',').Append(FieldToString(pieceMove.ToX, pieceMove.ToY)).ToString();
@@ -54,6 +53,36 @@ namespace ChessCommons
             }
             moves.Reverse();
             return string.Join(";", moves);
+        }
+
+        public static char ToChar(this Piece piece)
+        {
+            char c = ' ';
+            if (piece is Pawn)
+            {
+                c = 'p';
+            }
+            if (piece is Bishop)
+            {
+                c = 'b';
+            }
+            if (piece is Knight)
+            {
+                c = 'k';
+            }
+            if (piece is Rook)
+            {
+                c = 'r';
+            }
+            if (piece is Queen)
+            {
+                c = 'q';
+            }
+            if (piece is King)
+            {
+                c = 'w';
+            }
+            return piece.Color == PieceColor.White ? char.ToUpper(c) : char.ToLower(c);
         }
     }
 }

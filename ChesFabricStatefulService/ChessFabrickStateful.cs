@@ -4,8 +4,9 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChessFabrickCommons;
+using ChessCommons;
 using ChessFabrickCommons.Models;
+using ChessFabrickCommons.Services;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -19,6 +20,11 @@ namespace ChessFabrickStateful
     /// </summary>
     internal sealed class ChessFabrickStateful : StatefulService, IChessFabrickStatefulService
     {
+        private static readonly string DICTIONARY_IDS = "dict_ids";
+        private static readonly string ELEMENT_LAST_GAME_ID = "elem_last_game_id";
+        private static readonly string ELEMENT_LAST_USER_ID = "elem_last_user_id";
+        private static readonly string DICTIONARY_GAMES = "dict_games";
+
         public ChessFabrickStateful(StatefulServiceContext context)
             : base(context)
         { }
@@ -82,17 +88,94 @@ namespace ChessFabrickStateful
 
         public async Task<ChessGame> NewGameAsync()
         {
-            var myDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("myGame");
-            var game = new ChessGame();
+            var dictIds = await StateManager.GetOrAddAsync<IReliableDictionary<string, long>>(DICTIONARY_IDS);
+            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, string>>(DICTIONARY_GAMES);
+
+            ChessGame game;
             using (var tx = StateManager.CreateTransaction())
             {
-                game.GameId = await myDictionary.AddOrUpdateAsync(tx, "GameId", 1, (key, value) => ++value);
+                var gameId = await dictIds.AddOrUpdateAsync(tx, ELEMENT_LAST_GAME_ID, 1, (key, value) => ++value);
+                await dictGames.AddAsync(tx, gameId, "");
+
+                game = new ChessGame(gameId);
 
                 ServiceEventSource.Current.ServiceMessage(Context, $"Starting NewGame with GameId: {game.GameId}");
 
                 await tx.CommitAsync();
             }
+
             return game;
+        }
+
+        public async Task<ChessGame> GameInfoAsync(long gameId)
+        {
+            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, string>>(DICTIONARY_GAMES);
+            Board board = new Board();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var gameString = await dictGames.TryGetValueAsync(tx, gameId);
+
+                ServiceEventSource.Current.ServiceMessage(Context, $"GameId: {gameId}; GameString: {(gameString.HasValue ? gameString.Value : "null")}");
+
+                if (gameString.HasValue)
+                {
+                    board.PerformMoves(gameString.Value);
+                }
+            }
+            return new ChessGame(gameId, board);
+        }
+
+        public async Task<List<string>> ListPieceMovesAsync(long gameId, string from)
+        {
+            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, string>>(DICTIONARY_GAMES);
+            Board board = new Board();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var gameString = await dictGames.TryGetValueAsync(tx, gameId);
+
+                ServiceEventSource.Current.ServiceMessage(Context, $"GameId: {gameId}; GameString: {(gameString.HasValue ? gameString.Value : "null")}");
+
+                if (gameString.HasValue)
+                {
+                    board.PerformMoves(gameString.Value);
+                }
+            }
+            var moves = new List<string>();
+            var fromField = ChessGameUtils.FieldFromString(from);
+            var piece = board[fromField.Item1, fromField.Item2];
+            foreach (var move in piece.GetPossibleMoves())
+            {
+                moves.Add(ChessGameUtils.FieldToString(move.Item1, move.Item2));
+            }
+            return moves;
+        }
+
+        public async Task<ChessGame> MovePieceAsync(long gameId, string from, string to)
+        {
+            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, string>>(DICTIONARY_GAMES);
+            Board board = new Board();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var gameString = await dictGames.TryGetValueAsync(tx, gameId);
+
+                ServiceEventSource.Current.ServiceMessage(Context, $"GameId: {gameId}; GameString: {(gameString.HasValue ? gameString.Value : "null")}");
+
+                if (gameString.HasValue)
+                {
+                    board.PerformMoves(gameString.Value);
+                }
+
+                var fromField = ChessGameUtils.FieldFromString(from);
+                var piece = board[fromField.Item1, fromField.Item2];
+                var toField = ChessGameUtils.FieldFromString(to);
+
+                if (piece.MoveTo(toField.Item1, toField.Item2))
+                {
+                    var result = await dictGames.TryUpdateAsync(tx, gameId, board.ToMovesString(), gameString.Value);
+                    await tx.CommitAsync();
+                }
+            }
+            return new ChessGame(gameId, board);
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ChessFabrickCommons;
+using ChessFabrickCommons.Models;
+using ChessFabrickCommons.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
@@ -70,6 +72,39 @@ namespace ChessFabrickWeb.Controllers
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
             var result = await chessClient.NewGameAsync();
+
+            return Json(result);
+        }
+
+        [HttpGet("game/{gameId}")]
+        public async Task<IActionResult> GetGameInfo(long gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(this.context, $"Message: GetGameInfo {gameId}");
+
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            var result = await chessClient.GameInfoAsync(gameId);
+
+            return Json(result);
+        }
+
+        [HttpGet("game/{gameId}/{field}")]
+        public async Task<IActionResult> GetMoves(long gameId, string field)
+        {
+            ServiceEventSource.Current.ServiceMessage(this.context, $"Message: GetMoves {gameId}, {field}");
+
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            var result = await chessClient.ListPieceMovesAsync(gameId, field);
+
+            return Json(result);
+        }
+
+        [HttpPost("game/{gameId}")]
+        public async Task<IActionResult> PostMove(long gameId, [FromBody] ChessMove move)
+        {
+            ServiceEventSource.Current.ServiceMessage(this.context, $"Message: PostMove {gameId}, {move.From}, {move.To}");
+
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            var result = await chessClient.MovePieceAsync(gameId, move.From, move.To);
 
             return Json(result);
         }

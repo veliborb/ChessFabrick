@@ -13,15 +13,15 @@ namespace ChessCommons
         private readonly List<Piece> pieces;
         public PieceMove LastMove { get; private set; }
         public PieceColor TurnColor { get; private set; }
-        public List<Piece> CheckPieces { get; private set; }
-        public bool IsCheck => CheckPieces.Count > 0;
+        public List<Piece> CheckingPieces { get; private set; }
+        public bool IsCheck => CheckingPieces.Count > 0;
         public bool IsCheckmate { get; private set; }
         public bool IsDraw => GetAlive().Count == 2;
 
         public Board()
         {
             TurnColor = PieceColor.White;
-            CheckPieces = new List<Piece>();
+            CheckingPieces = new List<Piece>();
             fields = new Piece[SIZE, SIZE];
             pieces = new List<Piece>(32);
             for (int i = 0; i < SIZE; ++i)
@@ -135,7 +135,7 @@ namespace ChessCommons
 
         private void PerformTurn()
         {
-            CheckPieces = CheckCheck(TurnColor);
+            CheckingPieces = CheckCheck(TurnColor);
             IsCheckmate = IsCheck && CheckCheckmate(TurnColor);
             TurnColor = TurnColor.Other();
         }

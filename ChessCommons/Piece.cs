@@ -10,8 +10,8 @@ namespace ChessCommons
     {
         public int X { get; internal set; }
         public int Y { get; internal set; }
-        public PieceColor Color { get; private set; }
-        public Board Board { get; private set; }
+        public PieceColor Color { get; internal set; }
+        public Board Board { get; internal set; }
         public bool HasMoved { get; internal set; }
         public bool IsAlive { get; internal set; }
 

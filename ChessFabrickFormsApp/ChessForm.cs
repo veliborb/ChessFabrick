@@ -144,7 +144,7 @@ namespace ChessFabrickFormsApp
             {
                 var king = board.King(board.TurnColor);
                 fieldBoxes[king.X, king.Y].Style = ChessFieldBox.BoxStyle.Checked;
-                foreach (var piece in board.CheckPieces)
+                foreach (var piece in board.CheckingPieces)
                 {
                     fieldBoxes[piece.X, piece.Y].Style = ChessFieldBox.BoxStyle.Checking;
                 }
