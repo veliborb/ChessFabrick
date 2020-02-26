@@ -27,3 +27,10 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     });
     event.preventDefault();
 });
+
+document.getElementById("testButton").addEventListener("click", function (event) {
+    connection.invoke("GetTest").catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
