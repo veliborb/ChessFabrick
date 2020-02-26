@@ -1,6 +1,6 @@
 ﻿namespace ChessFabrickFormsApp
 {
-    partial class ChessForm
+    partial class ChessOfflineForm
     {
         /// <summary>
         /// Required designer variable.

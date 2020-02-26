@@ -12,7 +12,7 @@ using System.Windows.Forms.VisualStyles;
 
 namespace ChessFabrickFormsApp
 {
-    public partial class ChessForm : Form
+    public partial class ChessOfflineForm : Form
     {
         private Board board;
         private Piece selectedPiece;
@@ -20,7 +20,7 @@ namespace ChessFabrickFormsApp
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
 
-        public ChessForm()
+        public ChessOfflineForm()
         {
             Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             InitializeComponent();
