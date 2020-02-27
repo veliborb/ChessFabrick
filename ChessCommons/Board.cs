@@ -52,10 +52,10 @@ namespace ChessCommons
         }
 
         public List<Piece> GetAlive(PieceColor? color = null)
-            => pieces.FindAll(piece => piece.IsAlive && (color == null || piece.Color == color));
+            => pieces.FindAll(piece => !piece.IsCaptured && (color == null || piece.Color == color));
 
-        public List<Piece> GetKilled(PieceColor? color = null)
-            => pieces.FindAll(piece => !piece.IsAlive && (color == null || piece.Color == color));
+        public List<Piece> GetCaptured(PieceColor? color = null)
+            => pieces.FindAll(piece => piece.IsCaptured && (color == null || piece.Color == color));
 
         public King King(PieceColor color)
             => pieces.Find(piece => piece is King && piece.Color == color) as King;
@@ -104,7 +104,7 @@ namespace ChessCommons
             if (destPiece != null)
             {
                 fields[destPiece.X, destPiece.Y] = null;
-                destPiece.IsAlive = false;
+                destPiece.IsCaptured = true;
             }
             fields[piece.X, piece.Y] = null;
             piece.X = x;
@@ -129,7 +129,7 @@ namespace ChessCommons
                 queen.Y = y;
                 pieces.Add(queen);
 
-                piece.IsAlive = false;
+                piece.IsCaptured = true;
             }
         }
 
@@ -155,10 +155,10 @@ namespace ChessCommons
             }
 
             fields[LastMove.ToX, LastMove.ToY] = null;
-            if (LastMove.KilledPiece != null)
+            if (LastMove.CapturedPiece != null)
             {
-                fields[LastMove.KilledPiece.X, LastMove.KilledPiece.Y] = LastMove.KilledPiece;
-                LastMove.KilledPiece.IsAlive = true;
+                fields[LastMove.CapturedPiece.X, LastMove.CapturedPiece.Y] = LastMove.CapturedPiece;
+                LastMove.CapturedPiece.IsCaptured = false;
             }
 
             var connected = LastMove.ConnectedMove;

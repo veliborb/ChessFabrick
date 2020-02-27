@@ -13,16 +13,16 @@ namespace ChessCommons
         public PieceColor Color { get; internal set; }
         public Board Board { get; internal set; }
         public bool HasMoved { get; internal set; }
-        public bool IsAlive { get; internal set; }
+        public bool IsCaptured { get; internal set; }
 
-        public Piece(PieceColor color, Board board, int x, int y, bool hasMoved = false, bool isAlive = true)
+        public Piece(PieceColor color, Board board, int x, int y, bool hasMoved = false, bool isCaptured = false)
         {
             this.Color = color;
             this.Board = board;
             this.X = x;
             this.Y = y;
             this.HasMoved = hasMoved;
-            this.IsAlive = isAlive;
+            this.IsCaptured = isCaptured;
         }
 
         public Piece(Piece piece)
@@ -37,7 +37,7 @@ namespace ChessCommons
             Color = piece.Color;
             Board = piece.Board;
             HasMoved = piece.HasMoved;
-            IsAlive = piece.IsAlive;
+            IsCaptured = piece.IsCaptured;
         }
 
         public Piece Clone()

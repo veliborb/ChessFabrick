@@ -9,7 +9,7 @@ namespace ChessFabrickCommons.Models
     {
         public ChessGameInfo GameInfo { get; set; }
         public string ChessBoard { get; set; }
-        public List<char> KilledPieces { get; set; }
+        public List<char> CapturedPieces { get; set; }
         public List<string> CheckingPieces { get; set; }
         public bool IsDraw { get; set; }
         public bool IsCheckmate { get; set; }
@@ -39,10 +39,10 @@ namespace ChessFabrickCommons.Models
             }
             ChessBoard = sb.Remove(sb.Length - 1, 1).ToString();
 
-            KilledPieces = new List<char>();
-            foreach (var piece in board.GetKilled())
+            CapturedPieces = new List<char>();
+            foreach (var piece in board.GetCaptured())
             {
-                KilledPieces.Add(piece.ToChar());
+                CapturedPieces.Add(piece.ToChar());
             }
 
             CheckingPieces = new List<string>();

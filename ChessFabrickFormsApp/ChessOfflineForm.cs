@@ -126,8 +126,8 @@ namespace ChessFabrickFormsApp
                 cfbPlaying.Image = PieceImageUtils.Pawn(board.TurnColor);
             }
 
-            pieceListPanelBlack.setPieces(board.GetKilled(PieceColor.Black));
-            pieceListPanelWhite.setPieces(board.GetKilled(PieceColor.White));
+            pieceListPanelBlack.setPieces(board.GetCaptured(PieceColor.Black));
+            pieceListPanelWhite.setPieces(board.GetCaptured(PieceColor.White));
 
             for (int i = 0; i < 8; ++i)
             {
