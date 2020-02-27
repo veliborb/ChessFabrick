@@ -21,7 +21,6 @@ namespace ChessFabrickFormsApp
         private delegate void SafeCallDelegate(string text);
 
         private string HostName => txbHost.Text;
-        private string ProxyName => txbPort.Text;
         private string Message => txbOutbox.Text;
 
         private HubConnection connection;
@@ -61,7 +60,7 @@ namespace ChessFabrickFormsApp
         private void Connect()
         {
             connection = new HubConnectionBuilder().WithUrl(HostName).Build();
-            connection.On<string, string>("ReceiveMessage", (name, message) => { AppendMessage($"{name}: {message}"); });
+            connection.On<string, string>("PlayerJoined", (name, message) => { AppendMessage($"{name}: {message}"); });
             OpenConnection();
         }
 

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ChessFabrickCommons.Models
 {
-    public class ChessGame
+    public sealed class ChessGameState
     {
-        public long GameId { get; set; }
+        public ChessGameInfo GameInfo { get; set; }
         public string ChessBoard { get; set; }
         public List<char> KilledPieces { get; set; }
         public List<string> CheckingPieces { get; set; }
@@ -15,16 +15,14 @@ namespace ChessFabrickCommons.Models
         public bool IsCheckmate { get; set; }
         public PieceColor OnTurn { get; set; }
 
-        public ChessGame() { }
+        public ChessGameState() { }
 
-        public ChessGame(long gameId, Board board = null)
+        public ChessGameState(ChessGameInfo gameInfo)
         {
-            GameId = gameId;
+            GameInfo = gameInfo;
 
-            if (board == null)
-            {
-                board = new Board();
-            }
+            var board = new Board();
+            board.PerformMoves(gameInfo.MoveHistory);
 
             var sb = new StringBuilder();
             for (int i = 0; i < Board.SIZE; ++i)

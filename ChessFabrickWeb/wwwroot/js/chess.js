@@ -1,14 +1,20 @@
 ﻿"use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/hub/chat").build();
+var connection = new signalR.HubConnectionBuilder().withUrl("/hub/chess").build();
 
 //Disable send button until connection is established
 document.getElementById("sendButton").disabled = true;
 document.getElementById("testButton").disabled = true;
 
-connection.on("ReceiveMessage", function (user, message) {
-    var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var encodedMsg = user + " says " + msg;
+connection.on("PlayerJoined", function (gameId, playerId) {
+    var encodedMsg = playerId + " joined " + gameId;
+    var li = document.createElement("li");
+    li.textContent = encodedMsg;
+    document.getElementById("messagesList").appendChild(li);
+});
+
+connection.on("GameCreated", function (gameId, playerId, playerColor) {
+    var encodedMsg = gameId + " created " + playerId + " as " + playerColor;
     var li = document.createElement("li");
     li.textContent = encodedMsg;
     document.getElementById("messagesList").appendChild(li);
