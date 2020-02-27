@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Data;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace ChessFabrickWeb
 {
@@ -44,6 +45,10 @@ namespace ChessFabrickWeb
 
                         return new WebHostBuilder()
                                     .UseKestrel()
+                                    .ConfigureAppConfiguration((builderContext, config) =>
+                                    {
+                                        config.Add(new JsonConfigurationSource { Path = "appsettings.json",  ReloadOnChange = true });
+                                    })
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<HttpClient>(new HttpClient())
@@ -57,5 +62,28 @@ namespace ChessFabrickWeb
                     }))
             };
         }
+        //public static IWebHostBuilder UseCommonConfiguration(this IWebHostBuilder builder)
+        //{
+        //    builder.ConfigureAppConfiguration((hostingContext, config) =>
+        //    {
+        //        var env = hostingContext.HostingEnvironment;
+
+        //        config.Add("appsettings.json", optional: true, reloadOnChange: true)
+        //            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+        //        if (env.IsDevelopment())
+        //        {
+        //            var appAssembly = Assembly.Load(new AssemblyName(env.ApplicationName));
+        //            if (appAssembly != null)
+        //            {
+        //                config.AddUserSecrets(appAssembly, optional: true);
+        //            }
+        //        }
+
+        //        config.AddEnvironmentVariables();
+        //    });
+
+        //    return builder;
+        //}
     }
 }

@@ -9,6 +9,8 @@ using ChessFabrickCommons;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickWeb.Models;
+using ChessFabrickWeb.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
@@ -26,8 +28,9 @@ namespace ChessFabrickWeb.Controllers
         private readonly StatelessServiceContext context;
         private readonly ServiceProxyFactory proxyFactory;
         private readonly Uri chessStatefulUri;
+        private readonly IUserService userService;
 
-        public ChessPlayerController(HttpClient httpClient, StatelessServiceContext context, FabricClient fabricClient)
+        public ChessPlayerController(HttpClient httpClient, StatelessServiceContext context, FabricClient fabricClient, IUserService userService)
         {
             this.fabricClient = fabricClient;
             this.httpClient = httpClient;
@@ -37,6 +40,7 @@ namespace ChessFabrickWeb.Controllers
                 return new FabricTransportServiceRemotingClientFactory();
             });
             this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(this.context);
+            this.userService = userService;
         }
 
         /// <summary>
@@ -75,6 +79,25 @@ namespace ChessFabrickWeb.Controllers
             var result = await chessClient.PlayerInfoAsync(playerId);
 
             return Json(result);
+        }
+
+        [Authorize]
+        [HttpGet("all")]
+        public IActionResult GetAll()
+        {
+            var users = userService.GetAll();
+            return Ok(users);
+        }
+
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] AuthenticationModel model)
+        {
+            var user = userService.Authenticate(model.Id);
+
+            if (user == null)
+                return BadRequest(new { message = "Id is incorrect." });
+
+            return Ok(user);
         }
 
         [HttpPost("new")]
