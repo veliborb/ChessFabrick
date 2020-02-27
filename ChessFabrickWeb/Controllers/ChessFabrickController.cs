@@ -77,7 +77,7 @@ namespace ChessFabrickWeb.Controllers
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
             var result = await chessClient.NewGameAsync(model.PlayerId, model.PlayerColor);
-            await gameHubContext.Clients.All.SendAsync("GameCreated", result.GameId, model.PlayerId, model.PlayerColor);
+            await gameHubContext.Clients.All.SendAsync("GameCreated", result);
 
             return Json(result);
         }

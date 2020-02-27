@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChessFabrickCommons.Exceptions
 {
-    public class GameOverException : ChessFabrickException
+    public class ChessFabrickException : Exception
     {
     }
 }

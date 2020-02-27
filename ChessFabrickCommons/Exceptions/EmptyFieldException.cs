@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChessFabrickCommons.Exceptions
 {
-    class EmptyFieldException : Exception
+    public class EmptyFieldException : ChessFabrickException
     {
     }
 }

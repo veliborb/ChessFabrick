@@ -39,5 +39,13 @@ namespace ChessFabrickWeb.Hubs
             ServiceEventSource.Current.ServiceMessage(this.context, $"Disconnected: {Context.ConnectionId}");
             return base.OnDisconnectedAsync(exception);
         }
+
+        public async Task GetTest()
+        {
+            ServiceEventSource.Current.ServiceMessage(this.context, $"GetTest");
+            IChessFabrickStatefulService helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            string message = await helloWorldClient.HelloChessAsync();
+            await Clients.All.SendAsync("ReceiveMessage", "system", message);
+        }
     }
 }

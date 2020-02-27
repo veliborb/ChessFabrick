@@ -13,8 +13,8 @@ connection.on("PlayerJoined", function (gameId, playerId) {
     document.getElementById("messagesList").appendChild(li);
 });
 
-connection.on("GameCreated", function (gameId, playerId, playerColor) {
-    var encodedMsg = gameId + " created " + playerId + " as " + playerColor;
+connection.on("GameCreated", function (game) {
+    var encodedMsg = "Game created: " + JSON.stringify(game);
     var li = document.createElement("li");
     li.textContent = encodedMsg;
     document.getElementById("messagesList").appendChild(li);
