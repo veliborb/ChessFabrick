@@ -82,6 +82,13 @@ namespace ChessFabrickWeb.Controllers
         }
 
         [Authorize]
+        [HttpGet("current")]
+        public IActionResult GetCurrent()
+        {
+            return Ok(User.Identity.Name);
+        }
+
+        [Authorize]
         [HttpGet("all")]
         public IActionResult GetAll()
         {

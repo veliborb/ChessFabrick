@@ -21,7 +21,9 @@ namespace ChessFabrickWeb.Services
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
         private List<PlayerModel> _users = new List<PlayerModel>
         {
-            new PlayerModel { Id = 1, Name = "Test" }
+            new PlayerModel { Id = 1, Name = "Test" },
+            new PlayerModel { Id = 2, Name = "Vest" },
+            new PlayerModel { Id = 55, Name = "Gest" }
         };
 
         private readonly AppSettings _appSettings;

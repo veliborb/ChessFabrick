@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace ChessFabrickCommons.Models
+namespace ChessFabrickCommons.Entities
 {
     [DataContract]
     public sealed class ChessPlayer

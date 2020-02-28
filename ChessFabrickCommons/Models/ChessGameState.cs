@@ -1,11 +1,12 @@
 ﻿using ChessCommons;
+using ChessFabrickCommons.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace ChessFabrickCommons.Models
 {
-    public sealed class ChessGameState
+    public class ChessGameState
     {
         public ChessGameInfo GameInfo { get; set; }
         public string ChessBoard { get; set; }

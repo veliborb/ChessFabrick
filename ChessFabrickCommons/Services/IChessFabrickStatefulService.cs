@@ -1,4 +1,5 @@
 ﻿using ChessCommons;
+using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
 using Microsoft.ServiceFabric.Services.Remoting;
 using System;

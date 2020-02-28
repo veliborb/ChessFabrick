@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace ChessFabrickCommons.Models
+namespace ChessFabrickCommons.Entities
 {
     [DataContract]
     public sealed class ChessGameInfo

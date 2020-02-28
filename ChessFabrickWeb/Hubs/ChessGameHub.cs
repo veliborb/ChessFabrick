@@ -53,9 +53,9 @@ namespace ChessFabrickWeb.Hubs
         public async Task GetSecret()
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetSecret");
-            IChessFabrickStatefulService helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            string message = await helloWorldClient.HelloChessAsync();
-            await Clients.All.SendAsync("Test", $"Secret: {message}");
+            var user = Context.User;
+            var userId = Context.UserIdentifier;
+            await Clients.All.SendAsync("Test", $"Name: {user.Identity.Name}; Id: {userId}");
         }
     }
 }

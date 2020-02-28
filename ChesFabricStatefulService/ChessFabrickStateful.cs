@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessCommons;
+using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using Microsoft.ServiceFabric.Data;
