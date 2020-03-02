@@ -8,7 +8,6 @@ namespace ChessFabrickWeb.Models
 {
     public class NewGameModel
     {
-        public long PlayerId { get; set; }
         public PieceColor PlayerColor { get; set; }
     }
 }

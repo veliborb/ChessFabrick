@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Fabric;
-using System.Fabric.Query;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ChessFabrickCommons;
-using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickWeb.Hubs;
 using ChessFabrickWeb.Models;
+using ChessFabrickWeb.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
-using Newtonsoft.Json;
 
 namespace ChessFabrickWeb.Controllers
 {
@@ -39,7 +35,7 @@ namespace ChessFabrickWeb.Controllers
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(this.context);
+            this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
             this.gameHubContext = gameHubContext;
         }
 
@@ -57,9 +53,9 @@ namespace ChessFabrickWeb.Controllers
         [HttpGet("")]
         public async Task<IActionResult> GetTest()
         {
-            ServiceEventSource.Current.ServiceMessage(this.context, $"GetTest");
+            ServiceEventSource.Current.ServiceMessage(context, $"GetTest");
 
-            Uri chessServiceUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(this.context);
+            Uri chessServiceUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
             Uri proxyAddress = GetProxyAddress(chessServiceUri);
 
             ServiceEventSource.Current.ServiceMessage(context, $"chessServiceUri: {chessServiceUri}; proxyAddress: {proxyAddress}");
@@ -70,26 +66,28 @@ namespace ChessFabrickWeb.Controllers
             return Json(message);
         }
 
+        [Authorize]
         [HttpPost("new")]
         public async Task<IActionResult> PostNewGame([FromBody] NewGameModel model)
         {
-            ServiceEventSource.Current.ServiceMessage(this.context, $"PostNewGame {model.PlayerId}, {model.PlayerColor}");
+            ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Id()}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.NewGameAsync(model.PlayerId, model.PlayerColor);
+            var result = await chessClient.NewGameAsync(User.Id(), model.PlayerColor);
             await gameHubContext.Clients.All.SendAsync("GameCreated", result);
 
             return Json(result);
         }
 
+        [Authorize]
         [HttpPost("game/{gameId}/join")]
-        public async Task<IActionResult> PostJoinGame(long gameId, [FromBody] NewGameModel model)
+        public async Task<IActionResult> PostJoinGame(long gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(this.context, $"PostJoinGame {gameId}, {model.PlayerId}");
+            ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Id()}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.JoinGameAsync(model.PlayerId, gameId);
-            await gameHubContext.Clients.All.SendAsync("PlayerJoined", gameId, model.PlayerId);
+            var result = await chessClient.JoinGameAsync(User.Id(), gameId);
+            await gameHubContext.Clients.All.SendAsync("PlayerJoined", gameId, User.Id());
 
             return Json(result);
         }
@@ -97,7 +95,7 @@ namespace ChessFabrickWeb.Controllers
         [HttpGet("game/{gameId}")]
         public async Task<IActionResult> GetGameState(long gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(this.context, $"GetGameState {gameId}");
+            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState {gameId}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
             var result = await chessClient.GameStateAsync(gameId);

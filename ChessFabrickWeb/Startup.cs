@@ -7,6 +7,7 @@ using ChessFabrickWeb.Hubs;
 using ChessFabrickWeb.Models;
 using ChessFabrickWeb.Providers;
 using ChessFabrickWeb.Services;
+using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
