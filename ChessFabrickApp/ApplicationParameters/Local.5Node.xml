@@ -3,7 +3,7 @@
   <Parameters>
     <Parameter Name="ChessFabrickWeb_ASPNETCORE_ENVIRONMENT" Value="Development" />
     <Parameter Name="ChessFabrickWeb_InstanceCount" Value="1" />
-    <Parameter Name="ChessFabrickStateful_PartitionCount" Value="1" />
+    <Parameter Name="ChessFabrickStateful_PartitionCount" Value="5" />
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" Value="3" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" Value="3" />
   </Parameters>

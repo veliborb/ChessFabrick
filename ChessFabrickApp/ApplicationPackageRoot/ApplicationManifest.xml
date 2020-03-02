@@ -4,7 +4,7 @@
     <Parameter Name="ChessFabrickWeb_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
     <Parameter Name="ChessFabrickWeb_InstanceCount" DefaultValue="-1" />
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="ChessFabrickStateful_PartitionCount" DefaultValue="1" />
+    <Parameter Name="ChessFabrickStateful_PartitionCount" DefaultValue="5" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
@@ -34,7 +34,7 @@
     </Service>
     <Service Name="ChessFabrickStateful" ServicePackageActivationMode="ExclusiveProcess">
       <StatefulService ServiceTypeName="ChessFabrickStatefulType" TargetReplicaSetSize="[ChessFabrickStateful_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickStateful_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[ChessFabrickStateful_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <UniformInt64Partition PartitionCount="[ChessFabrickStateful_PartitionCount]" LowKey="0" HighKey="4" />
       </StatefulService>
     </Service>
   </DefaultServices>

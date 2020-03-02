@@ -14,10 +14,13 @@ namespace ChessFabrickCommons.Services
         Task<string> HelloChessAsync();
         Task<ChessPlayer> NewPlayerAsync(string name);
         Task<ChessPlayer> PlayerInfoAsync(string playerName);
-        Task<ChessGameInfo> NewGameAsync(string playerName, PieceColor playerColor);
-        Task<ChessGameInfo> JoinGameAsync(string playerName, long gameId);
-        Task<ChessGameState> GameStateAsync(long gameId);
-        Task<List<string>> ListPieceMovesAsync(long gameId, string from);
-        Task<ChessGameState> MovePieceAsync(string playerName, long gameId, string from, string to);
+        Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor);
+        Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName);
+        Task<List<string>> NewGameIdsAsync();
+        Task<List<string>> ActiveGameIdsAsync();
+        Task<List<string>> CompletedGameIdsAsync();
+        Task<ChessGameState> GameStateAsync(string gameId);
+        Task<List<string>> ListPieceMovesAsync(string gameId, string from);
+        Task<ChessGameState> MovePieceAsync(string playerName, string gameId, string from, string to);
     }
 }

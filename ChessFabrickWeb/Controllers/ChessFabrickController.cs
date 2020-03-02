@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -58,9 +59,16 @@ namespace ChessFabrickWeb.Controllers
             Uri chessServiceUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
             Uri proxyAddress = GetProxyAddress(chessServiceUri);
 
-            ServiceEventSource.Current.ServiceMessage(context, $"chessServiceUri: {chessServiceUri}; proxyAddress: {proxyAddress}");
+            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
+            foreach (var partition in partitions)
+            {
+                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
+                ServiceEventSource.Current.ServiceMessage(context, $"Partition {partitionInfo.Id}, {partitionInfo.LowKey}, {partitionInfo.HighKey}, {partitionInfo.Kind}");
+            }
 
-            IChessFabrickStatefulService helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessServiceUri, new ServicePartitionKey(1));
+            ServiceEventSource.Current.ServiceMessage(context, $"chessServiceUri: {chessServiceUri}; proxyAddress: {proxyAddress}, partitions: {partitions.Count}");
+
+            var helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessServiceUri, new ServicePartitionKey(new Random().Next(0, 4)));
             string message = await helloWorldClient.HelloChessAsync();
 
             return Ok(message);
@@ -71,11 +79,11 @@ namespace ChessFabrickWeb.Controllers
         public async Task<IActionResult> PostNewGame([FromBody] NewGameModel model)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Identity.Name}");
-
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
             try
             {
-                var game = await chessClient.NewGameAsync(User.Identity.Name, model.PlayerColor);
+                var gameId = Guid.NewGuid().ToString();
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, gameId.PartitionKey());
+                var game = await chessClient.NewGameAsync(gameId, User.Identity.Name, model.PlayerColor);
                 await gameHubContext.Clients.All.SendAsync("OnGameCreated", game);
                 return Ok(game);
             } catch (Exception ex)
@@ -84,34 +92,49 @@ namespace ChessFabrickWeb.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("game/{gameId}/join")]
-        public async Task<IActionResult> PostJoinGame(long gameId)
+        [HttpGet("game/active")]
+        public async Task<IActionResult> GetActiveGames()
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Identity.Name}");
+            ServiceEventSource.Current.ServiceMessage(context, $"GetActiveGames");
+            var gameIds = new List<string>();
+            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
+            foreach (var partition in partitions)
+            {
+                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
+                var games = await chessClient.ActiveGameIdsAsync();
+                gameIds.AddRange(games);
+            }
+            return Ok(gameIds);
+        }
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+        [HttpGet("game/{gameId}")]
+        public async Task<IActionResult> GetGameState(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
             try
             {
-                var game = await chessClient.JoinGameAsync(User.Identity.Name, gameId);
-                await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
-                return Ok(game);
-            } catch (Exception ex)
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, gameId.PartitionKey());
+                var board = await chessClient.GameStateAsync(gameId);
+                return Ok(board);
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
 
-        [HttpGet("game/{gameId}")]
-        public async Task<IActionResult> GetGameState(long gameId)
+        [Authorize]
+        [HttpPost("game/{gameId}/join")]
+        public async Task<IActionResult> PostJoinGame(string gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
-
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Identity.Name}");
             try
             {
-                var board = await chessClient.GameStateAsync(gameId);
-                return Ok(board);
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, gameId.PartitionKey());
+                var game = await chessClient.JoinGameAsync(gameId, User.Identity.Name);
+                await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
+                return Ok(game);
             } catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);

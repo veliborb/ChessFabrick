@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ChessFabrickCommons.Services;
 using ChessFabrickWeb.Models;
 using ChessFabrickWeb.Services;
+using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
@@ -37,7 +38,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name})");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, model.Name.PartitionKey());
             var player = await chessClient.NewPlayerAsync(model.Name);
             var user = await userService.Authenticate(model.Name, model.Password);
 
@@ -60,7 +61,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, User.Identity.Name.PartitionKey());
             var player = await chessClient.PlayerInfoAsync(User.Identity.Name);
 
             return Ok(player);
@@ -72,7 +73,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, playerName.PartitionKey());
             var player = await chessClient.PlayerInfoAsync(playerName);
 
             return Ok(player);

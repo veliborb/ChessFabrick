@@ -21,12 +21,25 @@ namespace ChessFabrickStateful
     /// </summary>
     internal sealed class ChessFabrickStateful : StatefulService, IChessFabrickStatefulService
     {
-        private static readonly string DICTIONARY_IDS = "dict_ids";
-        private static readonly string ELEMENT_LAST_GAME_ID = "elem_last_game_id";
-        private static readonly string DICTIONARY_PLAYERS = "dict_players";
-        private static readonly string DICTIONARY_NEW_GAMES = "dict_new_games";
-        private static readonly string DICTIONARY_ACTIVE_GAMES = "dict_active_games";
-        private static readonly string DICTIONARY_COMPLETED_GAMES = "dict_completed_games";
+        private Task<IReliableDictionary2<string, ChessPlayer>> GetPlayerDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessPlayer>>("dict_players");
+        }
+
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetNewGameDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_new_games");
+        }
+
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetActiveGameDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_active_games");
+        }
+
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetCompletedGameDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_completed_games");
+        }
 
         public ChessFabrickStateful(StatefulServiceContext context)
             : base(context)
@@ -52,7 +65,7 @@ namespace ChessFabrickStateful
 
         private async Task<ChessPlayer> GetPlayerAsync(ITransaction tx, string playerName)
         {
-            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<string, ChessPlayer>>(DICTIONARY_PLAYERS);
+            var dictPlayers = await GetPlayerDict();
             var player = await dictPlayers.TryGetValueAsync(tx, playerName);
             if (!player.HasValue)
             {
@@ -61,9 +74,9 @@ namespace ChessFabrickStateful
             return player.Value;
         }
 
-        private async Task<ChessGameInfo> GetActiveGameAsync(ITransaction tx, long gameId)
+        private async Task<ChessGameInfo> GetActiveGameAsync(ITransaction tx, string gameId)
         {
-            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_ACTIVE_GAMES);
+            var dictGames = await GetActiveGameDict();
             var game = await dictGames.TryGetValueAsync(tx, gameId);
             if (!game.HasValue)
             {
@@ -72,7 +85,7 @@ namespace ChessFabrickStateful
             return game.Value;
         }
 
-        private async Task<Board> GetActiveGameBoardAsync(ITransaction tx, long gameId)
+        private async Task<Board> GetActiveGameBoardAsync(ITransaction tx, string gameId)
         {
             var gameInfo = await GetActiveGameAsync(tx, gameId);
             var board = new Board();
@@ -82,7 +95,7 @@ namespace ChessFabrickStateful
 
         public Task<string> HelloChessAsync()
         {
-            return Task.FromResult("Allo Chess!");
+            return Task.FromResult($"Allo Chess: {Guid.NewGuid().ToString()}");
         }
 
         public async Task<ChessPlayer> NewPlayerAsync(string playerName)
@@ -92,7 +105,7 @@ namespace ChessFabrickStateful
                 throw new ArgumentException("Player name must not be empty");
             }
 
-            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<string, ChessPlayer>>(DICTIONARY_PLAYERS);
+            var dictPlayers = await GetPlayerDict();
             using (var tx = StateManager.CreateTransaction())
             {
                 var player = new ChessPlayer(playerName);
@@ -110,14 +123,12 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameInfo> NewGameAsync(string playerName, PieceColor playerColor)
+        public async Task<ChessGameInfo> NewGameAsync(string playerName, string gameId, PieceColor playerColor)
         {
-            var dictIds = await StateManager.GetOrAddAsync<IReliableDictionary<string, long>>(DICTIONARY_IDS);
-            var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_NEW_GAMES);
+            var dictGames = await GetNewGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
                 var player = await GetPlayerAsync(tx, playerName);
-                var gameId = await dictIds.AddOrUpdateAsync(tx, ELEMENT_LAST_GAME_ID, 1, (key, value) => ++value);
                 var game = playerColor == PieceColor.White ?
                     new ChessGameInfo(gameId, player, null) :
                     new ChessGameInfo(gameId, null, player);
@@ -127,10 +138,10 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameInfo> JoinGameAsync(string playerName, long gameId)
+        public async Task<ChessGameInfo> JoinGameAsync(string playerName, string gameId)
         {
-            var dictNewGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_NEW_GAMES);
-            var dictActiveGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_ACTIVE_GAMES);
+            var dictNewGames = await GetNewGameDict();
+            var dictActiveGames = await GetActiveGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
                 var player = await GetPlayerAsync(tx, playerName);
@@ -153,7 +164,7 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameState> GameStateAsync(long gameId)
+        public async Task<ChessGameState> GameStateAsync(string gameId)
         {
             using (var tx = StateManager.CreateTransaction())
             {
@@ -162,7 +173,7 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<List<string>> ListPieceMovesAsync(long gameId, string from)
+        public async Task<List<string>> ListPieceMovesAsync(string gameId, string from)
         {
             Board board;
             using (var tx = StateManager.CreateTransaction())
@@ -179,10 +190,10 @@ namespace ChessFabrickStateful
             return moves;
         }
 
-        public async Task<ChessGameState> MovePieceAsync(string playerName, long gameId, string from, string to)
+        public async Task<ChessGameState> MovePieceAsync(string playerName, string gameId, string from, string to)
         {
-            var dictActiveGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_ACTIVE_GAMES);
-            var dictCompletedGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_COMPLETED_GAMES);
+            var dictActiveGames = await GetActiveGameDict();
+            var dictCompletedGames = await GetCompletedGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await GetActiveGameAsync(tx, gameId);
@@ -214,6 +225,54 @@ namespace ChessFabrickStateful
                 await tx.CommitAsync();
                 return new ChessGameState(newGameState);
             }
+        }
+
+        public async Task<List<string>> NewGameIdsAsync()
+        {
+            var dictNewGames = await GetNewGameDict();
+            var games = new List<string>();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var keys = await dictNewGames.CreateKeyEnumerableAsync(tx);
+                var enumerator = keys.GetAsyncEnumerator();
+                while (await enumerator.MoveNextAsync(CancellationToken.None))
+                {
+                    games.Add(enumerator.Current);
+                }
+            }
+            return games;
+        }
+
+        public async Task<List<string>> ActiveGameIdsAsync()
+        {
+            var dictActiveGames = await GetActiveGameDict();
+            var games = new List<string>();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var keys = await dictActiveGames.CreateKeyEnumerableAsync(tx);
+                var enumerator = keys.GetAsyncEnumerator();
+                while (await enumerator.MoveNextAsync(CancellationToken.None))
+                {
+                    games.Add(enumerator.Current);
+                }
+            }
+            return games;
+        }
+
+        public async Task<List<string>> CompletedGameIdsAsync()
+        {
+            var dictCompletedGames = await GetCompletedGameDict();
+            var games = new List<string>();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var keys = await dictCompletedGames.CreateKeyEnumerableAsync(tx);
+                var enumerator = keys.GetAsyncEnumerator();
+                while (await enumerator.MoveNextAsync(CancellationToken.None))
+                {
+                    games.Add(enumerator.Current);
+                }
+            }
+            return games;
         }
     }
 }

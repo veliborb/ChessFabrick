@@ -38,7 +38,7 @@ namespace ChessFabrickWeb.Services
 
         public async Task<UserModel> Authenticate(string userName, string password)
         {
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, userName.PartitionKey());
             var player = await chessClient.PlayerInfoAsync(userName);
 
             if (player == null)
