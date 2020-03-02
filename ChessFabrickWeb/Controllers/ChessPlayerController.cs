@@ -55,7 +55,7 @@ namespace ChessFabrickWeb.Controllers
         }
 
         [Authorize]
-        [HttpGet("current")]
+        [HttpGet]
         public async Task<IActionResult> GetCurrent()
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
@@ -67,7 +67,7 @@ namespace ChessFabrickWeb.Controllers
         }
 
         [Authorize]
-        [HttpGet("{playerId}")]
+        [HttpGet("{playerName}")]
         public async Task<IActionResult> GetPlayer(string playerName)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");

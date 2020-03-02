@@ -50,7 +50,7 @@ namespace ChessFabrickWeb.Controllers
             return new Uri($"http://localhost:19081{serviceName.AbsolutePath}");
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public async Task<IActionResult> GetTest()
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetTest");
@@ -63,7 +63,7 @@ namespace ChessFabrickWeb.Controllers
             IChessFabrickStatefulService helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessServiceUri, new ServicePartitionKey(1));
             string message = await helloWorldClient.HelloChessAsync();
 
-            return Json(message);
+            return Ok(message);
         }
 
         [Authorize]
@@ -73,10 +73,15 @@ namespace ChessFabrickWeb.Controllers
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Identity.Name}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.NewGameAsync(User.Identity.Name, model.PlayerColor);
-            await gameHubContext.Clients.All.SendAsync("GameCreated", result);
-
-            return Json(result);
+            try
+            {
+                var game = await chessClient.NewGameAsync(User.Identity.Name, model.PlayerColor);
+                await gameHubContext.Clients.All.SendAsync("OnGameCreated", game);
+                return Ok(game);
+            } catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [Authorize]
@@ -86,21 +91,31 @@ namespace ChessFabrickWeb.Controllers
             ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Identity.Name}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.JoinGameAsync(User.Identity.Name, gameId);
-            await gameHubContext.Clients.All.SendAsync("PlayerJoined", gameId, User.Identity.Name);
-
-            return Json(result);
+            try
+            {
+                var game = await chessClient.JoinGameAsync(User.Identity.Name, gameId);
+                await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
+                return Ok(game);
+            } catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("game/{gameId}")]
         public async Task<IActionResult> GetGameState(long gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState {gameId}");
+            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.GameStateAsync(gameId);
-
-            return Json(result);
+            try
+            {
+                var board = await chessClient.GameStateAsync(gameId);
+                return Ok(board);
+            } catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
