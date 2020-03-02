@@ -17,7 +17,7 @@ namespace ChessFabrickWeb.Services
 {
     public interface IUserService
     {
-        Task<UserModel> Authenticate(long userId);
+        Task<UserModel> Authenticate(string userName, string password);
     }
 
     public class UserService : IUserService
@@ -36,10 +36,10 @@ namespace ChessFabrickWeb.Services
             this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
         }
 
-        public async Task<UserModel> Authenticate(long playerId)
+        public async Task<UserModel> Authenticate(string userName, string password)
         {
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var player = await chessClient.PlayerInfoAsync(playerId);
+            var player = await chessClient.PlayerInfoAsync(userName);
 
             if (player == null)
             {
@@ -52,7 +52,7 @@ namespace ChessFabrickWeb.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, player.Id.ToString())
+                    new Claim(ClaimTypes.Name, player.Name)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

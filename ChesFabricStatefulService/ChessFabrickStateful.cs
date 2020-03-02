@@ -23,7 +23,6 @@ namespace ChessFabrickStateful
     {
         private static readonly string DICTIONARY_IDS = "dict_ids";
         private static readonly string ELEMENT_LAST_GAME_ID = "elem_last_game_id";
-        private static readonly string ELEMENT_LAST_PLAYER_ID = "elem_last_player_id";
         private static readonly string DICTIONARY_PLAYERS = "dict_players";
         private static readonly string DICTIONARY_NEW_GAMES = "dict_new_games";
         private static readonly string DICTIONARY_ACTIVE_GAMES = "dict_active_games";
@@ -51,10 +50,10 @@ namespace ChessFabrickStateful
              };
         }
 
-        private async Task<ChessPlayer> GetPlayerAsync(ITransaction tx, long playerId)
+        private async Task<ChessPlayer> GetPlayerAsync(ITransaction tx, string playerName)
         {
-            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessPlayer>>(DICTIONARY_PLAYERS);
-            var player = await dictPlayers.TryGetValueAsync(tx, playerId);
+            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<string, ChessPlayer>>(DICTIONARY_PLAYERS);
+            var player = await dictPlayers.TryGetValueAsync(tx, playerName);
             if (!player.HasValue)
             {
                 throw new ArgumentException("Player does not exist.");
@@ -86,40 +85,38 @@ namespace ChessFabrickStateful
             return Task.FromResult("Allo Chess!");
         }
 
-        public async Task<ChessPlayer> NewPlayerAsync(string name)
+        public async Task<ChessPlayer> NewPlayerAsync(string playerName)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(playerName))
             {
                 throw new ArgumentException("Player name must not be empty");
             }
 
-            var dictIds = await StateManager.GetOrAddAsync<IReliableDictionary<string, long>>(DICTIONARY_IDS);
-            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessPlayer>>(DICTIONARY_PLAYERS);
+            var dictPlayers = await StateManager.GetOrAddAsync<IReliableDictionary<string, ChessPlayer>>(DICTIONARY_PLAYERS);
             using (var tx = StateManager.CreateTransaction())
             {
-                var playerId = await dictIds.AddOrUpdateAsync(tx, ELEMENT_LAST_PLAYER_ID, 1, (key, value) => ++value);
-                var player = new ChessPlayer(playerId, name);
-                await dictPlayers.AddAsync(tx, playerId, player);
+                var player = new ChessPlayer(playerName);
+                await dictPlayers.AddAsync(tx, playerName, player);
                 await tx.CommitAsync();
                 return player;
             }
         }
 
-        public async Task<ChessPlayer> PlayerInfoAsync(long playerId)
+        public async Task<ChessPlayer> PlayerInfoAsync(string playerName)
         {
             using (var tx = StateManager.CreateTransaction())
             {
-                return await GetPlayerAsync(tx, playerId);
+                return await GetPlayerAsync(tx, playerName);
             }
         }
 
-        public async Task<ChessGameInfo> NewGameAsync(long playerId, PieceColor playerColor)
+        public async Task<ChessGameInfo> NewGameAsync(string playerName, PieceColor playerColor)
         {
             var dictIds = await StateManager.GetOrAddAsync<IReliableDictionary<string, long>>(DICTIONARY_IDS);
             var dictGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_NEW_GAMES);
             using (var tx = StateManager.CreateTransaction())
             {
-                var player = await GetPlayerAsync(tx, playerId);
+                var player = await GetPlayerAsync(tx, playerName);
                 var gameId = await dictIds.AddOrUpdateAsync(tx, ELEMENT_LAST_GAME_ID, 1, (key, value) => ++value);
                 var game = playerColor == PieceColor.White ?
                     new ChessGameInfo(gameId, player, null) :
@@ -130,19 +127,19 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameInfo> JoinGameAsync(long playerId, long gameId)
+        public async Task<ChessGameInfo> JoinGameAsync(string playerName, long gameId)
         {
             var dictNewGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_NEW_GAMES);
             var dictActiveGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_ACTIVE_GAMES);
             using (var tx = StateManager.CreateTransaction())
             {
-                var player = await GetPlayerAsync(tx, playerId);
+                var player = await GetPlayerAsync(tx, playerName);
                 var game = await dictNewGames.TryGetValueAsync(tx, gameId);
                 if (!game.HasValue)
                 {
                     throw new ArgumentException("Game does not exist.");
                 }
-                if ((game.Value.White ?? game.Value.Black).Id == playerId)
+                if ((game.Value.White ?? game.Value.Black).Name == playerName)
                 {
                     throw new ArgumentException("Can't play against yourself");
                 }
@@ -182,14 +179,14 @@ namespace ChessFabrickStateful
             return moves;
         }
 
-        public async Task<ChessGameState> MovePieceAsync(long playerId, long gameId, string from, string to)
+        public async Task<ChessGameState> MovePieceAsync(string playerName, long gameId, string from, string to)
         {
             var dictActiveGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_ACTIVE_GAMES);
             var dictCompletedGames = await StateManager.GetOrAddAsync<IReliableDictionary<long, ChessGameInfo>>(DICTIONARY_COMPLETED_GAMES);
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await GetActiveGameAsync(tx, gameId);
-                if (playerId != game.White.Id && playerId != game.Black.Id)
+                if (playerName != game.White.Name && playerName != game.Black.Name)
                 {
                     throw new ArgumentException("Player not in the game.");
                 }

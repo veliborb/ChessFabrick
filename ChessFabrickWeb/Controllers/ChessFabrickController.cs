@@ -70,10 +70,10 @@ namespace ChessFabrickWeb.Controllers
         [HttpPost("new")]
         public async Task<IActionResult> PostNewGame([FromBody] NewGameModel model)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Id()}");
+            ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Identity.Name}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.NewGameAsync(User.Id(), model.PlayerColor);
+            var result = await chessClient.NewGameAsync(User.Identity.Name, model.PlayerColor);
             await gameHubContext.Clients.All.SendAsync("GameCreated", result);
 
             return Json(result);
@@ -83,11 +83,11 @@ namespace ChessFabrickWeb.Controllers
         [HttpPost("game/{gameId}/join")]
         public async Task<IActionResult> PostJoinGame(long gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Id()}");
+            ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Identity.Name}");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var result = await chessClient.JoinGameAsync(User.Id(), gameId);
-            await gameHubContext.Clients.All.SendAsync("PlayerJoined", gameId, User.Id());
+            var result = await chessClient.JoinGameAsync(User.Identity.Name, gameId);
+            await gameHubContext.Clients.All.SendAsync("PlayerJoined", gameId, User.Identity.Name);
 
             return Json(result);
         }

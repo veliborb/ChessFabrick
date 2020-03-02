@@ -33,13 +33,13 @@ namespace ChessFabrickWeb.Controllers
         }
 
         [HttpPost("new")]
-        public async Task<IActionResult> PostNewPlayer([FromBody] NewPlayerModel model)
+        public async Task<IActionResult> PostNewPlayer([FromBody] AuthenticationModel model)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name})");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
             var player = await chessClient.NewPlayerAsync(model.Name);
-            var user = await userService.Authenticate(player.Id);
+            var user = await userService.Authenticate(model.Name, model.Password);
 
             return Ok(user);
         }
@@ -47,9 +47,9 @@ namespace ChessFabrickWeb.Controllers
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticationModel model)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"Authenticate({model.Id})");
+            ServiceEventSource.Current.ServiceMessage(context, $"Authenticate({model.Name})");
 
-            var user = await userService.Authenticate(model.Id);
+            var user = await userService.Authenticate(model.Name, model.Password);
 
             return Ok(user);
         }
@@ -60,22 +60,20 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
 
-            var userId = long.Parse(User.Identity.Name);
-
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var player = await chessClient.PlayerInfoAsync(userId);
+            var player = await chessClient.PlayerInfoAsync(User.Identity.Name);
 
             return Ok(player);
         }
 
         [Authorize]
         [HttpGet("{playerId}")]
-        public async Task<IActionResult> GetPlayer(long playerId)
+        public async Task<IActionResult> GetPlayer(string playerName)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerId})");
+            ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");
 
             IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(1));
-            var player = await chessClient.PlayerInfoAsync(playerId);
+            var player = await chessClient.PlayerInfoAsync(playerName);
 
             return Ok(player);
         }
