@@ -38,7 +38,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name})");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, model.Name.PartitionKey());
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.NamePartitionKey(model.Name));
             var player = await chessClient.NewPlayerAsync(model.Name);
             var user = await userService.Authenticate(model.Name, model.Password);
 
@@ -61,7 +61,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, User.Identity.Name.PartitionKey());
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
             var player = await chessClient.PlayerInfoAsync(User.Identity.Name);
 
             return Ok(player);
@@ -73,7 +73,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");
 
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, playerName.PartitionKey());
+            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.NamePartitionKey(playerName));
             var player = await chessClient.PlayerInfoAsync(playerName);
 
             return Ok(player);

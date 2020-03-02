@@ -9,16 +9,19 @@ namespace ChessFabrickWeb.Utils
 {
     public static class ChessFabrickUtils
     {
-        public static long PartitionNumber(this string id)
+        public static readonly int PARTITION_COUNT = 5;
+
+        public static ServicePartitionKey NamePartitionKey(string name)
         {
-            return id[id.Length - 1] % 5;
-        }
-        public static ServicePartitionKey PartitionKey(this string id)
-        {
-            return new ServicePartitionKey(id.PartitionNumber());
+            return new ServicePartitionKey(name[name.Length - 1] % PARTITION_COUNT);
         }
 
-        public static string GameGroupName(this string gameId)
+        public static ServicePartitionKey GuidPartitionKey(string guid)
+        {
+            return new ServicePartitionKey(long.Parse(guid.Substring(guid.LastIndexOf('-') + 1), System.Globalization.NumberStyles.HexNumber) % PARTITION_COUNT);
+        }
+
+        public static string GameGroupName(string gameId)
         {
             return $"game-{gameId}";
         }
