@@ -33,12 +33,12 @@ namespace ChessFabrickWeb.Services
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.userServiceUri = ChessFabrickWeb.GetChessFabrickUserServiceName(context);
+            this.userServiceUri = ChessFabrickWeb.GetChessFabrickPlayersStatefulName(context);
         }
 
         public async Task<UserModel> Authenticate(string userName, string password)
         {
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(userName));
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(userName));
             var player = await userClient.PlayerInfoAsync(userName);
 
             if (player == null)

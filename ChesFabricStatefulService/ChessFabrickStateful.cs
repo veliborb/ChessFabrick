@@ -25,7 +25,7 @@ namespace ChessFabrickStateful
     internal sealed class ChessFabrickStateful : StatefulService, IChessFabrickStatefulService
     {
         private ServiceProxyFactory proxyFactory;
-        private readonly Uri userServiceUri;
+        private readonly Uri playerServiceUri;
 
         public ChessFabrickStateful(StatefulServiceContext context) : base(context)
         {
@@ -33,7 +33,7 @@ namespace ChessFabrickStateful
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.userServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickUserService");
+            this.playerServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace ChessFabrickStateful
 
         public async Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor)
         {
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
-            var player = await userClient.PlayerInfoAsync(playerName);
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var player = await playersClient.PlayerInfoAsync(playerName);
             var dictGames = await GetNewGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
@@ -111,8 +111,8 @@ namespace ChessFabrickStateful
 
         public async Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName)
         {
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
-            var player = await userClient.PlayerInfoAsync(playerName);
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var player = await playersClient.PlayerInfoAsync(playerName);
             var dictNewGames = await GetNewGameDict();
             var dictActiveGames = await GetActiveGameDict();
             using (var tx = StateManager.CreateTransaction())

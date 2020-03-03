@@ -12,14 +12,14 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 
-namespace ChessFabrickUserService
+namespace ChessFabrickPlayersStateful
 {
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
-    internal sealed class ChessFabrickUserService : StatefulService, IChessFabrickUserService
+    internal sealed class ChessFabrickPlayersStateful : StatefulService, IChessFabrickPlayersStatefulService
     {
-        public ChessFabrickUserService(StatefulServiceContext context)
+        public ChessFabrickPlayersStateful(StatefulServiceContext context)
             : base(context)
         { }
 

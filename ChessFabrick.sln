@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickCommons", "Ches
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickWeb", "ChessFabrickWeb\ChessFabrickWeb.csproj", "{597DCFE2-428E-4AB1-9A3A-93587D180DC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickUserService", "ChessFabrickUserService\ChessFabrickUserService.csproj", "{6DE2F00E-66EC-4085-8AB8-01AE79D94070}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickPlayersStateful", "ChessFabrickUserService\ChessFabrickPlayersStateful.csproj", "{6DE2F00E-66EC-4085-8AB8-01AE79D94070}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

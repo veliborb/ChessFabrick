@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ChessFabrickCommons.Services
 {
-    public interface IChessFabrickUserService : IService
+    public interface IChessFabrickPlayersStatefulService : IService
     {
         Task<ChessPlayer> NewPlayerAsync(string name);
         Task<ChessPlayer> PlayerInfoAsync(string playerName);

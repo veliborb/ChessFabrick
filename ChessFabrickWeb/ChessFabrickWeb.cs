@@ -30,9 +30,9 @@ namespace ChessFabrickWeb
             return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickStateful");
         }
 
-        internal static Uri GetChessFabrickUserServiceName(ServiceContext context)
+        internal static Uri GetChessFabrickPlayersStatefulName(ServiceContext context)
         {
-            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickUserService");
+            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
         }
 
         /// <summary>

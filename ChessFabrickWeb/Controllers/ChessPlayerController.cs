@@ -19,7 +19,7 @@ namespace ChessFabrickWeb.Controllers
     {
         private readonly StatelessServiceContext context;
         private readonly ServiceProxyFactory proxyFactory;
-        private readonly Uri userServiceUri;
+        private readonly Uri playerServiceUri;
         private readonly IUserService userService;
 
         public ChessPlayerController(StatelessServiceContext context, IUserService userService)
@@ -29,7 +29,7 @@ namespace ChessFabrickWeb.Controllers
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.userServiceUri = ChessFabrickWeb.GetChessFabrickUserServiceName(context);
+            this.playerServiceUri = ChessFabrickWeb.GetChessFabrickPlayersStatefulName(context);
             this.userService = userService;
         }
 
@@ -38,8 +38,8 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name})");
 
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(model.Name));
-            var player = await userClient.NewPlayerAsync(model.Name);
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(model.Name));
+            var player = await playersClient.NewPlayerAsync(model.Name);
             var user = await userService.Authenticate(model.Name, model.Password);
 
             return Ok(user);
@@ -61,7 +61,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
 
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
             var player = await userClient.PlayerInfoAsync(User.Identity.Name);
 
             return Ok(player);
@@ -73,7 +73,7 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");
 
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
             var player = await userClient.PlayerInfoAsync(playerName);
 
             return Ok(player);
