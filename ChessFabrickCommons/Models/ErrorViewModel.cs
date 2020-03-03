@@ -1,6 +1,6 @@
 using System;
 
-namespace ChessFabrickWeb.Models
+namespace ChessFabrickCommons.Models
 {
     public class ErrorViewModel
     {

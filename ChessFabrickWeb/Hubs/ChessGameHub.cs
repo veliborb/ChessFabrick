@@ -93,7 +93,7 @@ namespace ChessFabrickWeb.Hubs
         [Authorize]
         public async Task GetPieceMoves(string gameId, string field)
         {
-            ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetMoves({gameId}, {field}): {Context.User.Identity.Name}");
+            ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetPieceMoves({gameId}, {field}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));

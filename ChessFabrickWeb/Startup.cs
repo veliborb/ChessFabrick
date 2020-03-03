@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChessFabrickWeb.Hubs;
-using ChessFabrickWeb.Models;
 using ChessFabrickWeb.Providers;
 using ChessFabrickWeb.Services;
 using ChessFabrickWeb.Utils;

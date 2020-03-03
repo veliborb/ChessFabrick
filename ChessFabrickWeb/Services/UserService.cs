@@ -1,5 +1,4 @@
-﻿using ChessFabrickWeb.Models;
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -12,6 +11,7 @@ using System.Fabric;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
 using ChessFabrickWeb.Utils;
+using ChessFabrickCommons.Models;
 
 namespace ChessFabrickWeb.Services
 {

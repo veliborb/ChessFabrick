@@ -139,8 +139,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AuthForm.Designer.cs">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ChessFieldBox.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ChessOnlineForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChessOnlineForm.Designer.cs">
+      <DependentUpon>ChessOnlineForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ChessOfflineForm.cs">
       <SubType>Form</SubType>
@@ -154,6 +166,12 @@
     <Compile Include="ConnectionForm.Designer.cs">
       <DependentUpon>ConnectionForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GameSelectorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GameSelectorForm.Designer.cs">
+      <DependentUpon>GameSelectorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,14 +184,23 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AuthForm.resx">
+      <DependentUpon>AuthForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ChessFieldBox.resx">
       <DependentUpon>ChessFieldBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChessOnlineForm.resx">
+      <DependentUpon>ChessOnlineForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ChessOfflineForm.resx">
       <DependentUpon>ChessOfflineForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ConnectionForm.resx">
       <DependentUpon>ConnectionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GameSelectorForm.resx">
+      <DependentUpon>GameSelectorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -209,6 +236,10 @@
     <ProjectReference Include="..\ChessCommons\ChessCommons.csproj">
       <Project>{0914b6cf-f590-4100-bf36-f3fbc9c71516}</Project>
       <Name>ChessCommons</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ChessFabrickCommons\ChessFabrickCommons.csproj">
+      <Project>{33B95FF4-00CD-4661-9438-3E6122C63765}</Project>
+      <Name>ChessFabrickCommons</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

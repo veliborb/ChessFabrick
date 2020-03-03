@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Fabric;
 using System.Threading.Tasks;
+using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickCommons.Utils;
-using ChessFabrickWeb.Models;
 using ChessFabrickWeb.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
