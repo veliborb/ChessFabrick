@@ -24,7 +24,7 @@ namespace ChessFabrickWeb.Services
     {
         private readonly AppSettings appSettings;
         private readonly ServiceProxyFactory proxyFactory;
-        private readonly Uri chessStatefulUri;
+        private readonly Uri userServiceUri;
 
         public UserService(IOptions<AppSettings> appSettings, StatelessServiceContext context)
         {
@@ -33,13 +33,13 @@ namespace ChessFabrickWeb.Services
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
+            this.userServiceUri = ChessFabrickWeb.GetChessFabrickUserServiceName(context);
         }
 
         public async Task<UserModel> Authenticate(string userName, string password)
         {
-            IChessFabrickStatefulService chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.NamePartitionKey(userName));
-            var player = await chessClient.PlayerInfoAsync(userName);
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(userName));
+            var player = await userClient.PlayerInfoAsync(userName);
 
             if (player == null)
             {

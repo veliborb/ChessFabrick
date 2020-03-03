@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickCommons", "Ches
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickWeb", "ChessFabrickWeb\ChessFabrickWeb.csproj", "{597DCFE2-428E-4AB1-9A3A-93587D180DC5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessFabrickUserService", "ChessFabrickUserService\ChessFabrickUserService.csproj", "{6DE2F00E-66EC-4085-8AB8-01AE79D94070}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,14 @@ Global
 		{597DCFE2-428E-4AB1-9A3A-93587D180DC5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{597DCFE2-428E-4AB1-9A3A-93587D180DC5}.Release|x64.ActiveCfg = Release|Any CPU
 		{597DCFE2-428E-4AB1-9A3A-93587D180DC5}.Release|x64.Build.0 = Release|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Debug|x64.Build.0 = Debug|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Release|x64.ActiveCfg = Release|Any CPU
+		{6DE2F00E-66EC-4085-8AB8-01AE79D94070}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

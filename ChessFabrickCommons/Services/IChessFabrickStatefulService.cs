@@ -12,8 +12,6 @@ namespace ChessFabrickCommons.Services
     public interface IChessFabrickStatefulService : IService
     {
         Task<string> HelloChessAsync();
-        Task<ChessPlayer> NewPlayerAsync(string name);
-        Task<ChessPlayer> PlayerInfoAsync(string playerName);
         Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor);
         Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName);
         Task<List<string>> NewGameIdsAsync();
@@ -21,6 +19,6 @@ namespace ChessFabrickCommons.Services
         Task<List<string>> CompletedGameIdsAsync();
         Task<ChessGameState> GameStateAsync(string gameId);
         Task<List<string>> ListPieceMovesAsync(string gameId, string from);
-        Task<ChessGameState> MovePieceAsync(string playerName, string gameId, string from, string to);
+        Task<ChessGameState> MovePieceAsync(string gameId, string playerName, string from, string to);
     }
 }

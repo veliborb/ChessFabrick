@@ -8,9 +8,12 @@ using ChessCommons;
 using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Utils;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 
@@ -21,29 +24,17 @@ namespace ChessFabrickStateful
     /// </summary>
     internal sealed class ChessFabrickStateful : StatefulService, IChessFabrickStatefulService
     {
-        private Task<IReliableDictionary2<string, ChessPlayer>> GetPlayerDict()
-        {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessPlayer>>("dict_players");
-        }
+        private ServiceProxyFactory proxyFactory;
+        private readonly Uri userServiceUri;
 
-        private Task<IReliableDictionary2<string, ChessGameInfo>> GetNewGameDict()
+        public ChessFabrickStateful(StatefulServiceContext context) : base(context)
         {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_new_games");
+            this.proxyFactory = new ServiceProxyFactory((c) =>
+            {
+                return new FabricTransportServiceRemotingClientFactory();
+            });
+            this.userServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickUserService");
         }
-
-        private Task<IReliableDictionary2<string, ChessGameInfo>> GetActiveGameDict()
-        {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_active_games");
-        }
-
-        private Task<IReliableDictionary2<string, ChessGameInfo>> GetCompletedGameDict()
-        {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_completed_games");
-        }
-
-        public ChessFabrickStateful(StatefulServiceContext context)
-            : base(context)
-        { }
 
         /// <summary>
         /// Optional override to create listeners (e.g., HTTP, Service Remoting, WCF, etc.) for this service replica to handle client or user requests.
@@ -63,15 +54,19 @@ namespace ChessFabrickStateful
              };
         }
 
-        private async Task<ChessPlayer> GetPlayerAsync(ITransaction tx, string playerName)
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetNewGameDict()
         {
-            var dictPlayers = await GetPlayerDict();
-            var player = await dictPlayers.TryGetValueAsync(tx, playerName);
-            if (!player.HasValue)
-            {
-                throw new ArgumentException("Player does not exist.");
-            }
-            return player.Value;
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_new_games");
+        }
+
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetActiveGameDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_active_games");
+        }
+
+        private Task<IReliableDictionary2<string, ChessGameInfo>> GetCompletedGameDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessGameInfo>>("dict_completed_games");
         }
 
         private async Task<ChessGameInfo> GetActiveGameAsync(ITransaction tx, string gameId)
@@ -98,37 +93,13 @@ namespace ChessFabrickStateful
             return Task.FromResult($"Allo Chess: {Guid.NewGuid().ToString()}");
         }
 
-        public async Task<ChessPlayer> NewPlayerAsync(string playerName)
+        public async Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor)
         {
-            if (string.IsNullOrEmpty(playerName))
-            {
-                throw new ArgumentException("Player name must not be empty");
-            }
-
-            var dictPlayers = await GetPlayerDict();
-            using (var tx = StateManager.CreateTransaction())
-            {
-                var player = new ChessPlayer(playerName);
-                await dictPlayers.AddAsync(tx, playerName, player);
-                await tx.CommitAsync();
-                return player;
-            }
-        }
-
-        public async Task<ChessPlayer> PlayerInfoAsync(string playerName)
-        {
-            using (var tx = StateManager.CreateTransaction())
-            {
-                return await GetPlayerAsync(tx, playerName);
-            }
-        }
-
-        public async Task<ChessGameInfo> NewGameAsync(string playerName, string gameId, PieceColor playerColor)
-        {
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var player = await userClient.PlayerInfoAsync(playerName);
             var dictGames = await GetNewGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
-                var player = await GetPlayerAsync(tx, playerName);
                 var game = playerColor == PieceColor.White ?
                     new ChessGameInfo(gameId, player, null) :
                     new ChessGameInfo(gameId, null, player);
@@ -138,13 +109,14 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameInfo> JoinGameAsync(string playerName, string gameId)
+        public async Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName)
         {
+            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickUserService>(userServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var player = await userClient.PlayerInfoAsync(playerName);
             var dictNewGames = await GetNewGameDict();
             var dictActiveGames = await GetActiveGameDict();
             using (var tx = StateManager.CreateTransaction())
             {
-                var player = await GetPlayerAsync(tx, playerName);
                 var game = await dictNewGames.TryGetValueAsync(tx, gameId);
                 if (!game.HasValue)
                 {
@@ -190,7 +162,7 @@ namespace ChessFabrickStateful
             return moves;
         }
 
-        public async Task<ChessGameState> MovePieceAsync(string playerName, string gameId, string from, string to)
+        public async Task<ChessGameState> MovePieceAsync(string gameId, string playerName, string from, string to)
         {
             var dictActiveGames = await GetActiveGameDict();
             var dictCompletedGames = await GetCompletedGameDict();

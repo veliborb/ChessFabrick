@@ -30,6 +30,11 @@ namespace ChessFabrickWeb
             return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickStateful");
         }
 
+        internal static Uri GetChessFabrickUserServiceName(ServiceContext context)
+        {
+            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickUserService");
+        }
+
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service instance.
         /// </summary>
@@ -62,28 +67,5 @@ namespace ChessFabrickWeb
                     }))
             };
         }
-        //public static IWebHostBuilder UseCommonConfiguration(this IWebHostBuilder builder)
-        //{
-        //    builder.ConfigureAppConfiguration((hostingContext, config) =>
-        //    {
-        //        var env = hostingContext.HostingEnvironment;
-
-        //        config.Add("appsettings.json", optional: true, reloadOnChange: true)
-        //            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-
-        //        if (env.IsDevelopment())
-        //        {
-        //            var appAssembly = Assembly.Load(new AssemblyName(env.ApplicationName));
-        //            if (appAssembly != null)
-        //            {
-        //                config.AddUserSecrets(appAssembly, optional: true);
-        //            }
-        //        }
-
-        //        config.AddEnvironmentVariables();
-        //    });
-
-        //    return builder;
-        //}
     }
 }

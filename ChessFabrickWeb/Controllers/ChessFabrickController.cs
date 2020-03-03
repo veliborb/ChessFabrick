@@ -25,6 +25,7 @@ namespace ChessFabrickWeb.Controllers
         private readonly StatelessServiceContext context;
         private readonly ServiceProxyFactory proxyFactory;
         private readonly Uri chessStatefulUri;
+        private readonly Uri userServiceUri;
         private readonly IHubContext<ChessGameHub> gameHubContext;
 
         public ChessFabrickController(HttpClient httpClient, StatelessServiceContext context, FabricClient fabricClient, IHubContext<ChessGameHub> gameHubContext)
@@ -37,6 +38,7 @@ namespace ChessFabrickWeb.Controllers
                 return new FabricTransportServiceRemotingClientFactory();
             });
             this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
+            this.userServiceUri = ChessFabrickWeb.GetChessFabrickUserServiceName(context);
             this.gameHubContext = gameHubContext;
         }
 
@@ -92,7 +94,7 @@ namespace ChessFabrickWeb.Controllers
             }
         }
 
-        [HttpGet("game/active")]
+        [HttpGet("game")]
         public async Task<IActionResult> GetActiveGames()
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetActiveGames()");
