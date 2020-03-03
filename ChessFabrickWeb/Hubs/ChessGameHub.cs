@@ -43,12 +43,13 @@ namespace ChessFabrickWeb.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async Task GetTest()
+        public async Task<string> GetTest()
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetTest()");
             var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(new Random().Next(0, 4)));
             string message = await chessClient.HelloChessAsync();
             await Clients.All.SendAsync("Test", message);
+            return "TTT";
         }
 
         [Authorize]
@@ -58,13 +59,13 @@ namespace ChessFabrickWeb.Hubs
             await Clients.All.SendAsync("Test", $"Name: {Context.User.Identity.Name}");
         }
 
-        public async Task JoinGame(string gameId)
+        public async Task SpectateGame(string gameId)
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"JoinGame({gameId}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var board = await chessClient.GameStateAsync(gameId);
+                var board = await chessClient.ActiveGameStateAsync(gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
                 await Clients.Caller.SendAsync("OnBoardChanged", board);
             }
@@ -74,14 +75,13 @@ namespace ChessFabrickWeb.Hubs
             }
         }
 
-        [Authorize]
         public async Task LeaveGame(string gameId)
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"LeaveGame({gameId}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var board = await chessClient.GameStateAsync(gameId);
+                var board = await chessClient.ActiveGameStateAsync(gameId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
             }
             catch (Exception ex)

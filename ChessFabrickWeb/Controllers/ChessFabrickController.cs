@@ -17,7 +17,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
 namespace ChessFabrickWeb.Controllers
 {
     [Produces("application/json")]
-    [Route("api/chess")]
+    [Route("api/game")]
     public class ChessFabrickController : Controller
     {
         private readonly HttpClient httpClient;
@@ -42,38 +42,52 @@ namespace ChessFabrickWeb.Controllers
             this.gameHubContext = gameHubContext;
         }
 
-        /// <summary>
-        /// Constructs a reverse proxy URL for a given service.
-        /// Example: http://localhost:19081/ChessFabrickApp/ChessFabrickStateful"
-        /// </summary>
-        /// <param name="serviceName"></param>
-        /// <returns></returns>
-        private Uri GetProxyAddress(Uri serviceName)
-        {
-            return new Uri($"http://localhost:19081{serviceName.AbsolutePath}");
-        }
-
         [HttpGet]
-        public async Task<IActionResult> GetTest()
+        public async Task<IActionResult> GetActiveGames()
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetTest()");
-
-            Uri chessServiceUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
-            Uri proxyAddress = GetProxyAddress(chessServiceUri);
-
+            ServiceEventSource.Current.ServiceMessage(context, $"GetActiveGames()");
+            var gameIds = new List<string>();
             var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
             foreach (var partition in partitions)
             {
                 var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
-                ServiceEventSource.Current.ServiceMessage(context, $"Partition {partitionInfo.Id}, {partitionInfo.LowKey}, {partitionInfo.HighKey}, {partitionInfo.Kind}");
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
+                var games = await chessClient.ActiveGameIdsAsync();
+                gameIds.AddRange(games);
             }
+            return Ok(gameIds);
+        }
 
-            ServiceEventSource.Current.ServiceMessage(context, $"chessServiceUri: {chessServiceUri}; proxyAddress: {proxyAddress}, partitions: {partitions.Count}");
+        [HttpGet("completed")]
+        public async Task<IActionResult> GetCompletedGames()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetCompletedGames()");
+            var gameIds = new List<string>();
+            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
+            foreach (var partition in partitions)
+            {
+                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
+                var games = await chessClient.CompletedGameIdsAsync();
+                gameIds.AddRange(games);
+            }
+            return Ok(gameIds);
+        }
 
-            var helloWorldClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessServiceUri, new ServicePartitionKey(new Random().Next(0, 4)));
-            string message = await helloWorldClient.HelloChessAsync();
-
-            return Ok(message);
+        [HttpGet("new")]
+        public async Task<IActionResult> GetNewGames()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetNewGames()");
+            var gameIds = new List<string>();
+            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
+            foreach (var partition in partitions)
+            {
+                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
+                var games = await chessClient.NewGameIdsAsync();
+                gameIds.AddRange(games);
+            }
+            return Ok(gameIds);
         }
 
         [Authorize]
@@ -94,40 +108,8 @@ namespace ChessFabrickWeb.Controllers
             }
         }
 
-        [HttpGet("game")]
-        public async Task<IActionResult> GetActiveGames()
-        {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetActiveGames()");
-            var gameIds = new List<string>();
-            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
-            foreach (var partition in partitions)
-            {
-                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
-                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
-                var games = await chessClient.ActiveGameIdsAsync();
-                gameIds.AddRange(games);
-            }
-            return Ok(gameIds);
-        }
-
-        [HttpGet("game/{gameId}")]
-        public async Task<IActionResult> GetGameState(string gameId)
-        {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
-            try
-            {
-                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var board = await chessClient.GameStateAsync(gameId);
-                return Ok(board);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
         [Authorize]
-        [HttpPost("game/{gameId}/join")]
+        [HttpPost("new/{gameId}/join")]
         public async Task<IActionResult> PostJoinGame(string gameId)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostJoinGame({gameId}): {User.Identity.Name}");
@@ -137,9 +119,34 @@ namespace ChessFabrickWeb.Controllers
                 var game = await chessClient.JoinGameAsync(gameId, User.Identity.Name);
                 await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
                 return Ok(game);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("{gameId}")]
+        public async Task<IActionResult> GetGameState(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
+            var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+            try
+            {
+                var board = await chessClient.ActiveGameStateAsync(gameId);
+                return Ok(board);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    var board = await chessClient.CompletedGameStateAsync(gameId);
+                    return Ok(board);
+                }
+                catch (Exception ex1)
+                {
+                    return StatusCode(500, ex1.Message);
+                }
             }
         }
     }

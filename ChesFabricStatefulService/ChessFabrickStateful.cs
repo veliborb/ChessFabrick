@@ -136,12 +136,26 @@ namespace ChessFabrickStateful
             }
         }
 
-        public async Task<ChessGameState> GameStateAsync(string gameId)
+        public async Task<ChessGameState> ActiveGameStateAsync(string gameId)
         {
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await GetActiveGameAsync(tx, gameId);
                 return new ChessGameState(game);
+            }
+        }
+
+        public async Task<ChessGameState> CompletedGameStateAsync(string gameId)
+        {
+            var dictGames = await GetCompletedGameDict();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var game = await dictGames.TryGetValueAsync(tx, gameId);
+                if (!game.HasValue)
+                {
+                    throw new ArgumentException("Game does not exist.");
+                }
+                return new ChessGameState(game.Value);
             }
         }
 

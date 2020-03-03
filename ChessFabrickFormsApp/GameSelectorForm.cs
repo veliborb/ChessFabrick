@@ -128,7 +128,7 @@ namespace ChessFabrickFormsApp
 
         private async Task<List<string>> GetNewGamesAsync()
         {
-            HttpResponseMessage response = await client.GetAsync("api/chess/new");
+            HttpResponseMessage response = await client.GetAsync("api/game/new");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();
@@ -138,7 +138,7 @@ namespace ChessFabrickFormsApp
 
         private async Task<List<string>> GetActiveGamesAsync()
         {
-            HttpResponseMessage response = await client.GetAsync("api/chess/game");
+            HttpResponseMessage response = await client.GetAsync("api/game");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();
@@ -148,7 +148,7 @@ namespace ChessFabrickFormsApp
 
         private async Task<ChessGameState> GetGameStateAsync(string gameId)
         {
-            HttpResponseMessage response = await client.GetAsync($"api/chess/game/{gameId}");
+            HttpResponseMessage response = await client.GetAsync($"api/game/{gameId}");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();
@@ -158,7 +158,7 @@ namespace ChessFabrickFormsApp
 
         private async Task<ChessGameInfo> PostNewGameAsync(NewGameModel model)
         {
-            HttpResponseMessage response = await client.PostAsync("api/chess/new",
+            HttpResponseMessage response = await client.PostAsync("api/game/new",
                 new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
             response.EnsureSuccessStatusCode();
 
@@ -169,7 +169,7 @@ namespace ChessFabrickFormsApp
 
         private async Task<ChessGameState> PostJoinGameAsync(string gameId)
         {
-            HttpResponseMessage response = await client.PostAsync($"api/chess/game/{gameId}/join", null);
+            HttpResponseMessage response = await client.PostAsync($"api/game/new/{gameId}/join", null);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();

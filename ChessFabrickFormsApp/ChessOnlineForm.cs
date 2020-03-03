@@ -121,6 +121,14 @@ namespace ChessFabrickFormsApp
             connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => Console.WriteLine($"{from}, {to}, {board}") );
         }
 
+        private async void ChessForm_Load(object sender, EventArgs e)
+        {
+            await connection.StartAsync();
+            var result = await connection.InvokeAsync<string>("GetTest");
+            Console.WriteLine(result);
+            UpdateBoard();
+        }
+
         private void ShowPieceMoves(string field, List<string> moves)
         {
             var selectedField = ChessGameUtils.FieldFromString(field);
@@ -131,12 +139,6 @@ namespace ChessFabrickFormsApp
                 possibleMoves.Add(ChessGameUtils.FieldFromString(move));
             }
             RefreshViews();
-        }
-
-        private async void ChessForm_Load(object sender, EventArgs e)
-        {
-            await connection.StartAsync();
-            UpdateBoard();
         }
 
         private void UpdateBoard()
