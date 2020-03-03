@@ -22,9 +22,10 @@ namespace ChessFabrickFormsApp
 
         public ChessOfflineForm()
         {
-            Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             InitializeComponent();
             InitializeBoard();
+
+            Icon = Icon.FromHandle(Properties.Resources.knight_black.GetHicon());
         }
 
         private void InitializeBoard()
@@ -126,8 +127,8 @@ namespace ChessFabrickFormsApp
                 cfbPlaying.Image = PieceImageUtils.Pawn(board.TurnColor);
             }
 
-            pieceListPanelBlack.setPieces(board.GetCaptured(PieceColor.Black));
-            pieceListPanelWhite.setPieces(board.GetCaptured(PieceColor.White));
+            pieceListPanelBlack.SetPieces(board.GetCaptured(PieceColor.Black));
+            pieceListPanelWhite.SetPieces(board.GetCaptured(PieceColor.White));
 
             for (int i = 0; i < 8; ++i)
             {

@@ -49,11 +49,13 @@ namespace ChessFabrickFormsApp
                 playerColor = PieceColor.Black;
             }
 
-            Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             InitializeComponent();
             InitializeBoard();
             InitHttpClient();
             InitHubConnection();
+
+            Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
+            Text = $"Chess - {user.Player.Name}";
         }
 
         public ChessOnlineForm(UserModel user, Uri host, ChessGameState gameState)
@@ -115,30 +117,22 @@ namespace ChessFabrickFormsApp
                 })
                 .Build();
             connection.On<string>("Test", (message) => { Console.WriteLine($"{message}"); });
-            connection.On<string>("OnError", (message) => { Console.Error.WriteLine($"{message}"); });
-            connection.On<ChessGameState>("OnBoardChanged", (board) => Console.WriteLine($"{board}") );
-            connection.On<string, List<string>>("ShowPieceMoves", (field, moves) => ShowPieceMoves(field, moves) );
-            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => Console.WriteLine($"{from}, {to}, {board}") );
+            connection.On<ChessGameState>("OnBoardChanged", (board) => OnBoardChanged(board) );
+            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnBoardChanged(board));
+            connection.On<ChessGameState>("OnPlayerJoined", (board) => OnBoardChanged(board));
         }
 
         private async void ChessForm_Load(object sender, EventArgs e)
         {
             await connection.StartAsync();
-            var result = await connection.InvokeAsync<string>("GetTest");
-            Console.WriteLine(result);
-            UpdateBoard();
-        }
-
-        private void ShowPieceMoves(string field, List<string> moves)
-        {
-            var selectedField = ChessGameUtils.FieldFromString(field);
-            selectedPiece = board[selectedField.Item1, selectedField.Item2];
-            possibleMoves = new List<Tuple<int, int>>(moves.Count);
-            foreach (var move in moves)
+            if (playerColor == null)
             {
-                possibleMoves.Add(ChessGameUtils.FieldFromString(move));
+                gameState = await connection.InvokeAsync<ChessGameState>("SpectateGame", gameId);
+            } else if (gameState != null)
+            {
+                gameState = await connection.InvokeAsync<ChessGameState>("JoinGame", gameId);
             }
-            RefreshViews();
+            UpdateBoard();
         }
 
         private void UpdateBoard()
@@ -157,13 +151,18 @@ namespace ChessFabrickFormsApp
 
         private void RefreshViews()
         {
-            if (board.IsCheckmate)
+            if (gameState == null)
+            {
+                return;
+            }
+
+            if (gameState.IsCheckmate)
             {
                 panTable.Enabled = false;
                 labPlaying.Text = "Victory";
-                cfbPlaying.Image = PieceImageUtils.King(board.TurnColor);
+                cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn);
             }
-            else if (board.IsDraw)
+            else if (gameState.IsDraw)
             {
                 panTable.Enabled = false;
                 labPlaying.Text = "Draw";
@@ -173,11 +172,11 @@ namespace ChessFabrickFormsApp
             {
                 panTable.Enabled = true;
                 labPlaying.Text = "Now playing";
-                cfbPlaying.Image = PieceImageUtils.Pawn(board.TurnColor);
+                cfbPlaying.Image = PieceImageUtils.Pawn(gameState.OnTurn);
             }
 
-            pieceListPanelBlack.setPieces(board.GetCaptured(PieceColor.Black));
-            pieceListPanelWhite.setPieces(board.GetCaptured(PieceColor.White));
+            pieceListPanelBlack.SetPieceChars(gameState.CapturedPieces.Where(c => c >= 'a' && c <= 'z').ToList());
+            pieceListPanelWhite.SetPieceChars(gameState.CapturedPieces.Where(c => c >= 'A' && c <= 'Z').ToList());
 
             for (int i = 0; i < 8; ++i)
             {
@@ -190,13 +189,14 @@ namespace ChessFabrickFormsApp
                 }
             }
 
-            if (board.IsCheck)
+            if (gameState.CheckingPieces?.Count > 0)
             {
                 var king = board.King(board.TurnColor);
                 fieldBoxes[king.X, king.Y].Style = ChessFieldBox.BoxStyle.Checked;
-                foreach (var piece in board.CheckingPieces)
+                foreach (var piece in gameState.CheckingPieces)
                 {
-                    fieldBoxes[piece.X, piece.Y].Style = ChessFieldBox.BoxStyle.Checking;
+                    var field = ChessGameUtils.FieldFromString(piece);
+                    fieldBoxes[field.Item1, field.Item2].Style = ChessFieldBox.BoxStyle.Checking;
                 }
             }
 
@@ -227,32 +227,43 @@ namespace ChessFabrickFormsApp
             if (selectedPiece == null)
             {
                 selectedPiece = board[field.Item1, field.Item2];
-                if (selectedPiece?.Color != playerColor || selectedPiece?.Color != board.TurnColor)
+                if (selectedPiece?.Color != playerColor || selectedPiece?.Color != gameState.OnTurn)
                 {
                     selectedPiece = null;
                 }
                 if (selectedPiece != null)
                 {
-                    var res = await connection.InvokeAsync<string>("GetPieceMoves", gameId,
+                    var moves = await connection.InvokeAsync<List<string>>("GetPieceMoves", gameId,
                         ChessGameUtils.FieldToString(selectedPiece.X, selectedPiece.Y)
                     );
+                    possibleMoves = new List<Tuple<int, int>>(moves.Count);
+                    foreach (var move in moves)
+                    {
+                        possibleMoves.Add(ChessGameUtils.FieldFromString(move));
+                    }
                 }
             }
             else
             {
                 if (possibleMoves.Contains(field))
                 {
-                    var res = await connection.InvokeAsync<string>("MovePiece", gameId, 
+                    gameState = await connection.InvokeAsync<ChessGameState>("MovePiece", gameId, 
                         ChessGameUtils.FieldToString(selectedPiece.X, selectedPiece.Y), 
                         ChessGameUtils.FieldToString(field.Item1, field.Item2)
                     );
-                    selectedPiece.MoveTo(field.Item1, field.Item2);
-                    Console.WriteLine(res);
                 }
                 selectedPiece = null;
                 possibleMoves = null;
             }
             RefreshViews();
+        }
+
+        private void OnBoardChanged(ChessGameState board)
+        {
+            gameState = board;
+            selectedPiece = null;
+            possibleMoves = null;
+            UpdateBoard();
         }
     }
 }

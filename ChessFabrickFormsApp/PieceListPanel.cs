@@ -77,7 +77,17 @@ namespace ChessFabrickFormsApp
             ResumeLayout(true);
         }
 
-        public void setPieces(List<Piece> pieces)
+        public void SetPieceChars(List<char> pieceChars)
+        {
+            var pieces = new List<Piece>(pieceChars.Count);
+            foreach (var c in pieceChars)
+            {
+                pieces.Add(ChessGameUtils.FromChar(c));
+            }
+            SetPieces(pieces);
+        }
+
+        public void SetPieces(List<Piece> pieces)
         {
             this.pieces = pieces ?? new List<Piece>();
             RefreshList();

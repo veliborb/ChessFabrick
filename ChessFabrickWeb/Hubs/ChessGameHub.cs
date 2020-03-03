@@ -1,4 +1,5 @@
-﻿using ChessFabrickCommons.Services;
+﻿using ChessFabrickCommons.Models;
+using ChessFabrickCommons.Services;
 using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -49,75 +50,108 @@ namespace ChessFabrickWeb.Hubs
             var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(new Random().Next(0, 4)));
             string message = await chessClient.HelloChessAsync();
             await Clients.All.SendAsync("Test", message);
-            return "TTT";
+            return "Test";
         }
 
         [Authorize]
-        public async Task GetSecret()
+        public async Task<string> GetSecret()
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetSecret(): {Context.User.Identity.Name}");
             await Clients.All.SendAsync("Test", $"Name: {Context.User.Identity.Name}");
+            return "Secret";
         }
 
-        public async Task SpectateGame(string gameId)
+        public async Task<ChessGameState> SpectateGame(string gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(serviceContext, $"JoinGame({gameId}): {Context.User.Identity.Name}");
+            ServiceEventSource.Current.ServiceMessage(serviceContext, $"SpectateGame({gameId}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var board = await chessClient.ActiveGameStateAsync(gameId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
-                await Clients.Caller.SendAsync("OnBoardChanged", board);
+                return board;
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("OnError", ex.Message);
+                throw new HubException("Spector", ex);
             }
         }
 
-        public async Task LeaveGame(string gameId)
+        public async Task<ChessGameState> SpectateCrash(string gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(serviceContext, $"LeaveGame({gameId}): {Context.User.Identity.Name}");
+            ServiceEventSource.Current.ServiceMessage(serviceContext, $"SpectateCrash({gameId}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var board = await chessClient.ActiveGameStateAsync(gameId);
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
+                var board = await chessClient.ActiveGameStateAsync("sd");
+                await Groups.AddToGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
+                return board;
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("OnError", ex.Message);
+                throw new HubException("Spector", ex);
             }
         }
 
+        public async Task UnspectateGame(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(serviceContext, $"UnspectateGame({gameId}): {Context.User.Identity.Name}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
+        }
+
         [Authorize]
-        public async Task GetPieceMoves(string gameId, string field)
+        public async Task<List<string>> GetPieceMoves(string gameId, string field)
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"GetPieceMoves({gameId}, {field}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var moves = await chessClient.ListPieceMovesAsync(gameId, field);
-                await Clients.Caller.SendAsync("ShowPieceMoves", field, moves);
+                return moves;
             } catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("OnError", ex.Message);
+                throw new HubException("Spector", ex);
             }
         }
 
         [Authorize]
-        public async Task MovePiece(string gameId, string from, string to)
+        public async Task<ChessGameState> MovePiece(string gameId, string from, string to)
         {
             ServiceEventSource.Current.ServiceMessage(serviceContext, $"MovePiece({gameId}, {from}, {to}): {Context.User.Identity.Name}");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var board = await chessClient.MovePieceAsync(gameId, Context.User.Identity.Name, from, to);
-                await Clients.Users(board.GameInfo.White.Name, board.GameInfo.Black.Name).SendAsync("OnPieceMoved", from, to, board);
+                await Clients.User(board.GameInfo.White.Name == Context.User.Identity.Name ? board.GameInfo.Black.Name : board.GameInfo.White.Name)
+                    .SendAsync("OnPieceMoved", from, to, board);
                 await Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnBoardChanged", board);
-            } catch (Exception ex)
+                return board;
+            }
+            catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("OnError", ex.Message);
+                throw new HubException("Spector", ex);
+            }
+        }
+
+        [Authorize]
+        public async Task<ChessGameState> JoinGame(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(serviceContext, $"JoinGame({gameId}): {Context.User.Identity.Name}");
+            try
+            {
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+                var board = await chessClient.ActiveGameStateAsync(gameId);
+                if (board.GameInfo.White.Name != Context.User.Identity.Name && board.GameInfo.Black.Name == Context.User.Identity.Name)
+                {
+                    throw new ArgumentException("Player not in the game.");
+                }
+                await Clients.User(board.GameInfo.White.Name == Context.User.Identity.Name ? board.GameInfo.Black.Name : board.GameInfo.White.Name)
+                    .SendAsync("OnPlayerJoined", board);
+                return board;
+            }
+            catch (Exception ex)
+            {
+                throw new HubException("Spector", ex);
             }
         }
     }

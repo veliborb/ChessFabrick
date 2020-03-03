@@ -13,6 +13,8 @@ namespace ChessFabrickCommons.Entities
         [DataMember] public ChessPlayer Black { get; private set; }
         [DataMember] public string MoveHistory { get; private set; }
 
+        public ChessGameInfo() { }
+
         public ChessGameInfo(string gameId, ChessPlayer white, ChessPlayer black, string moveHistory = null)
         {
             GameId = gameId;

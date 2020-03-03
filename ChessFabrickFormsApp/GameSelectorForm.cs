@@ -25,10 +25,14 @@ namespace ChessFabrickFormsApp
 
         public GameSelectorForm(UserModel user, Uri host)
         {
-            InitializeComponent();
             this.user = user;
             this.host = host;
+
+            InitializeComponent();
             InitHttpClient();
+
+            Icon = Icon.FromHandle(Properties.Resources.rook_white.GetHicon());
+            Text = $"Game Selector - {user.Player.Name}";
         }
 
         private void InitHttpClient()
@@ -74,7 +78,7 @@ namespace ChessFabrickFormsApp
             try
             {
                 var game = await PostJoinGameAsync(txbGameId.Text);
-                new ChessOnlineForm(user, host, game).Show();
+                new ChessOnlineForm(user, host, new ChessGameState(game)).Show();
             }
             catch (Exception ex)
             {
@@ -167,14 +171,14 @@ namespace ChessFabrickFormsApp
             return JsonConvert.DeserializeObject<ChessGameInfo>(result);
         }
 
-        private async Task<ChessGameState> PostJoinGameAsync(string gameId)
+        private async Task<ChessGameInfo> PostJoinGameAsync(string gameId)
         {
             HttpResponseMessage response = await client.PostAsync($"api/game/new/{gameId}/join", null);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
-            return JsonConvert.DeserializeObject<ChessGameState>(result);
+            return JsonConvert.DeserializeObject<ChessGameInfo>(result);
         }
     }
 }

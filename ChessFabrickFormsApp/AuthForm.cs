@@ -22,6 +22,8 @@ namespace ChessFabrickFormsApp
         public AuthForm()
         {
             InitializeComponent();
+            Text = "Chess Authentication";
+            Icon = Icon.FromHandle(Properties.Resources.rook_black.GetHicon());
         }
 
         private void InitHttpClient(string host)
