@@ -308,6 +308,7 @@ namespace ChessFabrickFormsApp
             gameState = board;
             selectedField = null;
             possibleMoves = null;
+            labPlayerNames.Text = $"White: \n{gameState?.GameInfo?.White?.Name} \nBlack: \n{gameState?.GameInfo?.Black?.Name}";
             UpdateBoard();
         }
     }

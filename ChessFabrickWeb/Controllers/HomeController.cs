@@ -23,6 +23,11 @@ namespace ChessFabrickWeb.Controllers
             return View();
         }
 
+        public IActionResult Chess()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

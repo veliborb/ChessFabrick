@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Fabric;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
@@ -36,7 +37,20 @@ namespace ChessFabrickWeb.Controllers
         [HttpPost("new")]
         public async Task<IActionResult> PostNewPlayer([FromBody] AuthenticationModel model)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name})");
+            ServiceEventSource.Current.ServiceMessage(context, $"PostNewPlayer({model.Name}, {model.Password})");
+
+            if (string.IsNullOrEmpty(model.Name) || model.Name.Length > 30)
+            {
+                return BadRequest("Username must not be empty or longer than 30 characters.");
+            }
+            if (!Regex.IsMatch(model.Name, "^[a-zA-Z0-9_]+$"))
+            {
+                return BadRequest("Username can contain only letters, numbers and underscore.");
+            }
+            //if (!Regex.IsMatch(model.Password, "([a-zA-Z0-9_]+)"))
+            //{
+            //    return BadRequest("Username can contain only letters, numbers and underscore.");
+            //}
 
             var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(model.Name));
             var player = await playersClient.NewPlayerAsync(model.Name);

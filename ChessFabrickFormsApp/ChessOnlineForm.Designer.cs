@@ -36,6 +36,7 @@
             this.labPlayerColor = new System.Windows.Forms.Label();
             this.cfbPlayerColor = new ChessFabrickFormsApp.ChessFieldBox();
             this.txbMessage = new System.Windows.Forms.TextBox();
+            this.labPlayerNames = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlayerColor)).BeginInit();
             this.SuspendLayout();
@@ -119,11 +120,21 @@
             this.txbMessage.Size = new System.Drawing.Size(131, 444);
             this.txbMessage.TabIndex = 11;
             // 
+            // labPlayerNames
+            // 
+            this.labPlayerNames.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.labPlayerNames.Location = new System.Drawing.Point(471, 545);
+            this.labPlayerNames.Name = "labPlayerNames";
+            this.labPlayerNames.Size = new System.Drawing.Size(134, 77);
+            this.labPlayerNames.TabIndex = 13;
+            this.labPlayerNames.Text = "White:\r\nBlack:";
+            // 
             // ChessOnlineForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(625, 634);
+            this.Controls.Add(this.labPlayerNames);
             this.Controls.Add(this.txbMessage);
             this.Controls.Add(this.cfbPlayerColor);
             this.Controls.Add(this.labPlayerColor);
@@ -154,6 +165,7 @@
         private System.Windows.Forms.Label labPlayerColor;
         private ChessFieldBox cfbPlayerColor;
         private System.Windows.Forms.TextBox txbMessage;
+        private System.Windows.Forms.Label labPlayerNames;
     }
 }
 
