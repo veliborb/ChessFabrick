@@ -142,7 +142,7 @@
             this.btnClearMoves.UseVisualStyleBackColor = true;
             this.btnClearMoves.Click += new System.EventHandler(this.btnClearMoves_Click);
             // 
-            // ChessForm
+            // ChessOfflineForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -159,7 +159,8 @@
             this.Controls.Add(this.panTable);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "ChessForm";
+            this.Name = "ChessOfflineForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ChessFabrick";
             this.Load += new System.EventHandler(this.ChessForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).EndInit();

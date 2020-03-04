@@ -72,12 +72,20 @@ namespace ChessFabrickWeb.Controllers
             {
                 try
                 {
-                    var board = await chessClient.CompletedGameStateAsync(gameId);
+                    var board = await chessClient.NewGameStateAsync(gameId);
                     return Ok(board);
                 }
                 catch (Exception ex1)
                 {
-                    return StatusCode(500, ex1.Message);
+                    try
+                    {
+                        var board = await chessClient.CompletedGameStateAsync(gameId);
+                        return Ok(board);
+                    }
+                    catch (Exception ex2)
+                    {
+                        return StatusCode(500, ex2.Message);
+                    }
                 }
             }
         }

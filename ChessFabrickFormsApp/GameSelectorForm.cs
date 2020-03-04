@@ -118,7 +118,7 @@ namespace ChessFabrickFormsApp
         {
             try
             {
-                var game = await GetGameStateAsync(lbActiveGames.SelectedItem.ToString());
+                var game = await GetGameStateAsync(lbYourGames.SelectedItem.ToString());
                 if (game.GameInfo.White == null || game.GameInfo.Black == null)
                 {
                     new ChessOnlineForm(user, host, game.GameInfo).Show();
@@ -164,6 +164,11 @@ namespace ChessFabrickFormsApp
         private void lbActiveGames_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnSpectate.Enabled = lbActiveGames.SelectedItem != null;
+        }
+
+        private void lbYourGames_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnRejoin.Enabled = lbYourGames.SelectedItem != null;
         }
 
         private async Task<List<string>> GetNewGamesAsync()

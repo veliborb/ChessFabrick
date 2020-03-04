@@ -146,6 +146,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "ChessOnlineForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ChessFabrick";
             this.Load += new System.EventHandler(this.ChessForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).EndInit();

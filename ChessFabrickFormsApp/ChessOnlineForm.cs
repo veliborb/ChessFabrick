@@ -127,7 +127,15 @@ namespace ChessFabrickFormsApp
 
         private async void ChessForm_Load(object sender, EventArgs e)
         {
-            await connection.StartAsync();
+            try
+            {
+                await connection.StartAsync();
+            } catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                MessageBox.Show(ex.Message, "Unable to connect to the server", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
             try
             {
                 if (playerColor == null)
@@ -164,7 +172,6 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex);
                 txbMessage.Text = ex.Message;
             }
             RefreshViews();
@@ -172,6 +179,8 @@ namespace ChessFabrickFormsApp
 
         private void RefreshViews()
         {
+            labPlayerNames.Text = $"White: \n{gameState?.GameInfo?.White?.Name} \n\nBlack: \n{gameState?.GameInfo?.Black?.Name}";
+
             if (gameState == null)
             {
                 return;
@@ -308,7 +317,6 @@ namespace ChessFabrickFormsApp
             gameState = board;
             selectedField = null;
             possibleMoves = null;
-            labPlayerNames.Text = $"White: \n{gameState?.GameInfo?.White?.Name} \nBlack: \n{gameState?.GameInfo?.Black?.Name}";
             UpdateBoard();
         }
     }

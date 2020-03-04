@@ -153,6 +153,7 @@
             this.Controls.Add(this.txbHost);
             this.MinimumSize = new System.Drawing.Size(356, 339);
             this.Name = "ConnectionForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ConnectionForm";
             this.ResumeLayout(false);
             this.PerformLayout();

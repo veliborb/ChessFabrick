@@ -19,6 +19,7 @@ namespace ChessFabrickCommons.Services
         Task<List<string>> CompletedGameIdsAsync();
         Task<ChessGameState> ActiveGameStateAsync(string gameId);
         Task<ChessGameState> CompletedGameStateAsync(string gameId);
+        Task<ChessGameState> NewGameStateAsync(string gameId);
         Task<List<string>> ListPieceMovesAsync(string gameId, string from);
         Task<ChessGameState> MovePieceAsync(string gameId, string playerName, string from, string to);
     }

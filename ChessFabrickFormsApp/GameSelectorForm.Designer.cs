@@ -187,6 +187,7 @@
             this.lbYourGames.Name = "lbYourGames";
             this.lbYourGames.Size = new System.Drawing.Size(256, 238);
             this.lbYourGames.TabIndex = 11;
+            this.lbYourGames.SelectedIndexChanged += new System.EventHandler(this.lbYourGames_SelectedIndexChanged);
             // 
             // label3
             // 
@@ -239,6 +240,7 @@
             this.Controls.Add(this.lbNewGames);
             this.Controls.Add(this.label1);
             this.Name = "GameSelectorForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "GameSelectorForm";
             this.Load += new System.EventHandler(this.GameSelectorForm_Load);
             this.grbColor.ResumeLayout(false);
