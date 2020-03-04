@@ -16,7 +16,7 @@ namespace ChessFabrickFormsApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ChessForm());
+            Application.Run(new AuthForm());
         }
     }
 }

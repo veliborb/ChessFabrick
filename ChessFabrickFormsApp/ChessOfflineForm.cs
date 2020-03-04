@@ -12,7 +12,7 @@ using System.Windows.Forms.VisualStyles;
 
 namespace ChessFabrickFormsApp
 {
-    public partial class ChessForm : Form
+    public partial class ChessOfflineForm : Form
     {
         private Board board;
         private Piece selectedPiece;
@@ -20,11 +20,12 @@ namespace ChessFabrickFormsApp
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
 
-        public ChessForm()
+        public ChessOfflineForm()
         {
-            Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             InitializeComponent();
             InitializeBoard();
+
+            Icon = Icon.FromHandle(Properties.Resources.knight_black.GetHicon());
         }
 
         private void InitializeBoard()
@@ -126,8 +127,8 @@ namespace ChessFabrickFormsApp
                 cfbPlaying.Image = PieceImageUtils.Pawn(board.TurnColor);
             }
 
-            pieceListPanelBlack.setPieces(board.GetKilled(PieceColor.Black));
-            pieceListPanelWhite.setPieces(board.GetKilled(PieceColor.White));
+            pieceListPanelBlack.SetPieces(board.GetCaptured(PieceColor.Black));
+            pieceListPanelWhite.SetPieces(board.GetCaptured(PieceColor.White));
 
             for (int i = 0; i < 8; ++i)
             {
@@ -144,7 +145,7 @@ namespace ChessFabrickFormsApp
             {
                 var king = board.King(board.TurnColor);
                 fieldBoxes[king.X, king.Y].Style = ChessFieldBox.BoxStyle.Checked;
-                foreach (var piece in board.CheckPieces)
+                foreach (var piece in board.CheckingPieces)
                 {
                     fieldBoxes[piece.X, piece.Y].Style = ChessFieldBox.BoxStyle.Checking;
                 }
