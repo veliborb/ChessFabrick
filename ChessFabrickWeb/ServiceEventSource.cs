@@ -70,7 +70,11 @@ namespace ChessFabrickWeb
             if (this.IsEnabled())
             {
 
-                string finalMessage = string.Format(message, args);
+                string finalMessage = message;
+                if (args?.Length > 0)
+                {
+                    string.Format(message, args);
+                }
                 ServiceMessage(
                     serviceContext.ServiceName.ToString(),
                     serviceContext.ServiceTypeName,
@@ -79,7 +83,7 @@ namespace ChessFabrickWeb
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.NodeContext.NodeName,
-                    finalMessage);
+                    message);
             }
         }
 

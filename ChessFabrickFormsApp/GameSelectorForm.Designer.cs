@@ -40,6 +40,10 @@
             this.rdbBlack = new System.Windows.Forms.RadioButton();
             this.rdbWhite = new System.Windows.Forms.RadioButton();
             this.txbGameId = new System.Windows.Forms.TextBox();
+            this.lbYourGames = new System.Windows.Forms.ListBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btnRejoin = new System.Windows.Forms.Button();
+            this.txbMessages = new System.Windows.Forms.TextBox();
             this.grbColor.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +51,7 @@
             // 
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(158, 23);
+            this.label1.Size = new System.Drawing.Size(256, 23);
             this.label1.TabIndex = 0;
             this.label1.Text = "New games";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -65,21 +69,17 @@
             // 
             // label2
             // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.Location = new System.Drawing.Point(176, 9);
+            this.label2.Location = new System.Drawing.Point(274, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(354, 23);
+            this.label2.Size = new System.Drawing.Size(256, 23);
             this.label2.TabIndex = 2;
             this.label2.Text = "Active games";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lbActiveGames
             // 
-            this.lbActiveGames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbActiveGames.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.lbActiveGames.FormattingEnabled = true;
             this.lbActiveGames.Location = new System.Drawing.Point(274, 38);
             this.lbActiveGames.Name = "lbActiveGames";
@@ -90,7 +90,7 @@
             // btnRefresh
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRefresh.Location = new System.Drawing.Point(455, 363);
+            this.btnRefresh.Location = new System.Drawing.Point(715, 363);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(75, 23);
             this.btnRefresh.TabIndex = 4;
@@ -112,7 +112,7 @@
             // 
             // btnSpectate
             // 
-            this.btnSpectate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSpectate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnSpectate.Enabled = false;
             this.btnSpectate.Location = new System.Drawing.Point(455, 282);
             this.btnSpectate.Name = "btnSpectate";
@@ -171,17 +171,64 @@
             // 
             // txbGameId
             // 
+            this.txbGameId.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txbGameId.Location = new System.Drawing.Point(12, 256);
             this.txbGameId.Name = "txbGameId";
             this.txbGameId.Size = new System.Drawing.Size(256, 20);
             this.txbGameId.TabIndex = 10;
             this.txbGameId.TextChanged += new System.EventHandler(this.txbGameId_TextChanged);
             // 
+            // lbYourGames
+            // 
+            this.lbYourGames.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.lbYourGames.FormattingEnabled = true;
+            this.lbYourGames.Location = new System.Drawing.Point(536, 38);
+            this.lbYourGames.Name = "lbYourGames";
+            this.lbYourGames.Size = new System.Drawing.Size(256, 238);
+            this.lbYourGames.TabIndex = 11;
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(536, 9);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(256, 23);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Your games";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // btnRejoin
+            // 
+            this.btnRejoin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnRejoin.Enabled = false;
+            this.btnRejoin.Location = new System.Drawing.Point(717, 282);
+            this.btnRejoin.Name = "btnRejoin";
+            this.btnRejoin.Size = new System.Drawing.Size(75, 23);
+            this.btnRejoin.TabIndex = 13;
+            this.btnRejoin.Text = "Rejoin";
+            this.btnRejoin.UseVisualStyleBackColor = true;
+            this.btnRejoin.Click += new System.EventHandler(this.btnRejoin_Click);
+            // 
+            // txbMessages
+            // 
+            this.txbMessages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txbMessages.Location = new System.Drawing.Point(176, 316);
+            this.txbMessages.Multiline = true;
+            this.txbMessages.Name = "txbMessages";
+            this.txbMessages.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.txbMessages.Size = new System.Drawing.Size(533, 70);
+            this.txbMessages.TabIndex = 14;
+            // 
             // GameSelectorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(542, 398);
+            this.ClientSize = new System.Drawing.Size(802, 398);
+            this.Controls.Add(this.txbMessages);
+            this.Controls.Add(this.btnRejoin);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lbYourGames);
             this.Controls.Add(this.txbGameId);
             this.Controls.Add(this.grbColor);
             this.Controls.Add(this.btnSpectate);
@@ -215,5 +262,9 @@
         private System.Windows.Forms.RadioButton rdbBlack;
         private System.Windows.Forms.RadioButton rdbWhite;
         private System.Windows.Forms.TextBox txbGameId;
+        private System.Windows.Forms.ListBox lbYourGames;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnRejoin;
+        private System.Windows.Forms.TextBox txbMessages;
     }
 }

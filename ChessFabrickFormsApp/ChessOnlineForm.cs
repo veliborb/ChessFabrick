@@ -1,7 +1,10 @@
 ﻿using ChessCommons;
 using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
+using ChessFabrickFormsApp.Properties;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +30,7 @@ namespace ChessFabrickFormsApp
         private PieceColor? playerColor;
 
         private Board board;
-        private Piece selectedPiece;
+        private Tuple<int, int> selectedField;
         private List<Tuple<int, int>> possibleMoves;
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
@@ -40,11 +43,11 @@ namespace ChessFabrickFormsApp
             this.user = user;
             this.host = host;
             this.gameId = gameInfo.GameId;
-            if (gameInfo.White.Name == user.Player.Name)
+            if (gameInfo.White?.Name == user.Player.Name)
             {
                 playerColor = PieceColor.White;
             }
-            else if (gameInfo.Black.Name == user.Player.Name)
+            else if (gameInfo.Black?.Name == user.Player.Name)
             {
                 playerColor = PieceColor.Black;
             }
@@ -125,12 +128,29 @@ namespace ChessFabrickFormsApp
         private async void ChessForm_Load(object sender, EventArgs e)
         {
             await connection.StartAsync();
-            if (playerColor == null)
+            try
             {
-                gameState = await connection.InvokeAsync<ChessGameState>("SpectateGame", gameId);
-            } else if (gameState != null)
+                if (playerColor == null)
+                {
+                    labPlayerColor.Text = "Spectating";
+                    cfbPlayerColor.Image = Resources.eye;
+                    gameState = await connection.InvokeAsync<ChessGameState>("SpectateGame", gameId);
+                    Console.WriteLine($"SpectateGame: {JsonConvert.SerializeObject(gameState)}");
+                }
+                else
+                {
+                    labPlayerColor.Text = "Your color";
+                    cfbPlayerColor.Image = PieceImageUtils.Pawn(playerColor.Value);
+                    if (gameState != null)
+                    {
+                        gameState = await connection.InvokeAsync<ChessGameState>("JoinGame", gameId);
+                        Console.WriteLine($"JoinGame: {JsonConvert.SerializeObject(gameState)}");
+                    }
+                }
+            } catch (HubException ex)
             {
-                gameState = await connection.InvokeAsync<ChessGameState>("JoinGame", gameId);
+                Console.Error.WriteLine(ex);
+                txbMessage.Text = ex.Message;
             }
             UpdateBoard();
         }
@@ -145,6 +165,7 @@ namespace ChessFabrickFormsApp
             catch (Exception ex)
             {
                 Console.Error.WriteLine(ex);
+                txbMessage.Text = ex.Message;
             }
             RefreshViews();
         }
@@ -160,7 +181,7 @@ namespace ChessFabrickFormsApp
             {
                 panTable.Enabled = false;
                 labPlaying.Text = "Victory";
-                cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn);
+                cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn.Other());
             }
             else if (gameState.IsDraw)
             {
@@ -200,11 +221,12 @@ namespace ChessFabrickFormsApp
                 }
             }
 
-            if (selectedPiece != null)
+            if (selectedField != null)
             {
-                fieldBoxes[selectedPiece.X, selectedPiece.Y].Style = ChessFieldBox.BoxStyle.Selected;
+                fieldBoxes[selectedField.Item1, selectedField.Item2].Style = ChessFieldBox.BoxStyle.Selected;
                 if (possibleMoves != null)
                 {
+                    var selectedPiece = board[selectedField.Item1, selectedField.Item2];
                     foreach (var field in possibleMoves)
                     {
                         fieldBoxes[field.Item1, field.Item2].Style =
@@ -224,22 +246,32 @@ namespace ChessFabrickFormsApp
         private async void FieldBox_Click(object sender, EventArgs e)
         {
             var field = (sender as ChessFieldBox).Tag as Tuple<int, int>;
-            if (selectedPiece == null)
+            if (selectedField == null)
             {
-                selectedPiece = board[field.Item1, field.Item2];
+                selectedField = field;
+                var selectedPiece = board[selectedField.Item1, selectedField.Item2];
                 if (selectedPiece?.Color != playerColor || selectedPiece?.Color != gameState.OnTurn)
                 {
-                    selectedPiece = null;
+                    selectedField = null;
                 }
-                if (selectedPiece != null)
+                if (selectedField != null)
                 {
-                    var moves = await connection.InvokeAsync<List<string>>("GetPieceMoves", gameId,
-                        ChessGameUtils.FieldToString(selectedPiece.X, selectedPiece.Y)
-                    );
-                    possibleMoves = new List<Tuple<int, int>>(moves.Count);
-                    foreach (var move in moves)
+                    try
                     {
-                        possibleMoves.Add(ChessGameUtils.FieldFromString(move));
+                        var moves = await connection.InvokeAsync<List<string>>("GetPieceMoves", gameId,
+                            ChessGameUtils.FieldToString(selectedField.Item1, selectedField.Item2)
+                        );
+                        possibleMoves = new List<Tuple<int, int>>(moves.Count);
+                        foreach (var move in moves)
+                        {
+                            possibleMoves.Add(ChessGameUtils.FieldFromString(move));
+                        }
+                    } catch (HubException ex)
+                    {
+                        selectedField = null;
+                        possibleMoves = null;
+                        Console.Error.WriteLine(ex);
+                        txbMessage.Text = ex.Message;
                     }
                 }
             }
@@ -247,21 +279,34 @@ namespace ChessFabrickFormsApp
             {
                 if (possibleMoves.Contains(field))
                 {
-                    gameState = await connection.InvokeAsync<ChessGameState>("MovePiece", gameId, 
-                        ChessGameUtils.FieldToString(selectedPiece.X, selectedPiece.Y), 
-                        ChessGameUtils.FieldToString(field.Item1, field.Item2)
-                    );
+                    try
+                    {
+                        gameState = await connection.InvokeAsync<ChessGameState>("MovePiece", gameId,
+                            ChessGameUtils.FieldToString(selectedField.Item1, selectedField.Item2),
+                            ChessGameUtils.FieldToString(field.Item1, field.Item2)
+                        );
+                    } catch (HubException ex)
+                    {
+                        selectedField = null;
+                        Console.Error.WriteLine(ex);
+                        txbMessage.Text = ex.Message;
+                    }
                 }
-                selectedPiece = null;
+                selectedField = null;
                 possibleMoves = null;
             }
-            RefreshViews();
+            UpdateBoard();
         }
 
         private void OnBoardChanged(ChessGameState board)
         {
+            Console.WriteLine($"OnBoardChanged: {JsonConvert.SerializeObject(board)}");
+            if (board?.GameInfo?.GameId != gameId)
+            {
+                return;
+            }
             gameState = board;
-            selectedPiece = null;
+            selectedField = null;
             possibleMoves = null;
             UpdateBoard();
         }

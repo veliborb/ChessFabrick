@@ -104,6 +104,7 @@ namespace ChessFabrickStateful
                     new ChessGameInfo(gameId, player, null) :
                     new ChessGameInfo(gameId, null, player);
                 await dictGames.AddAsync(tx, gameId, game);
+                await playersClient.AddPlayerGameAsync(playerName, gameId);
                 await tx.CommitAsync();
                 return game;
             }
@@ -131,6 +132,7 @@ namespace ChessFabrickStateful
                     new ChessGameInfo(game.Value.GameId, game.Value.White, player);
                 await dictNewGames.TryRemoveAsync(tx, gameId);
                 await dictActiveGames.AddAsync(tx, gameId, activeGame);
+                await playersClient.AddPlayerGameAsync(playerName, gameId);
                 await tx.CommitAsync();
                 return activeGame;
             }

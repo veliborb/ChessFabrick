@@ -8,10 +8,10 @@ namespace ChessFabrickCommons.Entities
     [DataContract]
     public sealed class ChessGameInfo
     {
-        [DataMember] public string GameId { get; private set; }
-        [DataMember] public ChessPlayer White { get; private set; }
-        [DataMember] public ChessPlayer Black { get; private set; }
-        [DataMember] public string MoveHistory { get; private set; }
+        [DataMember] public string GameId { get; set; }
+        [DataMember] public ChessPlayer White { get; set; }
+        [DataMember] public ChessPlayer Black { get; set; }
+        [DataMember] public string MoveHistory { get; set; }
 
         public ChessGameInfo() { }
 

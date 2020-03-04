@@ -58,20 +58,28 @@ namespace ChessFabrickWeb.Controllers
             return Ok(gameIds);
         }
 
-        [HttpGet("completed")]
-        public async Task<IActionResult> GetCompletedGames()
+        [HttpGet("{gameId}")]
+        public async Task<IActionResult> GetGameState(string gameId)
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetCompletedGames()");
-            var gameIds = new List<string>();
-            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
-            foreach (var partition in partitions)
+            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
+            var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+            try
             {
-                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
-                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
-                var games = await chessClient.CompletedGameIdsAsync();
-                gameIds.AddRange(games);
+                var board = await chessClient.ActiveGameStateAsync(gameId);
+                return Ok(board);
             }
-            return Ok(gameIds);
+            catch (Exception ex)
+            {
+                try
+                {
+                    var board = await chessClient.CompletedGameStateAsync(gameId);
+                    return Ok(board);
+                }
+                catch (Exception ex1)
+                {
+                    return StatusCode(500, ex1.Message);
+                }
+            }
         }
 
         [HttpGet("new")]
@@ -126,27 +134,37 @@ namespace ChessFabrickWeb.Controllers
             }
         }
 
-        [HttpGet("{gameId}")]
-        public async Task<IActionResult> GetGameState(string gameId)
+        [HttpGet("completed")]
+        public async Task<IActionResult> GetCompletedGames()
         {
-            ServiceEventSource.Current.ServiceMessage(context, $"GetGameState({gameId})");
-            var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+            ServiceEventSource.Current.ServiceMessage(context, $"GetCompletedGames()");
+            var gameIds = new List<string>();
+            var partitions = await fabricClient.QueryManager.GetPartitionListAsync(chessStatefulUri);
+            foreach (var partition in partitions)
+            {
+                var partitionInfo = (Int64RangePartitionInformation)partition.PartitionInformation;
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, new ServicePartitionKey(partitionInfo.LowKey));
+                var games = await chessClient.CompletedGameIdsAsync();
+                gameIds.AddRange(games);
+            }
+            return Ok(gameIds);
+        }
+
+        [Authorize]
+        [HttpGet("my")]
+        public async Task<IActionResult> GetPlayerGames()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetPlayerGames()");
             try
             {
-                var board = await chessClient.ActiveGameStateAsync(gameId);
-                return Ok(board);
+                var playerClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
+                var games = await playerClient.PlayerGamesAsync(User.Identity.Name);
+                return Ok(games);
             }
             catch (Exception ex)
             {
-                try
-                {
-                    var board = await chessClient.CompletedGameStateAsync(gameId);
-                    return Ok(board);
-                }
-                catch (Exception ex1)
-                {
-                    return StatusCode(500, ex1.Message);
-                }
+                ServiceEventSource.Current.ServiceMessage(context, ex.ToString()); ;
+                return StatusCode(500, ex.Message);
             }
         }
     }

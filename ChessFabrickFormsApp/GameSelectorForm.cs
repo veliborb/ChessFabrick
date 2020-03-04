@@ -53,12 +53,24 @@ namespace ChessFabrickFormsApp
         {
             try
             {
+                var games = await GetPlayerGamesAsync();
+                lbYourGames.Items.Clear();
+                lbYourGames.Items.AddRange(games.ToArray());
+            }
+            catch (Exception ex)
+            {
+                txbMessages.Text = ex.ToString();
+                Console.Error.WriteLine(ex);
+            }
+            try
+            {
                 var games = await GetNewGamesAsync();
                 lbNewGames.Items.Clear();
                 lbNewGames.Items.AddRange(games.ToArray());
             }
             catch (Exception ex)
             {
+                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
             }
             try
@@ -69,6 +81,7 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
+                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
             }
         }
@@ -82,6 +95,7 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
+                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
             }
         }
@@ -95,6 +109,27 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
+                txbMessages.Text = ex.ToString();
+                Console.Error.WriteLine(ex);
+            }
+        }
+
+        private async void btnRejoin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var game = await GetGameStateAsync(lbActiveGames.SelectedItem.ToString());
+                if (game.GameInfo.White == null || game.GameInfo.Black == null)
+                {
+                    new ChessOnlineForm(user, host, game.GameInfo).Show();
+                } else
+                {
+                    new ChessOnlineForm(user, host, game).Show();
+                }
+            }
+            catch (Exception ex)
+            {
+                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
             }
         }
@@ -111,6 +146,7 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
+                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
             }
         }
@@ -143,6 +179,16 @@ namespace ChessFabrickFormsApp
         private async Task<List<string>> GetActiveGamesAsync()
         {
             HttpResponseMessage response = await client.GetAsync("api/game");
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(result);
+            return JsonConvert.DeserializeObject<List<string>>(result);
+        }
+
+        private async Task<List<string>> GetPlayerGamesAsync()
+        {
+            HttpResponseMessage response = await client.GetAsync("api/game/my");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadAsStringAsync();

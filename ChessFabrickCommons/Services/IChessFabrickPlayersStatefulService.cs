@@ -13,5 +13,7 @@ namespace ChessFabrickCommons.Services
     {
         Task<ChessPlayer> NewPlayerAsync(string name);
         Task<ChessPlayer> PlayerInfoAsync(string playerName);
+        Task<List<string>> PlayerGamesAsync(string playerName);
+        Task AddPlayerGameAsync(string playerName, string gameId);
     }
 }

@@ -39,6 +39,11 @@ namespace ChessFabrickPlayersStateful
             return StateManager.GetOrAddAsync<IReliableDictionary2<string, ChessPlayer>>("dict_players");
         }
 
+        private Task<IReliableDictionary2<string, List<string>>> GetPlayerGamesDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<string, List<string>>>("dict_player_games");
+        }
+
         private async Task<ChessPlayer> GetPlayerAsync(ITransaction tx, string playerName)
         {
             var dictPlayers = await GetPlayerDict();
@@ -72,6 +77,36 @@ namespace ChessFabrickPlayersStateful
             using (var tx = StateManager.CreateTransaction())
             {
                 return await GetPlayerAsync(tx, playerName);
+            }
+        }
+
+        public async Task<List<string>> PlayerGamesAsync(string playerName)
+        {
+            var dictPlayerGames = await GetPlayerGamesDict();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var games = await dictPlayerGames.TryGetValueAsync(tx, playerName);
+                if (games.HasValue)
+                {
+                    return games.Value;
+                }
+                return new List<string>();
+            }
+        }
+
+        public async Task AddPlayerGameAsync(string playerName, string gameId)
+        {
+            var dictPlayerGames = await GetPlayerGamesDict();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var games = await dictPlayerGames.AddOrUpdateAsync(tx, playerName,
+                    new string[] { gameId }.ToList(),
+                    (key, value) => {
+                        var list = value.ToList();
+                        list.Add(gameId);
+                        return list;
+                    });
+                await tx.CommitAsync();
             }
         }
     }

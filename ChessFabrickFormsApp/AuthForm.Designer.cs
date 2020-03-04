@@ -121,6 +121,7 @@
             this.labStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.labStatus.AutoEllipsis = true;
             this.labStatus.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.labStatus.Location = new System.Drawing.Point(12, 154);
             this.labStatus.Name = "labStatus";

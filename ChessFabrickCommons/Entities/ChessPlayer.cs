@@ -6,7 +6,7 @@ namespace ChessFabrickCommons.Entities
     [DataContract]
     public sealed class ChessPlayer
     {
-        [DataMember] public string Name { get; private set; }
+        [DataMember] public string Name { get; set; }
 
         public ChessPlayer() { }
 

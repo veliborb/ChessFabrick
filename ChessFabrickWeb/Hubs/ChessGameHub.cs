@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Fabric;
@@ -73,23 +74,7 @@ namespace ChessFabrickWeb.Hubs
             }
             catch (Exception ex)
             {
-                throw new HubException("Spector", ex);
-            }
-        }
-
-        public async Task<ChessGameState> SpectateCrash(string gameId)
-        {
-            ServiceEventSource.Current.ServiceMessage(serviceContext, $"SpectateCrash({gameId}): {Context.User.Identity.Name}");
-            try
-            {
-                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var board = await chessClient.ActiveGameStateAsync("sd");
-                await Groups.AddToGroupAsync(Context.ConnectionId, ChessFabrickUtils.GameGroupName(gameId));
-                return board;
-            }
-            catch (Exception ex)
-            {
-                throw new HubException("Spector", ex);
+                throw new HubException(ex.Message);
             }
         }
 
@@ -110,7 +95,7 @@ namespace ChessFabrickWeb.Hubs
                 return moves;
             } catch (Exception ex)
             {
-                throw new HubException("Spector", ex);
+                throw new HubException(ex.Message);
             }
         }
 
@@ -129,7 +114,7 @@ namespace ChessFabrickWeb.Hubs
             }
             catch (Exception ex)
             {
-                throw new HubException("Spector", ex);
+                throw new HubException(ex.Message);
             }
         }
 
@@ -141,7 +126,7 @@ namespace ChessFabrickWeb.Hubs
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var board = await chessClient.ActiveGameStateAsync(gameId);
-                if (board.GameInfo.White.Name != Context.User.Identity.Name && board.GameInfo.Black.Name == Context.User.Identity.Name)
+                if (board.GameInfo.White.Name != Context.User.Identity.Name && board.GameInfo.Black.Name != Context.User.Identity.Name)
                 {
                     throw new ArgumentException("Player not in the game.");
                 }
@@ -151,7 +136,7 @@ namespace ChessFabrickWeb.Hubs
             }
             catch (Exception ex)
             {
-                throw new HubException("Spector", ex);
+                throw new HubException(ex.Message);
             }
         }
     }
