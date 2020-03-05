@@ -13,17 +13,30 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Data;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration.Json;
+using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Models;
+using Microsoft.AspNetCore.SignalR;
+using ChessFabrickWeb.Hubs;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 namespace ChessFabrickWeb
 {
     /// <summary>
     /// The FabricRuntime creates an instance of this class for each service type instance. 
     /// </summary>
-    internal sealed class ChessFabrickWeb : StatelessService
+    internal sealed class ChessFabrickWeb : StatelessService, IChessFabrickSignalRService
     {
+        private readonly IHubContext<ChessGameHub> gameHubContext;
+
         public ChessFabrickWeb(StatelessServiceContext context)
             : base(context)
         { }
+
+        internal static Uri GetChessFabrickSignalRServiceName(ServiceContext context)
+        {
+            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickWeb");
+        }
 
         internal static Uri GetChessFabrickStatefulServiceName(ServiceContext context)
         {
@@ -48,12 +61,16 @@ namespace ChessFabrickWeb
         {
             return new ServiceInstanceListener[]
             {
+                new ServiceInstanceListener((serviceContext) =>
+                    {
+                        return new FabricTransportServiceRemotingListener(serviceContext, this, new FabricTransportRemotingListenerSettings() { EndpointResourceName = "ServiceEndpointV2" });
+                    }, "RemotingListener"),
                 new ServiceInstanceListener(serviceContext =>
                     new KestrelCommunicationListener(serviceContext, "ServiceEndpoint", (url, listener) =>
                     {
                         ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting Kestrel on {url}");
 
-                        return new WebHostBuilder()
+                        var webHost = new WebHostBuilder()
                                     .UseKestrel()
                                     .ConfigureAppConfiguration((builderContext, config) =>
                                     {
@@ -69,8 +86,15 @@ namespace ChessFabrickWeb
                                     .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseUrls(url)
                                     .Build();
-                    }))
+
+                        return webHost;
+                    }), "KestrelListener")
             };
+        }
+
+        public async Task<string> BoardUpdatedAsync(ChessGameState gameState)
+        {
+            return "Radim!";
         }
     }
 }

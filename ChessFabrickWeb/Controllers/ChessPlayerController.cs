@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
 
 namespace ChessFabrickWeb.Controllers
@@ -19,13 +21,15 @@ namespace ChessFabrickWeb.Controllers
     public class ChessPlayerController : Controller
     {
         private readonly StatelessServiceContext context;
+        private readonly FabricClient fabricClient;
         private readonly ServiceProxyFactory proxyFactory;
         private readonly Uri playerServiceUri;
         private readonly IUserService userService;
 
-        public ChessPlayerController(StatelessServiceContext context, IUserService userService)
+        public ChessPlayerController(StatelessServiceContext context, FabricClient fabricClient, IUserService userService)
         {
             this.context = context;
+            this.fabricClient = fabricClient;
             this.proxyFactory = new ServiceProxyFactory((c) =>
             {
                 return new FabricTransportServiceRemotingClientFactory();
@@ -101,6 +105,18 @@ namespace ChessFabrickWeb.Controllers
 
             var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
             var games = await playersClient.PlayerGamesAsync(playerName);
+
+            return Ok(games);
+        }
+
+        [HttpGet("signal")]
+        public async Task<IActionResult> Signal()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"Signal()");
+
+            var uri = ChessFabrickWeb.GetChessFabrickSignalRServiceName(context);
+            var signalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(uri);
+            var games = await signalRClient.BoardUpdatedAsync(null);
 
             return Ok(games);
         }

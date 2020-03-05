@@ -36,10 +36,6 @@ namespace ChessFabrickActor
             this.rand = new Random();
         }
 
-        /// <summary>
-        /// This method is called whenever an actor is activated.
-        /// An actor is activated the first time any of its methods are invoked.
-        /// </summary>
         protected override Task OnActivateAsync()
         {
             ActorEventSource.Current.ActorMessage(this, $"Actor {gameId} activated.");
