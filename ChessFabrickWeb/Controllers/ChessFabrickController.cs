@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ChessFabrickCommons.Actors;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickWeb.Hubs;
@@ -10,6 +11,8 @@ using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
@@ -135,6 +138,23 @@ namespace ChessFabrickWeb.Controllers
                 var game = await chessClient.JoinGameAsync(gameId, User.Identity.Name);
                 await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
                 return Ok(game);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("new/{gameId}/addbot")]
+        public async Task<IActionResult> PostAddBot(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"PostAddBot({gameId}): {User.Identity.Name}");
+            try
+            {
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+                var result = await chessClient.AddBot(gameId);
+                return Ok(result);
             }
             catch (Exception ex)
             {

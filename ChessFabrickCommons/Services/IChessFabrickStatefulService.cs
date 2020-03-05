@@ -14,6 +14,8 @@ namespace ChessFabrickCommons.Services
         Task<string> HelloChessAsync();
         Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor);
         Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName);
+        Task<ChessGameInfo> AddBot(string gameId);
+        Task<ChessGameInfo> CreateBotGame(string gameId);
         Task<List<string>> NewGameIdsAsync();
         Task<List<string>> ActiveGameIdsAsync();
         Task<List<string>> CompletedGameIdsAsync();

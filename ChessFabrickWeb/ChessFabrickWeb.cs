@@ -35,6 +35,11 @@ namespace ChessFabrickWeb
             return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
         }
 
+        internal static Uri GetChessFabrickActorName(ServiceContext context)
+        {
+            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickActorService");
+        }
+
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service instance.
         /// </summary>

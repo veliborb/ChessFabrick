@@ -9,7 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\img\bishop_black.png" />
+    <Content Remove="wwwroot\img\bishop_white.png" />
+    <Content Remove="wwwroot\img\king_black.png" />
+    <Content Remove="wwwroot\img\king_white.png" />
+    <Content Remove="wwwroot\img\knight_black.png" />
+    <Content Remove="wwwroot\img\knight_white.png" />
+    <Content Remove="wwwroot\img\pawn_black.png" />
+    <Content Remove="wwwroot\img\pawn_white.png" />
+    <Content Remove="wwwroot\img\queen_black.png" />
+    <Content Remove="wwwroot\img\queen_white.png" />
+    <Content Remove="wwwroot\img\rook_black.png" />
+    <Content Remove="wwwroot\img\rook_white.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.0.464" />
     <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Kestrel" Version="4.0.464" />
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.0.464" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
@@ -18,6 +34,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessFabrickCommons\ChessFabrickCommons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\bishop_black.png" />
+    <None Include="wwwroot\img\bishop_white.png" />
+    <None Include="wwwroot\img\king_black.png" />
+    <None Include="wwwroot\img\king_white.png" />
+    <None Include="wwwroot\img\knight_black.png" />
+    <None Include="wwwroot\img\knight_white.png" />
+    <None Include="wwwroot\img\pawn_black.png" />
+    <None Include="wwwroot\img\pawn_white.png" />
+    <None Include="wwwroot\img\queen_black.png" />
+    <None Include="wwwroot\img\queen_white.png" />
+    <None Include="wwwroot\img\rook_black.png" />
+    <None Include="wwwroot\img\rook_white.png" />
   </ItemGroup>
 
 

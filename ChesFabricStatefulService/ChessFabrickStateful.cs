@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessCommons;
+using ChessFabrickCommons.Actors;
 using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickCommons.Utils;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -26,6 +29,7 @@ namespace ChessFabrickStateful
     {
         private ServiceProxyFactory proxyFactory;
         private readonly Uri playerServiceUri;
+        private readonly Uri chessActorUri;
 
         public ChessFabrickStateful(StatefulServiceContext context) : base(context)
         {
@@ -34,6 +38,7 @@ namespace ChessFabrickStateful
                 return new FabricTransportServiceRemotingClientFactory();
             });
             this.playerServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
+            this.chessActorUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickActor");
         }
 
         /// <summary>
@@ -223,6 +228,13 @@ namespace ChessFabrickStateful
                 else
                 {
                     await dictActiveGames.TryUpdateAsync(tx, gameId, newGameState, game);
+                    var actor = ActorProxy.Create<IChessFabrickActor>(new ActorId(gameId), chessActorUri);
+                    //actor.PerformMove().Start();
+                    //Task.Run(async () =>
+                    //{
+                    //    Thread.Sleep(5000);
+                    //    await actor.PerformMove();
+                    //}).Start();
                 }
                 await tx.CommitAsync();
                 return new ChessGameState(newGameState);
@@ -275,6 +287,33 @@ namespace ChessFabrickStateful
                 }
             }
             return games;
+        }
+
+        public async Task<ChessGameInfo> AddBot(string gameId)
+        {
+            var dictNewGames = await GetNewGameDict();
+            var dictActiveGames = await GetActiveGameDict();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var player = new ChessPlayer(ChessFabrickUtils.BOT_NAME);
+                var game = await dictNewGames.TryGetValueAsync(tx, gameId);
+                if (!game.HasValue)
+                {
+                    throw new ArgumentException("Game does not exist.");
+                }
+                var activeGame = game.Value.White == null ?
+                    new ChessGameInfo(game.Value.GameId, player, game.Value.Black) :
+                    new ChessGameInfo(game.Value.GameId, game.Value.White, player);
+                await dictNewGames.TryRemoveAsync(tx, gameId);
+                await dictActiveGames.AddAsync(tx, gameId, activeGame);
+                await tx.CommitAsync();
+                return activeGame;
+            }
+        }
+
+        public async Task<ChessGameInfo> CreateBotGame(string gameId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

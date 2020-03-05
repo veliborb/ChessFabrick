@@ -9,5 +9,8 @@
     <Parameter Name="ChessFabrickStateful_PartitionCount" Value="1" />
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" Value="1" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="ChessFabrickActorService_PartitionCount" Value="1" />
+    <Parameter Name="ChessFabrickActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="ChessFabrickActorService_MinReplicaSetSize" Value="1" />
   </Parameters>
 </Application>

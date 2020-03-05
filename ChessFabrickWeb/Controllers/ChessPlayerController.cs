@@ -75,8 +75,8 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetCurrent()");
 
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
-            var player = await userClient.PlayerInfoAsync(User.Identity.Name);
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(User.Identity.Name));
+            var player = await playersClient.PlayerInfoAsync(User.Identity.Name);
 
             return Ok(player);
         }
@@ -87,10 +87,22 @@ namespace ChessFabrickWeb.Controllers
         {
             ServiceEventSource.Current.ServiceMessage(context, $"GetPlayer({playerName})");
 
-            var userClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
-            var player = await userClient.PlayerInfoAsync(playerName);
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var player = await playersClient.PlayerInfoAsync(playerName);
 
             return Ok(player);
+        }
+
+        [Authorize]
+        [HttpGet("{playerName}/games")]
+        public async Task<IActionResult> GetPlayerGames(string playerName)
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"GetPlayerGames({playerName})");
+
+            var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
+            var games = await playersClient.PlayerGamesAsync(playerName);
+
+            return Ok(games);
         }
     }
 }

@@ -9,10 +9,16 @@
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ChessFabrickStateful_PartitionCount" DefaultValue="5" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ChessFabrickActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ChessFabrickActorService_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="ChessFabrickActorService_TargetReplicaSetSize" DefaultValue="1" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessFabrickActorPkg" ServiceManifestVersion="1.0.0" />
+  </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="ChessFabrickPlayersStatefulPkg" ServiceManifestVersion="1.1.0" />
     <ConfigOverrides />
@@ -47,6 +53,11 @@
     <Service Name="ChessFabrickStateful" ServicePackageActivationMode="ExclusiveProcess">
       <StatefulService ServiceTypeName="ChessFabrickStatefulType" TargetReplicaSetSize="[ChessFabrickStateful_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickStateful_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ChessFabrickStateful_PartitionCount]" LowKey="0" HighKey="4" />
+      </StatefulService>
+    </Service>
+    <Service Name="ChessFabrickActorService" GeneratedIdRef="f1e7a303-c415-4d59-9bfd-1ccbef912ea1|None">
+      <StatefulService ServiceTypeName="ChessFabrickActorServiceType" TargetReplicaSetSize="[ChessFabrickActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ChessFabrickActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>
