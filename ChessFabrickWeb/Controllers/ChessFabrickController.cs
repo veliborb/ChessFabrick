@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ChessCommons;
 using ChessFabrickCommons.Actors;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Utils;
 using ChessFabrickWeb.Hubs;
 using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -116,7 +118,7 @@ namespace ChessFabrickWeb.Controllers
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Identity.Name}");
             try
             {
-                var gameId = Guid.NewGuid().ToString();
+                var gameId = $"{User.Identity.Name}-{Guid.NewGuid()}";
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var game = await chessClient.NewGameAsync(gameId, User.Identity.Name, model.PlayerColor);
                 await gameHubContext.Clients.All.SendAsync("OnGameCreated", game);
@@ -150,11 +152,34 @@ namespace ChessFabrickWeb.Controllers
         public async Task<IActionResult> PostAddBot(string gameId)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostAddBot({gameId}): {User.Identity.Name}");
+            return StatusCode(500, "No bot yet...");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
-                var result = await chessClient.AddBot(gameId);
-                return Ok(result);
+                var game = await chessClient.AddBot(gameId);
+                await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, ChessFabrickUtils.BOT_NAME);
+                return Ok(game);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("new/addbots")]
+        public async Task<IActionResult> PostBotGame()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"PostBotGame(): {User.Identity.Name}");
+            return StatusCode(500, "No bot yet...");
+            try
+            {
+                var gameId = $"{ChessFabrickUtils.BOT_NAME}-{Guid.NewGuid()}";
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+                var newGame = await chessClient.NewGameAsync(gameId, ChessFabrickUtils.BOT_NAME, PieceColor.White);
+                var startedGame = await chessClient.AddBot(gameId);
+                await gameHubContext.Clients.All.SendAsync("OnGameCreated", startedGame);
+                return Ok(startedGame);
             }
             catch (Exception ex)
             {

@@ -108,17 +108,5 @@ namespace ChessFabrickWeb.Controllers
 
             return Ok(games);
         }
-
-        [HttpGet("signal")]
-        public async Task<IActionResult> Signal()
-        {
-            ServiceEventSource.Current.ServiceMessage(context, $"Signal()");
-
-            var uri = ChessFabrickWeb.GetChessFabrickSignalRServiceName(context);
-            var signalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(uri);
-            var games = await signalRClient.BoardUpdatedAsync(null);
-
-            return Ok(games);
-        }
     }
 }

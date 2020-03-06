@@ -107,9 +107,6 @@ namespace ChessFabrickWeb.Hubs
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var board = await chessClient.MovePieceAsync(gameId, Context.User.Identity.Name, from, to);
-                await Clients.User(board.GameInfo.White.Name == Context.User.Identity.Name ? board.GameInfo.Black.Name : board.GameInfo.White.Name)
-                    .SendAsync("OnPieceMoved", from, to, board);
-                await Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnBoardChanged", board);
                 return board;
             }
             catch (Exception ex)

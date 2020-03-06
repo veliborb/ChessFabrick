@@ -29,6 +29,7 @@ namespace ChessFabrickStateful
     {
         private ServiceProxyFactory proxyFactory;
         private readonly Uri playerServiceUri;
+        private readonly Uri chessSignalRUri;
         private readonly Uri chessActorUri;
 
         public ChessFabrickStateful(StatefulServiceContext context) : base(context)
@@ -38,6 +39,7 @@ namespace ChessFabrickStateful
                 return new FabricTransportServiceRemotingClientFactory();
             });
             this.playerServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
+            this.chessSignalRUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickWeb");
             this.chessActorUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickActor");
         }
 
@@ -199,8 +201,10 @@ namespace ChessFabrickStateful
 
         public async Task<ChessGameState> MovePieceAsync(string gameId, string playerName, string from, string to)
         {
+            ChessGameState newGameState = null;
             var dictActiveGames = await GetActiveGameDict();
             var dictCompletedGames = await GetCompletedGameDict();
+
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await GetActiveGameAsync(tx, gameId);
@@ -219,26 +223,32 @@ namespace ChessFabrickStateful
                     throw new ArgumentException("Illegal move.");
                 }
 
-                var newGameState = new ChessGameInfo(game.GameId, game.White, game.Black, board.ToMovesString());
+                var newGameInfo = new ChessGameInfo(game.GameId, game.White, game.Black, board.ToMovesString());
                 if (board.IsCheckmate || board.IsDraw)
                 {
                     await dictActiveGames.TryRemoveAsync(tx, gameId);
-                    await dictCompletedGames.TryAddAsync(tx, gameId, newGameState);
+                    await dictCompletedGames.TryAddAsync(tx, gameId, newGameInfo);
                 }
                 else
                 {
-                    await dictActiveGames.TryUpdateAsync(tx, gameId, newGameState, game);
-                    var actor = ActorProxy.Create<IChessFabrickActor>(new ActorId(gameId), chessActorUri);
-                    //actor.PerformMove().Start();
-                    //Task.Run(async () =>
-                    //{
-                    //    Thread.Sleep(5000);
-                    //    await actor.PerformMove();
-                    //}).Start();
+                    await dictActiveGames.TryUpdateAsync(tx, gameId, newGameInfo, game);
                 }
+
                 await tx.CommitAsync();
-                return new ChessGameState(newGameState);
+                newGameState = new ChessGameState(newGameInfo);
             }
+
+            var chessSignalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(chessSignalRUri);
+            await chessSignalRClient.PieceMovedAsync(playerName, from, to, newGameState);
+
+            var actor = ActorProxy.Create<IChessFabrickActor>(new ActorId(gameId), chessActorUri);
+            //actor.PerformMove().Start();
+            //Task.Run(async () =>
+            //{
+            //    Thread.Sleep(5000);
+            //    await actor.PerformMove();
+            //}).Start();
+            return newGameState;
         }
 
         public async Task<List<string>> NewGameIdsAsync()
@@ -309,11 +319,6 @@ namespace ChessFabrickStateful
                 await tx.CommitAsync();
                 return activeGame;
             }
-        }
-
-        public async Task<ChessGameInfo> CreateBotGame(string gameId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

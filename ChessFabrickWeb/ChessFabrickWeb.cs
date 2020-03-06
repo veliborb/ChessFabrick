@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.SignalR;
 using ChessFabrickWeb.Hubs;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using ChessFabrickCommons.Utils;
 
 namespace ChessFabrickWeb
 {
@@ -27,7 +28,7 @@ namespace ChessFabrickWeb
     /// </summary>
     internal sealed class ChessFabrickWeb : StatelessService, IChessFabrickSignalRService
     {
-        private readonly IHubContext<ChessGameHub> gameHubContext;
+        private IHubContext<ChessGameHub> gameHubContext;
 
         public ChessFabrickWeb(StatelessServiceContext context)
             : base(context)
@@ -63,13 +64,13 @@ namespace ChessFabrickWeb
             {
                 new ServiceInstanceListener((serviceContext) =>
                     {
-                        return new FabricTransportServiceRemotingListener(serviceContext, this, new FabricTransportRemotingListenerSettings() { EndpointResourceName = "ServiceEndpointV2" });
+                        return new FabricTransportServiceRemotingListener(serviceContext, this, 
+                            new FabricTransportRemotingListenerSettings() { EndpointResourceName = "ServiceEndpointV2" });
                     }, "RemotingListener"),
                 new ServiceInstanceListener(serviceContext =>
                     new KestrelCommunicationListener(serviceContext, "ServiceEndpoint", (url, listener) =>
                     {
                         ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting Kestrel on {url}");
-
                         var webHost = new WebHostBuilder()
                                     .UseKestrel()
                                     .ConfigureAppConfiguration((builderContext, config) =>
@@ -86,15 +87,17 @@ namespace ChessFabrickWeb
                                     .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseUrls(url)
                                     .Build();
-
+                        gameHubContext = webHost.Services.GetService<IHubContext<ChessGameHub>>();
                         return webHost;
                     }), "KestrelListener")
             };
         }
 
-        public async Task<string> BoardUpdatedAsync(ChessGameState gameState)
+        public async Task PieceMovedAsync(string playerName, string from, string to, ChessGameState gameState)
         {
-            return "Radim!";
+            await gameHubContext.Clients.User(gameState.GameInfo.White.Name == playerName ? gameState.GameInfo.Black.Name : gameState.GameInfo.White.Name)
+                .SendAsync("OnPieceMoved", from, to, gameState);
+            await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameState.GameInfo.GameId)).SendAsync("OnBoardChanged", gameState);
         }
     }
 }

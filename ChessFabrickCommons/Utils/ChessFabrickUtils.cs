@@ -10,7 +10,7 @@ namespace ChessFabrickCommons.Utils
     public static class ChessFabrickUtils
     {
         public static readonly int PARTITION_COUNT = 5;
-        public static readonly string BOT_NAME = "#Bot";
+        public static readonly string BOT_NAME = "-BOT-";
 
         public static ServicePartitionKey NamePartitionKey(string name) => new ServicePartitionKey(
             name[name.Length - 1] % PARTITION_COUNT
