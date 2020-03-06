@@ -1,5 +1,6 @@
 ﻿using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Utils;
 using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

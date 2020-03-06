@@ -77,10 +77,12 @@ namespace ChessFabrickFormsApp
             HttpResponseMessage response = await client.PostAsync(url,
                 new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json")
             );
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<UserModel>(result);
         }
 

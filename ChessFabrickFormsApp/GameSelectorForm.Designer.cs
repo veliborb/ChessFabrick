@@ -44,6 +44,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.btnRejoin = new System.Windows.Forms.Button();
             this.txbMessages = new System.Windows.Forms.TextBox();
+            this.bthHelp = new System.Windows.Forms.Button();
+            this.rdbBots = new System.Windows.Forms.RadioButton();
             this.grbColor.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -90,7 +92,7 @@
             // btnRefresh
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRefresh.Location = new System.Drawing.Point(715, 363);
+            this.btnRefresh.Location = new System.Drawing.Point(717, 363);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(75, 23);
             this.btnRefresh.TabIndex = 4;
@@ -125,7 +127,7 @@
             // btnCreate
             // 
             this.btnCreate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCreate.Location = new System.Drawing.Point(77, 39);
+            this.btnCreate.Location = new System.Drawing.Point(77, 73);
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Size = new System.Drawing.Size(75, 23);
             this.btnCreate.TabIndex = 8;
@@ -136,12 +138,13 @@
             // grbColor
             // 
             this.grbColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.grbColor.Controls.Add(this.rdbBots);
             this.grbColor.Controls.Add(this.rdbBlack);
             this.grbColor.Controls.Add(this.btnCreate);
             this.grbColor.Controls.Add(this.rdbWhite);
-            this.grbColor.Location = new System.Drawing.Point(12, 316);
+            this.grbColor.Location = new System.Drawing.Point(12, 282);
             this.grbColor.Name = "grbColor";
-            this.grbColor.Size = new System.Drawing.Size(158, 70);
+            this.grbColor.Size = new System.Drawing.Size(158, 104);
             this.grbColor.TabIndex = 9;
             this.grbColor.TabStop = false;
             this.grbColor.Text = "Create game";
@@ -218,14 +221,37 @@
             this.txbMessages.Multiline = true;
             this.txbMessages.Name = "txbMessages";
             this.txbMessages.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txbMessages.Size = new System.Drawing.Size(533, 70);
+            this.txbMessages.Size = new System.Drawing.Size(535, 70);
             this.txbMessages.TabIndex = 14;
+            // 
+            // bthHelp
+            // 
+            this.bthHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bthHelp.Location = new System.Drawing.Point(717, 334);
+            this.bthHelp.Name = "bthHelp";
+            this.bthHelp.Size = new System.Drawing.Size(75, 23);
+            this.bthHelp.TabIndex = 15;
+            this.bthHelp.Text = "Help";
+            this.bthHelp.UseVisualStyleBackColor = true;
+            this.bthHelp.Click += new System.EventHandler(this.bthHelp_Click);
+            // 
+            // rdbBots
+            // 
+            this.rdbBots.AutoSize = true;
+            this.rdbBots.Location = new System.Drawing.Point(6, 65);
+            this.rdbBots.Name = "rdbBots";
+            this.rdbBots.Size = new System.Drawing.Size(63, 17);
+            this.rdbBots.TabIndex = 9;
+            this.rdbBots.TabStop = true;
+            this.rdbBots.Text = "Bot only";
+            this.rdbBots.UseVisualStyleBackColor = true;
             // 
             // GameSelectorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(802, 398);
+            this.Controls.Add(this.bthHelp);
             this.Controls.Add(this.txbMessages);
             this.Controls.Add(this.btnRejoin);
             this.Controls.Add(this.label3);
@@ -268,5 +294,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnRejoin;
         private System.Windows.Forms.TextBox txbMessages;
+        private System.Windows.Forms.Button bthHelp;
+        private System.Windows.Forms.RadioButton rdbBots;
     }
 }

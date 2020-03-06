@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
 using ChessFabrickWeb.Utils;
 using ChessFabrickCommons.Models;
+using ChessFabrickCommons.Utils;
 
 namespace ChessFabrickWeb.Services
 {

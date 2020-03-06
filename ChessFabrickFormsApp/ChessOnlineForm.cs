@@ -183,8 +183,11 @@ namespace ChessFabrickFormsApp
 
             if (gameState == null)
             {
+                btnAddBot.Visible = true;
                 return;
             }
+
+            btnAddBot.Visible = false;
 
             if (gameState.IsCheckmate)
             {
@@ -318,6 +321,33 @@ namespace ChessFabrickFormsApp
             selectedField = null;
             possibleMoves = null;
             UpdateBoard();
+        }
+
+        private async void btnAddBot_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var game = await PostAddBot();
+                gameState = new ChessGameState(game);
+                UpdateBoard();
+            }
+            catch (Exception ex)
+            {
+                txbMessage.Text = ex.Message;
+                Console.Error.WriteLine(ex);
+            }
+        }
+
+        private async Task<ChessGameInfo> PostAddBot()
+        {
+            HttpResponseMessage response = await client.PostAsync($"api/game/new/{gameId}/addbot", null);
+            var result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
+            return JsonConvert.DeserializeObject<ChessGameInfo>(result);
         }
     }
 }

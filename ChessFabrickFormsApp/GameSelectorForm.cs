@@ -59,8 +59,8 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
             try
             {
@@ -70,8 +70,8 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
             try
             {
@@ -81,8 +81,8 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
         }
 
@@ -95,7 +95,7 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
+                txbMessages.Text = ex.Message;
                 Console.Error.WriteLine(ex);
             }
         }
@@ -109,8 +109,8 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
         }
 
@@ -129,8 +129,8 @@ namespace ChessFabrickFormsApp
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
         }
 
@@ -138,16 +138,18 @@ namespace ChessFabrickFormsApp
         {
             try
             {
-                var game = await PostNewGameAsync(new NewGameModel
-                {
-                    PlayerColor = rdbWhite.Checked ? PieceColor.White : PieceColor.Black
-                });
+                var game = rdbBots.Checked ?
+                    await PostBotGameAsync() :
+                    await PostNewGameAsync(new NewGameModel
+                    {
+                        PlayerColor = rdbWhite.Checked ? PieceColor.White : PieceColor.Black
+                    });
                 new ChessOnlineForm(user, host, game).Show();
             }
             catch (Exception ex)
             {
-                txbMessages.Text = ex.ToString();
                 Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
             }
         }
 
@@ -174,40 +176,48 @@ namespace ChessFabrickFormsApp
         private async Task<List<string>> GetNewGamesAsync()
         {
             HttpResponseMessage response = await client.GetAsync("api/game/new");
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<List<string>>(result);
         }
 
         private async Task<List<string>> GetActiveGamesAsync()
         {
             HttpResponseMessage response = await client.GetAsync("api/game");
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<List<string>>(result);
         }
 
         private async Task<List<string>> GetPlayerGamesAsync()
         {
             HttpResponseMessage response = await client.GetAsync("api/game/my");
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<List<string>>(result);
         }
 
         private async Task<ChessGameState> GetGameStateAsync(string gameId)
         {
             HttpResponseMessage response = await client.GetAsync($"api/game/{gameId}");
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<ChessGameState>(result);
         }
 
@@ -215,21 +225,52 @@ namespace ChessFabrickFormsApp
         {
             HttpResponseMessage response = await client.PostAsync("api/game/new",
                 new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
+            return JsonConvert.DeserializeObject<ChessGameInfo>(result);
+        }
+
+        private async Task<ChessGameInfo> PostBotGameAsync()
+        {
+            HttpResponseMessage response = await client.PostAsync("api/game/new/addbots", null);
+            var result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<ChessGameInfo>(result);
         }
 
         private async Task<ChessGameInfo> PostJoinGameAsync(string gameId)
         {
             HttpResponseMessage response = await client.PostAsync($"api/game/new/{gameId}/join", null);
-            response.EnsureSuccessStatusCode();
-
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
             return JsonConvert.DeserializeObject<ChessGameInfo>(result);
+        }
+
+        private void bthHelp_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Column 'New Games' shows games that are not yet started. Select a Game ID and click on 'Join' to join the selected game.\n\n" +
+                "Column 'Active Games' shows games that are in progress. Select a Game ID and click on 'Spectate' to spectate the selected game.\n\n" +
+                "Column 'My Games' shows all your games. Select a Game ID and click on 'Rejoin' to rejoin the selected game.\n\n" +
+                "To create a new game, in 'Create game' box select the color you wish to play as and click on the button 'Create'\n\n" +
+                "Clicking the 'Refresh' button will refresh the game lists.\n\n" +
+                "Clicking the 'Help' button will bring up this dialog again.",
+                "Help me please...",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Question
+                );
         }
     }
 }

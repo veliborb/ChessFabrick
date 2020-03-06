@@ -88,7 +88,7 @@ namespace ChessFabrickWeb
             }
 
             var provider = new FileExtensionContentTypeProvider();
-            provider.Mappings.Add(".exe", "application/vnd.microsoft.portable-executable");
+            provider.Mappings[".exe"] = "application/vnd.microsoft.portable-executable";
             app.UseStaticFiles(new StaticFileOptions
             {
                 ContentTypeProvider = provider

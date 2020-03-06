@@ -37,6 +37,7 @@
             this.cfbPlayerColor = new ChessFabrickFormsApp.ChessFieldBox();
             this.txbMessage = new System.Windows.Forms.TextBox();
             this.labPlayerNames = new System.Windows.Forms.Label();
+            this.btnAddBot = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlayerColor)).BeginInit();
             this.SuspendLayout();
@@ -122,18 +123,31 @@
             // 
             // labPlayerNames
             // 
+            this.labPlayerNames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labPlayerNames.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.labPlayerNames.Location = new System.Drawing.Point(471, 545);
+            this.labPlayerNames.Location = new System.Drawing.Point(474, 545);
             this.labPlayerNames.Name = "labPlayerNames";
-            this.labPlayerNames.Size = new System.Drawing.Size(134, 77);
+            this.labPlayerNames.Size = new System.Drawing.Size(131, 77);
             this.labPlayerNames.TabIndex = 13;
             this.labPlayerNames.Text = "White:\r\nBlack:";
+            // 
+            // btnAddBot
+            // 
+            this.btnAddBot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddBot.Location = new System.Drawing.Point(474, 545);
+            this.btnAddBot.Name = "btnAddBot";
+            this.btnAddBot.Size = new System.Drawing.Size(131, 77);
+            this.btnAddBot.TabIndex = 14;
+            this.btnAddBot.Text = "/addbot";
+            this.btnAddBot.UseVisualStyleBackColor = true;
+            this.btnAddBot.Click += new System.EventHandler(this.btnAddBot_Click);
             // 
             // ChessOnlineForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(625, 634);
+            this.Controls.Add(this.btnAddBot);
             this.Controls.Add(this.labPlayerNames);
             this.Controls.Add(this.txbMessage);
             this.Controls.Add(this.cfbPlayerColor);
@@ -167,6 +181,7 @@
         private ChessFieldBox cfbPlayerColor;
         private System.Windows.Forms.TextBox txbMessage;
         private System.Windows.Forms.Label labPlayerNames;
+        private System.Windows.Forms.Button btnAddBot;
     }
 }
 

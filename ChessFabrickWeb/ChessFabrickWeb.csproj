@@ -9,18 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\img\bishop_black.png" />
-    <Content Remove="wwwroot\img\bishop_white.png" />
-    <Content Remove="wwwroot\img\king_black.png" />
-    <Content Remove="wwwroot\img\king_white.png" />
-    <Content Remove="wwwroot\img\knight_black.png" />
-    <Content Remove="wwwroot\img\knight_white.png" />
-    <Content Remove="wwwroot\img\pawn_black.png" />
-    <Content Remove="wwwroot\img\pawn_white.png" />
-    <Content Remove="wwwroot\img\queen_black.png" />
-    <Content Remove="wwwroot\img\queen_white.png" />
-    <Content Remove="wwwroot\img\rook_black.png" />
-    <Content Remove="wwwroot\img\rook_white.png" />
+    <Content Remove="wwwroot\images\bishop_black.png" />
+    <Content Remove="wwwroot\images\bishop_white.png" />
+    <Content Remove="wwwroot\images\eye.png" />
+    <Content Remove="wwwroot\images\king_black.png" />
+    <Content Remove="wwwroot\images\king_white.png" />
+    <Content Remove="wwwroot\images\knight_black.png" />
+    <Content Remove="wwwroot\images\knight_white.png" />
+    <Content Remove="wwwroot\images\pawn_black.png" />
+    <Content Remove="wwwroot\images\pawn_white.png" />
+    <Content Remove="wwwroot\images\queen_black.png" />
+    <Content Remove="wwwroot\images\queen_white.png" />
+    <Content Remove="wwwroot\images\rook_black.png" />
+    <Content Remove="wwwroot\images\rook_white.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,18 +38,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\img\bishop_black.png" />
-    <None Include="wwwroot\img\bishop_white.png" />
-    <None Include="wwwroot\img\king_black.png" />
-    <None Include="wwwroot\img\king_white.png" />
-    <None Include="wwwroot\img\knight_black.png" />
-    <None Include="wwwroot\img\knight_white.png" />
-    <None Include="wwwroot\img\pawn_black.png" />
-    <None Include="wwwroot\img\pawn_white.png" />
-    <None Include="wwwroot\img\queen_black.png" />
-    <None Include="wwwroot\img\queen_white.png" />
-    <None Include="wwwroot\img\rook_black.png" />
-    <None Include="wwwroot\img\rook_white.png" />
+    <None Include="wwwroot\images\bishop_black.png" />
+    <None Include="wwwroot\images\bishop_white.png" />
+    <None Include="wwwroot\images\eye.png" />
+    <None Include="wwwroot\images\king_black.png" />
+    <None Include="wwwroot\images\king_white.png" />
+    <None Include="wwwroot\images\knight_black.png" />
+    <None Include="wwwroot\images\knight_white.png" />
+    <None Include="wwwroot\images\pawn_black.png" />
+    <None Include="wwwroot\images\pawn_white.png" />
+    <None Include="wwwroot\images\queen_black.png" />
+    <None Include="wwwroot\images\queen_white.png" />
+    <None Include="wwwroot\images\rook_black.png" />
+    <None Include="wwwroot\images\rook_white.png" />
   </ItemGroup>
 
 
