@@ -4,7 +4,7 @@
     <Parameter Name="ChessFabrickPlayersStateful_PartitionCount" Value="5" />
     <Parameter Name="ChessFabrickPlayersStateful_MinReplicaSetSize" Value="3" />
     <Parameter Name="ChessFabrickPlayersStateful_TargetReplicaSetSize" Value="3" />
-    <Parameter Name="ChessFabrickWeb_InstanceCount" Value="-1" />
+    <Parameter Name="ChessFabrickWeb_InstanceCount" Value="1" />
     <Parameter Name="ChessFabrickStateful_PartitionCount" Value="5" />
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" Value="3" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" Value="3" />
