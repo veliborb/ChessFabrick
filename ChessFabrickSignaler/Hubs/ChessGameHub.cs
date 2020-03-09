@@ -1,7 +1,6 @@
 ﻿using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickCommons.Utils;
-using ChessFabrickWeb.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.ServiceFabric.Services.Client;
@@ -16,7 +15,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ChessFabrickWeb.Hubs
+namespace ChessFabrickSignaler.Hubs
 {
     public class ChessGameHub : Hub
     {
@@ -31,7 +30,7 @@ namespace ChessFabrickWeb.Hubs
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(serviceContext);
+            chessStatefulUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickStateful");
         }
 
         public override Task OnConnectedAsync()

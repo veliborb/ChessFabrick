@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ChessFabrickWeb.Providers
+namespace ChessFabrickSignaler.Providers
 {
     public class NameUserIdProvider : IUserIdProvider
     {

@@ -1,8 +1,11 @@
 ﻿"use strict";
 
+console.log(window.location.host);
+console.log(window.location.hostname);
+
 function initConnection(token) {
     var connection = new signalR.HubConnectionBuilder()
-        .withUrl("/hub/chess", { accessTokenFactory: () => token })
+        .withUrl(window.location.hostname + ":9090/hub/chess", { accessTokenFactory: () => token })
         .build();
 
     document.getElementById("joinButton").disabled = true;

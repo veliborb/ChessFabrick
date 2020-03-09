@@ -114,7 +114,7 @@ namespace ChessFabrickFormsApp
         private void InitHubConnection()
         {
             connection = new HubConnectionBuilder()
-                .WithUrl(host.AbsoluteUri + "hub/chess", options =>
+                .WithUrl($"http://{host.Host}:9090/hub/chess", options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(user.Token);
                 })

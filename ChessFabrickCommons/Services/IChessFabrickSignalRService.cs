@@ -11,6 +11,8 @@ namespace ChessFabrickCommons.Services
 {
     public interface IChessFabrickSignalRService : IService
     {
-        Task PieceMovedAsync(string playerName, string from, string to, ChessGameState gameState);
+        Task GameCreated(ChessGameInfo game);
+        Task PlayerJoined(string playerName, ChessGameInfo game);
+        Task PieceMovedAsync(string playerName, string from, string to, ChessGameState game);
     }
 }
