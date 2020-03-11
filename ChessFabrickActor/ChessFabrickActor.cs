@@ -45,7 +45,7 @@ namespace ChessFabrickActor
         public async Task PerformMove()
         {
             ActorEventSource.Current.ActorMessage(this, $"PerformMove({gameId})");
-            await Task.Delay(rand.Next(500, 1000));
+            await Task.Delay(rand.Next(800, 1600));
 
             var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
             var game = await chessClient.ActiveGameStateAsync(gameId);

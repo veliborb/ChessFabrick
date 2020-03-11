@@ -43,6 +43,7 @@ namespace ChessFabrickFormsApp
             this.user = user;
             this.host = host;
             this.gameId = gameInfo.GameId;
+
             if (gameInfo.White?.Name == user.Player.Name)
             {
                 playerColor = PieceColor.White;
@@ -51,6 +52,7 @@ namespace ChessFabrickFormsApp
             {
                 playerColor = PieceColor.Black;
             }
+
             if (gameInfo.White != null && gameInfo.Black != null)
             {
                 gameState = new ChessGameState(gameInfo);
@@ -63,6 +65,17 @@ namespace ChessFabrickFormsApp
 
             Icon = Icon.FromHandle(Properties.Resources.knight_white.GetHicon());
             Text = $"Chess - {user.Player.Name}";
+
+            if (playerColor == null)
+            {
+                grbPlayerColor.Text = "Spectating";
+                cfbPlayerColor.Image = Properties.Resources.eye;
+            }
+            else
+            {
+                grbPlayerColor.Text = "Your color";
+                cfbPlayerColor.Image = PieceImageUtils.Pawn(playerColor.Value);
+            }
         }
 
         public ChessOnlineForm(UserModel user, Uri host, ChessGameState gameState)
@@ -125,44 +138,64 @@ namespace ChessFabrickFormsApp
             connection.On<ChessGameState>("OnBoardChanged", (board) => OnBoardChanged(board) );
             connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnBoardChanged(board));
             connection.On<ChessGameState>("OnPlayerJoined", (board) => OnBoardChanged(board));
+            connection.Closed += Connection_Closed;
         }
 
-        private async void ChessForm_Load(object sender, EventArgs e)
+        private async Task StartHubConnection()
         {
             try
             {
                 await connection.StartAsync();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.Error.WriteLine(ex);
-                MessageBox.Show(ex.Message, "Unable to connect to the server", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
+                var result = MessageBox.Show(this, ex.Message, "Unable to connect to the server. Retry?", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        await StartHubConnection();
+                        return;
+                    case DialogResult.No:
+                        Close();
+                        return;
+                }
             }
             try
             {
                 if (playerColor == null)
                 {
-                    grbPlayerColor.Text = "Spectating";
-                    cfbPlayerColor.Image = Properties.Resources.eye;
                     gameState = await connection.InvokeAsync<ChessGameState>("SpectateGame", gameId);
                     Console.WriteLine($"SpectateGame: {JsonConvert.SerializeObject(gameState)}");
                 }
-                else
+                else if (gameState != null)
                 {
-                    grbPlayerColor.Text = "Your color";
-                    cfbPlayerColor.Image = PieceImageUtils.Pawn(playerColor.Value);
-                    if (gameState != null)
-                    {
-                        gameState = await connection.InvokeAsync<ChessGameState>("JoinGame", gameId);
-                        Console.WriteLine($"JoinGame: {JsonConvert.SerializeObject(gameState)}");
-                    }
+                    gameState = await connection.InvokeAsync<ChessGameState>("JoinGame", gameId);
+                    Console.WriteLine($"JoinGame: {JsonConvert.SerializeObject(gameState)}");
                 }
-            } catch (HubException ex)
+            }
+            catch (HubException ex)
             {
                 Console.Error.WriteLine(ex);
                 txbMessage.Text = ex.Message;
             }
             UpdateBoard();
+        }
+
+        private async void ChessForm_Load(object sender, EventArgs e)
+        {
+            await StartHubConnection();
+        }
+
+        private async Task Connection_Closed(Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            txbMessage.Text = ex.Message;
+            panTable.Enabled = false;
+
+            await StartHubConnection();
+
+            panTable.Enabled = true;
         }
 
         private void UpdateBoard()
