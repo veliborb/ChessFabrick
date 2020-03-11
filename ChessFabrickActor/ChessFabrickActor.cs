@@ -71,13 +71,13 @@ namespace ChessFabrickActor
             var pieces = board.GetAlive(board.TurnColor);
             while (true)
             {
-                var piece = pieces[rand.Next(0, pieces.Count - 1)];
+                var piece = pieces[rand.Next(0, pieces.Count)];
                 var x = piece.X;
                 var y = piece.Y;
                 var moves = piece.GetPossibleMoves();
                 while (moves.Count > 0)
                 {
-                    var move = moves[rand.Next(0, moves.Count - 1)];
+                    var move = moves[rand.Next(0, moves.Count)];
                     if (piece.MoveTo(move.Item1, move.Item2))
                     {
                         return Tuple.Create(ChessGameUtils.FieldToString(x, y), ChessGameUtils.FieldToString(move.Item1, move.Item2));

@@ -123,7 +123,7 @@ namespace ChessFabrickFormsApp
                 .Build();
             connection.On<string>("Test", (message) => { Console.WriteLine($"{message}"); });
             connection.On<ChessGameState>("OnBoardChanged", (board) => OnBoardChanged(board) );
-            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnPieceMoved(from, to, board));
+            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnBoardChanged(board));
             connection.On<ChessGameState>("OnPlayerJoined", (board) => OnBoardChanged(board));
         }
 
@@ -196,7 +196,7 @@ namespace ChessFabrickFormsApp
             if (gameState.IsCheckmate)
             {
                 panTable.Enabled = false;
-                grbPlaying.Text = "Victory";
+                grbPlaying.Text = "Checkmate!";
                 cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn.Other());
                 if (playerColor != null)
                 {
@@ -206,14 +206,14 @@ namespace ChessFabrickFormsApp
             else if (gameState.IsDraw)
             {
                 panTable.Enabled = false;
-                grbPlaying.Text = "Draw";
+                grbPlaying.Text = "Draw.";
                 cfbPlaying.Image = null;
                 cfbPlaying.BackColor = Control.DefaultBackColor;
             }
             else
             {
                 panTable.Enabled = true;
-                grbPlaying.Text = "On turn";
+                grbPlaying.Text = "On turn:";
                 cfbPlaying.Image = PieceImageUtils.Pawn(gameState.OnTurn);
                 if (playerColor != null)
                 {
@@ -373,20 +373,6 @@ namespace ChessFabrickFormsApp
             }
         }
 
-        private void OnPieceMoved(string from, string to, ChessGameState board)
-        {
-            Console.WriteLine($"OnPieceMoved: {from}, {to}, {JsonConvert.SerializeObject(board)}");
-            if (board?.GameInfo?.GameId != gameId)
-            {
-                return;
-            }
-            gameState = board;
-            selectedField = null;
-            possibleMoves = null;
-            showLastMove = true;
-            UpdateBoard();
-        }
-
         private void OnBoardChanged(ChessGameState board)
         {
             Console.WriteLine($"OnBoardChanged: {JsonConvert.SerializeObject(board)}");
@@ -397,6 +383,7 @@ namespace ChessFabrickFormsApp
             gameState = board;
             selectedField = null;
             possibleMoves = null;
+            showLastMove = true;
             UpdateBoard();
         }
 

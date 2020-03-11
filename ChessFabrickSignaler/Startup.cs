@@ -83,7 +83,7 @@ namespace ChessFabrickSignaler
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseDeveloperExceptionPage();
             }
             app.UseStaticFiles();
 
@@ -96,7 +96,6 @@ namespace ChessFabrickSignaler
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapHub<ChessGameHub>("/hub/chess");
             });
         }
