@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ChessFabrickAppType" ApplicationTypeVersion="1.3.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ChessFabrickAppType" ApplicationTypeVersion="1.3.1" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="ChessFabrickSignaler_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
     <Parameter Name="ChessFabrickSignaler_InstanceCount" DefaultValue="1" />
@@ -20,21 +20,21 @@
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickSignalerPkg" ServiceManifestVersion="1.0.0" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickSignalerPkg" ServiceManifestVersion="1.0.1" />
     <ConfigOverrides />
     <EnvironmentOverrides CodePackageRef="code">
       <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ChessFabrickSignaler_ASPNETCORE_ENVIRONMENT]" />
     </EnvironmentOverrides>
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickActorPkg" ServiceManifestVersion="1.1.0" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickActorPkg" ServiceManifestVersion="1.1.1" />
   </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="ChessFabrickPlayersStatefulPkg" ServiceManifestVersion="1.2.0" />
     <ConfigOverrides />
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickWebPkg" ServiceManifestVersion="1.3.0" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickWebPkg" ServiceManifestVersion="1.3.1" />
     <ConfigOverrides />
     <EnvironmentOverrides CodePackageRef="code">
       <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ChessFabrickWeb_ASPNETCORE_ENVIRONMENT]" />

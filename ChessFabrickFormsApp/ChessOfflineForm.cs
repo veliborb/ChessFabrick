@@ -112,7 +112,7 @@ namespace ChessFabrickFormsApp
             {
                 panTable.Enabled = false;
                 labPlaying.Text = "Victory";
-                cfbPlaying.Image = PieceImageUtils.King(board.TurnColor);
+                cfbPlaying.Image = PieceImageUtils.King(board.TurnColor.Other());
             }
             else if (board.IsDraw)
             {

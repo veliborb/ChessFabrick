@@ -196,7 +196,7 @@ namespace ChessFabrickFormsApp
             if (gameState.IsCheckmate)
             {
                 panTable.Enabled = false;
-                grbPlaying.Text = "Checkmate!";
+                grbPlaying.Text = "Checkmate";
                 cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn.Other());
                 if (playerColor != null)
                 {
@@ -206,14 +206,14 @@ namespace ChessFabrickFormsApp
             else if (gameState.IsDraw)
             {
                 panTable.Enabled = false;
-                grbPlaying.Text = "Draw.";
+                grbPlaying.Text = "Draw";
                 cfbPlaying.Image = null;
                 cfbPlaying.BackColor = Control.DefaultBackColor;
             }
             else
             {
                 panTable.Enabled = true;
-                grbPlaying.Text = "On turn:";
+                grbPlaying.Text = "On turn";
                 cfbPlaying.Image = PieceImageUtils.Pawn(gameState.OnTurn);
                 if (playerColor != null)
                 {

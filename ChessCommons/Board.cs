@@ -11,12 +11,16 @@ namespace ChessCommons
 
         private readonly Piece[,] fields;
         private readonly List<Piece> pieces;
+
+        private bool hasLegalMoves = true;
+
         public PieceMove LastMove { get; private set; }
         public PieceColor TurnColor { get; private set; }
         public List<Piece> CheckingPieces { get; private set; }
-        public bool IsCheck => CheckingPieces.Count > 0;
-        public bool IsCheckmate { get; private set; }
-        public bool IsDraw => GetAlive().Count == 2;
+
+        public bool IsCheck => CheckingPieces?.Count > 0;
+        public bool IsCheckmate => IsCheck && !hasLegalMoves;
+        public bool IsDraw => (!IsCheck && !hasLegalMoves) || GetAlive().Count == 2;
 
         public Board()
         {
@@ -136,8 +140,8 @@ namespace ChessCommons
         private void PerformTurn()
         {
             CheckingPieces = CheckCheck(TurnColor);
-            IsCheckmate = CheckCheckmate(TurnColor);
             TurnColor = TurnColor.Other();
+            hasLegalMoves = CheckHasLegalMoves(TurnColor);
         }
 
         private void PerformUndoMove()
@@ -184,24 +188,24 @@ namespace ChessCommons
             return checkPieces;
         }
 
-        // Returns true if King of opposite color is checkmated.
-        private bool CheckCheckmate(PieceColor color)
+        // Returns true if any of the pieces of a given color have a valid move.
+        private bool CheckHasLegalMoves(PieceColor color)
         {
-            var pieces = GetAlive(color.Other());
+            var pieces = GetAlive(color);
             foreach (var piece in pieces)
             {
                 foreach (var move in piece.GetPossibleMoves())
                 {
                     PerformMove(piece, move.Item1, move.Item2);
-                    var check = CheckCheck(color);
+                    var check = CheckCheck(color.Other());
                     PerformUndoMove();
                     if (check.Count == 0)
                     {
-                        return false;
+                        return true;
                     }
                 }
             }
-            return true;
+            return false;
         }
 
         public bool FieldExists(int x, int y)

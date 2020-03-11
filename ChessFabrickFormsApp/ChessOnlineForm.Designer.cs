@@ -33,16 +33,16 @@
             this.labPlayerNames = new System.Windows.Forms.Label();
             this.btnAddBot = new System.Windows.Forms.Button();
             this.grbPlaying = new System.Windows.Forms.GroupBox();
-            this.grbPlayerColor = new System.Windows.Forms.GroupBox();
-            this.labLastMove = new System.Windows.Forms.Label();
-            this.cfbPlayerColor = new ChessFabrickFormsApp.ChessFieldBox();
             this.cfbPlaying = new ChessFabrickFormsApp.ChessFieldBox();
+            this.grbPlayerColor = new System.Windows.Forms.GroupBox();
+            this.cfbPlayerColor = new ChessFabrickFormsApp.ChessFieldBox();
+            this.labLastMove = new System.Windows.Forms.Label();
             this.pieceListPanelWhite = new ChessFabrickFormsApp.PieceListPanel();
             this.pieceListPanelBlack = new ChessFabrickFormsApp.PieceListPanel();
             this.grbPlaying.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).BeginInit();
             this.grbPlayerColor.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlayerColor)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).BeginInit();
             this.SuspendLayout();
             // 
             // panTable
@@ -91,19 +91,39 @@
             this.grbPlaying.Controls.Add(this.cfbPlaying);
             this.grbPlaying.Location = new System.Drawing.Point(462, 12);
             this.grbPlaying.Name = "grbPlaying";
-            this.grbPlaying.Size = new System.Drawing.Size(72, 77);
+            this.grbPlaying.Size = new System.Drawing.Size(75, 77);
             this.grbPlaying.TabIndex = 15;
             this.grbPlaying.TabStop = false;
+            // 
+            // cfbPlaying
+            // 
+            this.cfbPlaying.Location = new System.Drawing.Point(6, 21);
+            this.cfbPlaying.Name = "cfbPlaying";
+            this.cfbPlaying.Size = new System.Drawing.Size(63, 50);
+            this.cfbPlaying.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.cfbPlaying.Style = ChessFabrickFormsApp.ChessFieldBox.BoxStyle.None;
+            this.cfbPlaying.TabIndex = 4;
+            this.cfbPlaying.TabStop = false;
             // 
             // grbPlayerColor
             // 
             this.grbPlayerColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.grbPlayerColor.Controls.Add(this.cfbPlayerColor);
-            this.grbPlayerColor.Location = new System.Drawing.Point(541, 12);
+            this.grbPlayerColor.Location = new System.Drawing.Point(538, 12);
             this.grbPlayerColor.Name = "grbPlayerColor";
-            this.grbPlayerColor.Size = new System.Drawing.Size(72, 77);
+            this.grbPlayerColor.Size = new System.Drawing.Size(75, 77);
             this.grbPlayerColor.TabIndex = 16;
             this.grbPlayerColor.TabStop = false;
+            // 
+            // cfbPlayerColor
+            // 
+            this.cfbPlayerColor.Location = new System.Drawing.Point(6, 21);
+            this.cfbPlayerColor.Name = "cfbPlayerColor";
+            this.cfbPlayerColor.Size = new System.Drawing.Size(63, 50);
+            this.cfbPlayerColor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.cfbPlayerColor.Style = ChessFabrickFormsApp.ChessFieldBox.BoxStyle.None;
+            this.cfbPlayerColor.TabIndex = 10;
+            this.cfbPlayerColor.TabStop = false;
             // 
             // labLastMove
             // 
@@ -117,26 +137,6 @@
             this.labLastMove.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.labLastMove.MouseEnter += new System.EventHandler(this.labLastMove_MouseEnter);
             this.labLastMove.MouseLeave += new System.EventHandler(this.labLastMove_MouseLeave);
-            // 
-            // cfbPlayerColor
-            // 
-            this.cfbPlayerColor.Location = new System.Drawing.Point(6, 21);
-            this.cfbPlayerColor.Name = "cfbPlayerColor";
-            this.cfbPlayerColor.Size = new System.Drawing.Size(60, 50);
-            this.cfbPlayerColor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.cfbPlayerColor.Style = ChessFabrickFormsApp.ChessFieldBox.BoxStyle.None;
-            this.cfbPlayerColor.TabIndex = 10;
-            this.cfbPlayerColor.TabStop = false;
-            // 
-            // cfbPlaying
-            // 
-            this.cfbPlaying.Location = new System.Drawing.Point(6, 21);
-            this.cfbPlaying.Name = "cfbPlaying";
-            this.cfbPlaying.Size = new System.Drawing.Size(60, 50);
-            this.cfbPlaying.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.cfbPlaying.Style = ChessFabrickFormsApp.ChessFieldBox.BoxStyle.None;
-            this.cfbPlaying.TabIndex = 4;
-            this.cfbPlaying.TabStop = false;
             // 
             // pieceListPanelWhite
             // 
@@ -178,9 +178,9 @@
             this.Text = "ChessFabrick";
             this.Load += new System.EventHandler(this.ChessForm_Load);
             this.grbPlaying.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).EndInit();
             this.grbPlayerColor.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.cfbPlayerColor)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cfbPlaying)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
