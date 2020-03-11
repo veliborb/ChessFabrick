@@ -146,7 +146,6 @@ namespace ChessFabrickWeb.Controllers
         public async Task<IActionResult> PostAddBot(string gameId)
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostAddBot({gameId}): {User.Identity.Name}");
-            return StatusCode(500, "No bot yet...");
             try
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
@@ -164,7 +163,6 @@ namespace ChessFabrickWeb.Controllers
         public async Task<IActionResult> PostBotGame()
         {
             ServiceEventSource.Current.ServiceMessage(context, $"PostBotGame(): {User.Identity.Name}");
-            return StatusCode(500, "No bot yet...");
             try
             {
                 var gameId = $"{ChessFabrickUtils.BOT_NAME}-{Guid.NewGuid()}";

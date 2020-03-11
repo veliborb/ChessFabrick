@@ -45,16 +45,25 @@ namespace ChessFabrickActor
         public async Task PerformMove()
         {
             ActorEventSource.Current.ActorMessage(this, $"PerformMove({gameId})");
+            await Task.Delay(rand.Next(500, 1000));
+
             var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
             var game = await chessClient.ActiveGameStateAsync(gameId);
-            ActorEventSource.Current.ActorMessage(this, $"MoveHistory: {game.GameInfo.MoveHistory}");
-            var board = new Board();
-            try
+            while (true)
             {
-                board.PerformMoves(game.GameInfo.MoveHistory);
-            } catch (Exception) { }
-            var move = GetRandomMove(board);
-            await chessClient.MovePieceAsync(gameId, ChessFabrickUtils.BOT_NAME, move.Item1, move.Item2);
+                try
+                {
+                    var board = new Board();
+                    board.PerformMoves(game.GameInfo.MoveHistory);
+                    var move = GetRandomMove(board);
+                    await chessClient.MovePieceAsync(gameId, ChessFabrickUtils.BOT_NAME, move.Item1, move.Item2);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    ActorEventSource.Current.ActorMessage(this, $"PerformMoveException({gameId}): \n{ex}");
+                }
+            }
         }
 
         private Tuple<string, string> GetRandomMove(Board board)
@@ -63,12 +72,19 @@ namespace ChessFabrickActor
             while (true)
             {
                 var piece = pieces[rand.Next(0, pieces.Count - 1)];
+                var x = piece.X;
+                var y = piece.Y;
                 var moves = piece.GetPossibleMoves();
-                if (moves.Count > 0)
+                while (moves.Count > 0)
                 {
                     var move = moves[rand.Next(0, moves.Count - 1)];
-                    return Tuple.Create(ChessGameUtils.FieldToString(piece.X, piece.Y), ChessGameUtils.FieldToString(move.Item1, move.Item2));
+                    if (piece.MoveTo(move.Item1, move.Item2))
+                    {
+                        return Tuple.Create(ChessGameUtils.FieldToString(x, y), ChessGameUtils.FieldToString(move.Item1, move.Item2));
+                    }
+                    moves.Remove(move);
                 }
+                pieces.Remove(piece);
             }
         }
     }

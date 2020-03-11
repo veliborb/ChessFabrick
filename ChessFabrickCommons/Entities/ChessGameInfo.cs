@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessCommons;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -22,5 +23,7 @@ namespace ChessFabrickCommons.Entities
             Black = black;
             MoveHistory = moveHistory;
         }
+
+        public ChessPlayer GetPlayer(PieceColor color) => color == PieceColor.White ? White : Black;
     }
 }

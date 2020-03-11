@@ -64,7 +64,8 @@
             this.txbName.Location = new System.Drawing.Point(12, 25);
             this.txbName.Name = "txbName";
             this.txbName.Size = new System.Drawing.Size(266, 20);
-            this.txbName.TabIndex = 2;
+            this.txbName.TabIndex = 1;
+            this.txbName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txbName_KeyDown);
             // 
             // txbPassword
             // 
@@ -73,8 +74,9 @@
             this.txbPassword.Location = new System.Drawing.Point(12, 74);
             this.txbPassword.Name = "txbPassword";
             this.txbPassword.Size = new System.Drawing.Size(266, 20);
-            this.txbPassword.TabIndex = 3;
+            this.txbPassword.TabIndex = 2;
             this.txbPassword.UseSystemPasswordChar = true;
+            this.txbPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txbPassword_KeyDown);
             // 
             // btnLogin
             // 
@@ -82,7 +84,7 @@
             this.btnLogin.Location = new System.Drawing.Point(203, 215);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(75, 23);
-            this.btnLogin.TabIndex = 4;
+            this.btnLogin.TabIndex = 5;
             this.btnLogin.Text = "Login";
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
@@ -93,7 +95,7 @@
             this.btnRegister.Location = new System.Drawing.Point(12, 215);
             this.btnRegister.Name = "btnRegister";
             this.btnRegister.Size = new System.Drawing.Size(75, 23);
-            this.btnRegister.TabIndex = 5;
+            this.btnRegister.TabIndex = 4;
             this.btnRegister.Text = "Register";
             this.btnRegister.UseVisualStyleBackColor = true;
             this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
@@ -114,7 +116,7 @@
             this.txbHost.Location = new System.Drawing.Point(12, 122);
             this.txbHost.Name = "txbHost";
             this.txbHost.Size = new System.Drawing.Size(266, 20);
-            this.txbHost.TabIndex = 7;
+            this.txbHost.TabIndex = 3;
             this.txbHost.Text = "http://chessfabrick.westeurope.cloudapp.azure.com:9092/";
             // 
             // labStatus

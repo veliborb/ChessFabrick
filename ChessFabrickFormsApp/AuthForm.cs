@@ -35,8 +35,16 @@ namespace ChessFabrickFormsApp
             client.BaseAddress = new Uri(host);
         }
 
+        private void SetEnabled(bool enabled)
+        {
+            btnLogin.Enabled = enabled;
+            btnRegister.Enabled = enabled;
+        }
+
         private async void btnLogin_Click(object sender, EventArgs e)
         {
+            SetEnabled(false);
+
             try
             {
                 labStatus.Text = "Logging in...";
@@ -51,10 +59,14 @@ namespace ChessFabrickFormsApp
                 Console.Error.WriteLine(ex);
                 labStatus.Text = ex.Message;
             }
+
+            SetEnabled(true);
         }
 
         private async void btnRegister_Click(object sender, EventArgs e)
         {
+            SetEnabled(false);
+
             try
             {
                 labStatus.Text = "Creating new player...";
@@ -70,6 +82,8 @@ namespace ChessFabrickFormsApp
                 Console.Error.WriteLine(ex);
                 labStatus.Text = ex.Message;
             }
+
+            SetEnabled(true);
         }
 
         private async Task<UserModel> Authenticate(string url, AuthenticationModel model)
@@ -92,6 +106,24 @@ namespace ChessFabrickFormsApp
             gameSelectorForm.FormClosed += (sender, e) => Show();
             Hide();
             gameSelectorForm.Show();
+        }
+
+        private void txbName_KeyDown(object sender, KeyEventArgs e)
+        {
+            //e.SuppressKeyPress = !(
+            //    (e.KeyValue >= 'a' && e.KeyValue <= 'z') ||
+            //    (e.KeyValue >= 'A' && e.KeyValue <= 'Z') ||
+            //    (e.KeyValue >= '0' && e.KeyValue <= '9') ||
+            //    e.KeyValue == '_');
+        }
+
+        private void txbPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            //e.SuppressKeyPress = !(
+            //    (e.KeyValue >= 'a' && e.KeyValue <= 'z') ||
+            //    (e.KeyValue >= 'A' && e.KeyValue <= 'Z') ||
+            //    (e.KeyValue >= '0' && e.KeyValue <= '9') ||
+            //    e.KeyValue == '_');
         }
     }
 }

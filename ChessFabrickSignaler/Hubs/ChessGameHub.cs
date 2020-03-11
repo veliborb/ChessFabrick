@@ -1,8 +1,11 @@
-﻿using ChessFabrickCommons.Models;
+﻿using ChessFabrickCommons.Actors;
+using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickCommons.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
@@ -102,9 +105,9 @@ namespace ChessFabrickSignaler.Hubs
         [Authorize]
         public async Task<ChessGameState> MovePiece(string gameId, string from, string to)
         {
-            ServiceEventSource.Current.ServiceMessage(serviceContext, $"MovePiece({gameId}, {from}, {to}): {Context.User.Identity.Name}");
             try
             {
+                ServiceEventSource.Current.ServiceMessage(serviceContext, $"MovePiece({gameId}, {from}, {to}): {Context.User.Identity.Name}");
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var board = await chessClient.MovePieceAsync(gameId, Context.User.Identity.Name, from, to);
                 return board;
@@ -127,7 +130,7 @@ namespace ChessFabrickSignaler.Hubs
                 {
                     throw new ArgumentException("Player not in the game.");
                 }
-                await Clients.User(board.GameInfo.White.Name == Context.User.Identity.Name ? board.GameInfo.Black.Name : board.GameInfo.White.Name)
+                Clients.User(board.GameInfo.White.Name == Context.User.Identity.Name ? board.GameInfo.Black.Name : board.GameInfo.White.Name)
                     .SendAsync("OnPlayerJoined", board);
                 return board;
             }

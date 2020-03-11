@@ -136,7 +136,7 @@ namespace ChessCommons
         private void PerformTurn()
         {
             CheckingPieces = CheckCheck(TurnColor);
-            IsCheckmate = IsCheck && CheckCheckmate(TurnColor);
+            IsCheckmate = CheckCheckmate(TurnColor);
             TurnColor = TurnColor.Other();
         }
 

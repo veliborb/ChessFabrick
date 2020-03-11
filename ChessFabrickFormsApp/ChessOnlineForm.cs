@@ -1,7 +1,6 @@
 ﻿using ChessCommons;
 using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
-using ChessFabrickFormsApp.Properties;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
@@ -32,6 +31,7 @@ namespace ChessFabrickFormsApp
         private Board board;
         private Tuple<int, int> selectedField;
         private List<Tuple<int, int>> possibleMoves;
+        private bool showLastMove;
 
         private ChessFieldBox[,] fieldBoxes = new ChessFieldBox[8, 8];
 
@@ -51,6 +51,10 @@ namespace ChessFabrickFormsApp
             {
                 playerColor = PieceColor.Black;
             }
+            if (gameInfo.White != null && gameInfo.Black != null)
+            {
+                gameState = new ChessGameState(gameInfo);
+            }
 
             InitializeComponent();
             InitializeBoard();
@@ -63,9 +67,7 @@ namespace ChessFabrickFormsApp
 
         public ChessOnlineForm(UserModel user, Uri host, ChessGameState gameState)
             : this(user, host, gameState.GameInfo)
-        {
-            this.gameState = gameState;
-        }
+        {}
 
         private void InitializeBoard()
         {
@@ -121,7 +123,7 @@ namespace ChessFabrickFormsApp
                 .Build();
             connection.On<string>("Test", (message) => { Console.WriteLine($"{message}"); });
             connection.On<ChessGameState>("OnBoardChanged", (board) => OnBoardChanged(board) );
-            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnBoardChanged(board));
+            connection.On<string, string, ChessGameState>("OnPieceMoved", (from, to, board) => OnPieceMoved(from, to, board));
             connection.On<ChessGameState>("OnPlayerJoined", (board) => OnBoardChanged(board));
         }
 
@@ -140,14 +142,14 @@ namespace ChessFabrickFormsApp
             {
                 if (playerColor == null)
                 {
-                    labPlayerColor.Text = "Spectating";
-                    cfbPlayerColor.Image = Resources.eye;
+                    grbPlayerColor.Text = "Spectating";
+                    cfbPlayerColor.Image = Properties.Resources.eye;
                     gameState = await connection.InvokeAsync<ChessGameState>("SpectateGame", gameId);
                     Console.WriteLine($"SpectateGame: {JsonConvert.SerializeObject(gameState)}");
                 }
                 else
                 {
-                    labPlayerColor.Text = "Your color";
+                    grbPlayerColor.Text = "Your color";
                     cfbPlayerColor.Image = PieceImageUtils.Pawn(playerColor.Value);
                     if (gameState != null)
                     {
@@ -170,15 +172,17 @@ namespace ChessFabrickFormsApp
             {
                 board.PerformMoves(gameState.GameInfo.MoveHistory);
             }
-            catch (Exception ex)
-            {
-                txbMessage.Text = ex.Message;
-            }
+            catch (Exception) { }
             RefreshViews();
         }
 
         private void RefreshViews()
         {
+            if (board == null)
+            {
+                return;
+            }
+
             labPlayerNames.Text = $"White: \n{gameState?.GameInfo?.White?.Name} \n\nBlack: \n{gameState?.GameInfo?.Black?.Name}";
 
             if (gameState == null)
@@ -192,20 +196,29 @@ namespace ChessFabrickFormsApp
             if (gameState.IsCheckmate)
             {
                 panTable.Enabled = false;
-                labPlaying.Text = "Victory";
+                grbPlaying.Text = "Victory";
                 cfbPlaying.Image = PieceImageUtils.King(gameState.OnTurn.Other());
+                if (playerColor != null)
+                {
+                    cfbPlaying.BackColor = gameState.OnTurn != playerColor ? Color.YellowGreen : Color.OrangeRed;
+                }
             }
             else if (gameState.IsDraw)
             {
                 panTable.Enabled = false;
-                labPlaying.Text = "Draw";
+                grbPlaying.Text = "Draw";
                 cfbPlaying.Image = null;
+                cfbPlaying.BackColor = Control.DefaultBackColor;
             }
             else
             {
                 panTable.Enabled = true;
-                labPlaying.Text = "Now playing";
+                grbPlaying.Text = "On turn";
                 cfbPlaying.Image = PieceImageUtils.Pawn(gameState.OnTurn);
+                if (playerColor != null)
+                {
+                    cfbPlaying.BackColor = gameState.OnTurn == playerColor ? Color.YellowGreen : Control.DefaultBackColor;
+                }
             }
 
             pieceListPanelBlack.SetPieceChars(gameState.CapturedPieces.Where(c => c >= 'a' && c <= 'z').ToList());
@@ -248,6 +261,22 @@ namespace ChessFabrickFormsApp
                 }
             }
 
+            if (board.LastMove != null)
+            {
+                var lastMove = board.LastMove;
+                if (lastMove.ConnectedMove)
+                {
+                    lastMove = lastMove.LastMove;
+                }
+                labLastMove.Text = $"Last move:\n{ChessGameUtils.FieldToString(lastMove.FromX, lastMove.FromY)} => {ChessGameUtils.FieldToString(lastMove.ToX, lastMove.ToY)}";
+                if (showLastMove)
+                {
+                    fieldBoxes[lastMove.FromX, lastMove.FromY].Style = ChessFieldBox.BoxStyle.MoveFrom;
+                    fieldBoxes[lastMove.ToX, lastMove.ToY].Style = lastMove.CapturedPiece != null ?
+                        ChessFieldBox.BoxStyle.MoveToCapture : ChessFieldBox.BoxStyle.MoveTo;
+                }
+            }
+
             foreach (var fieldBox in fieldBoxes)
             {
                 fieldBox.ResumeLayout(false);
@@ -257,7 +286,11 @@ namespace ChessFabrickFormsApp
 
         private async void FieldBox_Click(object sender, EventArgs e)
         {
-            var field = (sender as ChessFieldBox).Tag as Tuple<int, int>;
+            var fieldBox = sender as ChessFieldBox;
+            var field = fieldBox.Tag as Tuple<int, int>;
+
+            showLastMove = false;
+
             if (selectedField == null)
             {
                 selectedField = field;
@@ -268,16 +301,20 @@ namespace ChessFabrickFormsApp
                 }
                 if (selectedField != null)
                 {
+                    fieldBox.Style = ChessFieldBox.BoxStyle.Selected;
+                    fieldBox.Invalidate();
                     try
                     {
+                        possibleMoves = new List<Tuple<int, int>>();
+                        var newPossibleMoves = new List<Tuple<int, int>>();
                         var moves = await connection.InvokeAsync<List<string>>("GetPieceMoves", gameId,
                             ChessGameUtils.FieldToString(selectedField.Item1, selectedField.Item2)
                         );
-                        possibleMoves = new List<Tuple<int, int>>(moves.Count);
                         foreach (var move in moves)
                         {
-                            possibleMoves.Add(ChessGameUtils.FieldFromString(move));
+                            newPossibleMoves.Add(ChessGameUtils.FieldFromString(move));
                         }
+                        possibleMoves = newPossibleMoves;
                     } catch (HubException ex)
                     {
                         selectedField = null;
@@ -299,7 +336,6 @@ namespace ChessFabrickFormsApp
                         );
                     } catch (HubException ex)
                     {
-                        selectedField = null;
                         Console.Error.WriteLine(ex);
                         txbMessage.Text = ex.Message;
                     }
@@ -310,17 +346,16 @@ namespace ChessFabrickFormsApp
             UpdateBoard();
         }
 
-        private void OnBoardChanged(ChessGameState board)
+        private void labLastMove_MouseEnter(object sender, EventArgs e)
         {
-            Console.WriteLine($"OnBoardChanged: {JsonConvert.SerializeObject(board)}");
-            if (board?.GameInfo?.GameId != gameId)
-            {
-                return;
-            }
-            gameState = board;
-            selectedField = null;
-            possibleMoves = null;
-            UpdateBoard();
+            showLastMove = true;
+            RefreshViews();
+        }
+
+        private void labLastMove_MouseLeave(object sender, EventArgs e)
+        {
+            showLastMove = false;
+            RefreshViews();
         }
 
         private async void btnAddBot_Click(object sender, EventArgs e)
@@ -336,6 +371,33 @@ namespace ChessFabrickFormsApp
                 txbMessage.Text = ex.Message;
                 Console.Error.WriteLine(ex);
             }
+        }
+
+        private void OnPieceMoved(string from, string to, ChessGameState board)
+        {
+            Console.WriteLine($"OnPieceMoved: {from}, {to}, {JsonConvert.SerializeObject(board)}");
+            if (board?.GameInfo?.GameId != gameId)
+            {
+                return;
+            }
+            gameState = board;
+            selectedField = null;
+            possibleMoves = null;
+            showLastMove = true;
+            UpdateBoard();
+        }
+
+        private void OnBoardChanged(ChessGameState board)
+        {
+            Console.WriteLine($"OnBoardChanged: {JsonConvert.SerializeObject(board)}");
+            if (board?.GameInfo?.GameId != gameId)
+            {
+                return;
+            }
+            gameState = board;
+            selectedField = null;
+            possibleMoves = null;
+            UpdateBoard();
         }
 
         private async Task<ChessGameInfo> PostAddBot()

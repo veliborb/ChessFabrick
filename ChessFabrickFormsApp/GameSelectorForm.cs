@@ -51,6 +51,10 @@ namespace ChessFabrickFormsApp
 
         private async void btnRefresh_Click(object sender, EventArgs e)
         {
+            tabControl.Enabled = false;
+            btnRefresh.Enabled = false;
+            btnJoin.Enabled = false;
+
             try
             {
                 var games = await GetPlayerGamesAsync();
@@ -84,58 +88,17 @@ namespace ChessFabrickFormsApp
                 Console.Error.WriteLine(ex);
                 txbMessages.Text = ex.Message;
             }
-        }
+            btnSearch_Click(sender, e);
 
-        private async void btnJoin_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var game = await PostJoinGameAsync(txbGameId.Text);
-                new ChessOnlineForm(user, host, new ChessGameState(game)).Show();
-            }
-            catch (Exception ex)
-            {
-                txbMessages.Text = ex.Message;
-                Console.Error.WriteLine(ex);
-            }
-        }
-
-        private async void btnSpectate_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var game = await GetGameStateAsync(lbActiveGames.SelectedItem.ToString());
-                new ChessOnlineForm(user, host, game).Show();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                txbMessages.Text = ex.Message;
-            }
-        }
-
-        private async void btnRejoin_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var game = await GetGameStateAsync(lbYourGames.SelectedItem.ToString());
-                if (game.GameInfo.White == null || game.GameInfo.Black == null)
-                {
-                    new ChessOnlineForm(user, host, game.GameInfo).Show();
-                } else
-                {
-                    new ChessOnlineForm(user, host, game).Show();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                txbMessages.Text = ex.Message;
-            }
+            tabControl.Enabled = true;
+            btnRefresh.Enabled = true;
+            tabControl_SelectedIndexChanged(sender, e);
         }
 
         private async void btnCreate_Click(object sender, EventArgs e)
         {
+            btnCreate.Enabled = false;
+
             try
             {
                 var game = rdbBots.Checked ?
@@ -151,26 +114,141 @@ namespace ChessFabrickFormsApp
                 Console.Error.WriteLine(ex);
                 txbMessages.Text = ex.Message;
             }
+
+            btnCreate.Enabled = true;
         }
 
-        private void txbGameId_TextChanged(object sender, EventArgs e)
+        private async void btnJoin_Click(object sender, EventArgs e)
         {
-            btnJoin.Enabled = txbGameId.Text.Length > 0;
+            btnJoin.Enabled = false;
+
+            ChessGameInfo gameInfo = null;
+            try
+            {
+                if (tabControl.SelectedTab == tabNewGames)
+                {
+                    gameInfo = await PostJoinGameAsync(lbNewGames.SelectedItem.ToString());
+                }
+                else if (tabControl.SelectedTab == tabActiveGames)
+                {
+                    var game = await GetGameStateAsync(lbActiveGames.SelectedItem.ToString());
+                    gameInfo = game.GameInfo;
+                }
+                else if (tabControl.SelectedTab == tabYourGames)
+                {
+                    var game = await GetGameStateAsync(lbYourGames.SelectedItem.ToString());
+                    gameInfo = game.GameInfo;
+                }
+                else if (tabControl.SelectedTab == tabSearchedGames)
+                {
+                    var game = await GetGameStateAsync(lbSearchedGames.SelectedItem.ToString());
+                    gameInfo = game.GameInfo;
+                    if ((gameInfo.Black == null && gameInfo.White?.Name != user.Player.Name) ||
+                        (gameInfo.White == null && gameInfo.Black?.Name != user.Player.Name))
+                    {
+                        gameInfo = await PostJoinGameAsync(gameInfo.GameId);
+                    }
+                }
+                new ChessOnlineForm(user, host, gameInfo).Show();
+            } catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
+            }
+
+            btnJoin.Enabled = true;
+        }
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab == tabNewGames)
+            {
+                btnJoin.Text = "Join";
+                lbNewGames_SelectedIndexChanged(sender, e);
+            }
+            else if (tabControl.SelectedTab == tabActiveGames)
+            {
+                btnJoin.Text = "Spectate";
+                lbActiveGames_SelectedIndexChanged(sender, e);
+            }
+            else if (tabControl.SelectedTab == tabYourGames)
+            {
+                btnJoin.Text = "Rejoin";
+                lbYourGames_SelectedIndexChanged(sender, e);
+            }
+            else if (tabControl.SelectedTab == tabSearchedGames)
+            {
+                btnJoin.Text = "Join";
+                lbSearch_SelectedIndexChanged(sender, e);
+            }
         }
 
         private void lbNewGames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            txbGameId.Text = lbNewGames.SelectedItem?.ToString();
+            btnJoin.Enabled = lbNewGames.SelectedItem != null;
         }
 
         private void lbActiveGames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnSpectate.Enabled = lbActiveGames.SelectedItem != null;
+            btnJoin.Enabled = lbActiveGames.SelectedItem != null;
         }
 
         private void lbYourGames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRejoin.Enabled = lbYourGames.SelectedItem != null;
+            btnJoin.Enabled = lbYourGames.SelectedItem != null;
+        }
+
+        private void lbSearch_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnJoin.Enabled = lbSearchedGames.SelectedItem != null;
+        }
+
+        private void txbSearch_TextChanged(object sender, EventArgs e)
+        {
+            btnSearch.Enabled = txbSearch.Text?.Length > 0;
+        }
+
+        private void txbSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            //e.SuppressKeyPress = !(
+            //    (e.KeyValue >= 'a' && e.KeyValue <= 'z') ||
+            //    (e.KeyValue >= 'A' && e.KeyValue <= 'Z') ||
+            //    (e.KeyValue >= '0' && e.KeyValue <= '9') ||
+            //    e.KeyValue == '-' || e.KeyValue == '_');
+        }
+
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                lbSearchedGames.Items.Clear();
+                if (txbSearch.Text?.Length > 0)
+                {
+                    var games = await GetPlayerGamesAsync(txbSearch.Text);
+                    lbSearchedGames.Items.AddRange(games.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                txbMessages.Text = ex.Message;
+            }
+        }
+
+        private void bthHelp_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Tab 'New Games' shows games that are not yet started. Select a Game ID and click on 'Join' to join the selected game.\n\n" +
+                "Tab 'Active Games' shows games that are in progress. Select a Game ID and click on 'Spectate' to join the selected game. In case you are logged in as one of the players of the game, you will join as a player. Otherwise you will only be able to spectate the game.\n\n" +
+                "Tab 'My Games' shows all your games. Select a Game ID and click on 'Rejoin' to rejoin the selected game.\n\n" +
+                "Tab 'Search' lets you search games by player's name. Select a Game ID and click on 'Join' to join the selected game. Depending on whether the game was already started you will join either as a spectator or as a player.\n\n" +
+                "To create a new game, in 'Create game' box select the color you wish to play as and click on the button 'Create'\n\n" +
+                "Clicking the 'Refresh' button will refresh the game lists.\n\n" +
+                "Clicking the 'Help' button will bring up this dialog again.",
+                "Help me please...",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Question
+                );
         }
 
         private async Task<List<string>> GetNewGamesAsync()
@@ -200,6 +278,18 @@ namespace ChessFabrickFormsApp
         private async Task<List<string>> GetPlayerGamesAsync()
         {
             HttpResponseMessage response = await client.GetAsync("api/game/my");
+            var result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(result);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error: {response.StatusCode}\n{result}");
+            }
+            return JsonConvert.DeserializeObject<List<string>>(result);
+        }
+
+        private async Task<List<string>> GetPlayerGamesAsync(string name)
+        {
+            HttpResponseMessage response = await client.GetAsync($"api/player/{name}/games");
             var result = await response.Content.ReadAsStringAsync();
             Console.WriteLine(result);
             if (!response.IsSuccessStatusCode)
@@ -256,21 +346,6 @@ namespace ChessFabrickFormsApp
                 throw new Exception($"Error: {response.StatusCode}\n{result}");
             }
             return JsonConvert.DeserializeObject<ChessGameInfo>(result);
-        }
-
-        private void bthHelp_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(
-                "Column 'New Games' shows games that are not yet started. Select a Game ID and click on 'Join' to join the selected game.\n\n" +
-                "Column 'Active Games' shows games that are in progress. Select a Game ID and click on 'Spectate' to spectate the selected game.\n\n" +
-                "Column 'My Games' shows all your games. Select a Game ID and click on 'Rejoin' to rejoin the selected game.\n\n" +
-                "To create a new game, in 'Create game' box select the color you wish to play as and click on the button 'Create'\n\n" +
-                "Clicking the 'Refresh' button will refresh the game lists.\n\n" +
-                "Clicking the 'Help' button will bring up this dialog again.",
-                "Help me please...",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Question
-                );
         }
     }
 }
