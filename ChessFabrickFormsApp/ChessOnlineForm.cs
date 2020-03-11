@@ -207,7 +207,7 @@ namespace ChessFabrickFormsApp
             {
                 panTable.Enabled = false;
                 grbPlaying.Text = "Draw";
-                cfbPlaying.Image = null;
+                cfbPlaying.Image = Properties.Resources.king_multi;
                 cfbPlaying.BackColor = Control.DefaultBackColor;
             }
             else

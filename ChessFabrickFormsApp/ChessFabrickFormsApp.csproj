@@ -310,6 +310,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ChessFabrick.ico" />
+    <None Include="Resources\king_multi.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
