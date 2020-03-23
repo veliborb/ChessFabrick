@@ -117,7 +117,7 @@
             this.txbHost.Name = "txbHost";
             this.txbHost.Size = new System.Drawing.Size(266, 20);
             this.txbHost.TabIndex = 3;
-            this.txbHost.Text = "http://chess.westeurope.cloudapp.azure.com:9092/";
+            this.txbHost.Text = "http://chessfabrick.westeurope.cloudapp.azure.com:9092/";
             // 
             // labStatus
             // 
