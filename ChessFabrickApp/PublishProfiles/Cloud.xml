@@ -23,7 +23,7 @@
   <ClusterConnectionParameters ConnectionEndpoint="chessfabrick.westeurope.cloudapp.azure.com:19000" X509Credential="true" ServerCertThumbprint="AAC3ECB4B32AAF7EC271A39F7B46D5FCFB35EC6A" FindType="FindByThumbprint" FindValue="AAC3ECB4B32AAF7EC271A39F7B46D5FCFB35EC6A" StoreLocation="CurrentUser" StoreName="My" />
   <ApplicationParameterFile Path="..\ApplicationParameters\Cloud.xml" />
   <CopyPackageParameters CompressPackage="true" />
-  <UpgradeDeployment Mode="Monitored" Enabled="false">
+  <UpgradeDeployment Mode="Monitored" Enabled="true">
     <Parameters FailureAction="Rollback" Force="True" />
   </UpgradeDeployment>
 </PublishProfile>
