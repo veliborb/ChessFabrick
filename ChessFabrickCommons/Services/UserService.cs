@@ -10,10 +10,10 @@ using ChessFabrickCommons.Services;
 using System.Fabric;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
-using ChessFabrickWeb.Utils;
 using ChessFabrickCommons.Models;
+using ChessFabrickCommons.Utils;
 
-namespace ChessFabrickWeb.Services
+namespace ChessFabrickCommons.Services
 {
     public interface IUserService
     {
@@ -33,7 +33,7 @@ namespace ChessFabrickWeb.Services
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.userServiceUri = ChessFabrickWeb.GetChessFabrickPlayersStatefulName(context);
+            this.userServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
         }
 
         public async Task<UserModel> Authenticate(string userName, string password)

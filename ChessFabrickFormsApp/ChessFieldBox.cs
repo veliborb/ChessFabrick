@@ -20,7 +20,10 @@ namespace ChessFabrickFormsApp
             Checked,
             Checking,
             MouseoverPossible,
-            MouseoverImpossible
+            MouseoverImpossible,
+            MoveFrom,
+            MoveTo,
+            MoveToCapture
         }
 
         private Color? borderColor;
@@ -64,6 +67,18 @@ namespace ChessFabrickFormsApp
                         break;
                     case BoxStyle.MouseoverImpossible:
                         borderColor = Color.LightGray;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                    case BoxStyle.MoveFrom:
+                        borderColor = Color.LightGoldenrodYellow;
+                        borderStyle = ButtonBorderStyle.Inset;
+                        break;
+                    case BoxStyle.MoveTo:
+                        borderColor = Color.LightGoldenrodYellow;
+                        borderStyle = ButtonBorderStyle.Outset;
+                        break;
+                    case BoxStyle.MoveToCapture:
+                        borderColor = Color.OrangeRed;
                         borderStyle = ButtonBorderStyle.Outset;
                         break;
                 }

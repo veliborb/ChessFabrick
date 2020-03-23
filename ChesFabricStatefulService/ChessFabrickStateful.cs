@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ChessCommons;
+using ChessFabrickCommons.Actors;
 using ChessFabrickCommons.Entities;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
 using ChessFabrickCommons.Utils;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -26,6 +29,8 @@ namespace ChessFabrickStateful
     {
         private ServiceProxyFactory proxyFactory;
         private readonly Uri playerServiceUri;
+        private readonly Uri chessSignalRUri;
+        private readonly Uri chessActorUri;
 
         public ChessFabrickStateful(StatefulServiceContext context) : base(context)
         {
@@ -34,6 +39,8 @@ namespace ChessFabrickStateful
                 return new FabricTransportServiceRemotingClientFactory();
             });
             this.playerServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
+            this.chessSignalRUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickSignaler");
+            this.chessActorUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickActorService");
         }
 
         /// <summary>
@@ -96,18 +103,24 @@ namespace ChessFabrickStateful
         public async Task<ChessGameInfo> NewGameAsync(string gameId, string playerName, PieceColor playerColor)
         {
             var playersClient = proxyFactory.CreateServiceProxy<IChessFabrickPlayersStatefulService>(playerServiceUri, ChessFabrickUtils.NamePartitionKey(playerName));
-            var player = await playersClient.PlayerInfoAsync(playerName);
+            var player = playerName == ChessFabrickUtils.BOT_NAME ? new ChessPlayer(ChessFabrickUtils.BOT_NAME) : await playersClient.PlayerInfoAsync(playerName);
             var dictGames = await GetNewGameDict();
+
+            ChessGameInfo game;
             using (var tx = StateManager.CreateTransaction())
             {
-                var game = playerColor == PieceColor.White ?
+                game = playerColor == PieceColor.White ?
                     new ChessGameInfo(gameId, player, null) :
                     new ChessGameInfo(gameId, null, player);
                 await dictGames.AddAsync(tx, gameId, game);
                 await playersClient.AddPlayerGameAsync(playerName, gameId);
                 await tx.CommitAsync();
-                return game;
             }
+
+            var chessSignalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(chessSignalRUri/*, ChessFabrickUtils.GuidPartitionKey(gameId)*/);
+            chessSignalRClient.GameCreated(game);
+
+            return game;
         }
 
         public async Task<ChessGameInfo> JoinGameAsync(string gameId, string playerName)
@@ -116,6 +129,8 @@ namespace ChessFabrickStateful
             var player = await playersClient.PlayerInfoAsync(playerName);
             var dictNewGames = await GetNewGameDict();
             var dictActiveGames = await GetActiveGameDict();
+
+            ChessGameInfo activeGame;
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await dictNewGames.TryGetValueAsync(tx, gameId);
@@ -127,15 +142,19 @@ namespace ChessFabrickStateful
                 {
                     throw new ArgumentException("Can't play against yourself");
                 }
-                var activeGame = game.Value.White == null ?
+                activeGame = game.Value.White == null ?
                     new ChessGameInfo(game.Value.GameId, player, game.Value.Black) :
                     new ChessGameInfo(game.Value.GameId, game.Value.White, player);
                 await dictNewGames.TryRemoveAsync(tx, gameId);
                 await dictActiveGames.AddAsync(tx, gameId, activeGame);
                 await playersClient.AddPlayerGameAsync(playerName, gameId);
                 await tx.CommitAsync();
-                return activeGame;
             }
+
+            var chessSignalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(chessSignalRUri/*, ChessFabrickUtils.GuidPartitionKey(gameId)*/);
+            chessSignalRClient.PlayerJoined(playerName, activeGame);
+
+            return activeGame;
         }
 
         public async Task<ChessGameState> ActiveGameStateAsync(string gameId)
@@ -196,6 +215,9 @@ namespace ChessFabrickStateful
         {
             var dictActiveGames = await GetActiveGameDict();
             var dictCompletedGames = await GetCompletedGameDict();
+
+            ChessGameState newGameState;
+            var board = new Board();
             using (var tx = StateManager.CreateTransaction())
             {
                 var game = await GetActiveGameAsync(tx, gameId);
@@ -204,7 +226,6 @@ namespace ChessFabrickStateful
                     throw new ArgumentException("Player not in the game.");
                 }
 
-                var board = new Board();
                 board.PerformMoves(game.MoveHistory);
                 var fromField = ChessGameUtils.FieldFromString(from);
                 var toField = ChessGameUtils.FieldFromString(to);
@@ -214,19 +235,31 @@ namespace ChessFabrickStateful
                     throw new ArgumentException("Illegal move.");
                 }
 
-                var newGameState = new ChessGameInfo(game.GameId, game.White, game.Black, board.ToMovesString());
+                var newGameInfo = new ChessGameInfo(game.GameId, game.White, game.Black, board.ToMovesString());
                 if (board.IsCheckmate || board.IsDraw)
                 {
                     await dictActiveGames.TryRemoveAsync(tx, gameId);
-                    await dictCompletedGames.TryAddAsync(tx, gameId, newGameState);
+                    await dictCompletedGames.TryAddAsync(tx, gameId, newGameInfo);
                 }
                 else
                 {
-                    await dictActiveGames.TryUpdateAsync(tx, gameId, newGameState, game);
+                    await dictActiveGames.TryUpdateAsync(tx, gameId, newGameInfo, game);
                 }
+
                 await tx.CommitAsync();
-                return new ChessGameState(newGameState);
+                newGameState = new ChessGameState(newGameInfo);
             }
+
+            var chessSignalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(chessSignalRUri/*, ChessFabrickUtils.GuidPartitionKey(gameId)*/);
+            chessSignalRClient.PieceMovedAsync(playerName, from, to, newGameState);
+
+            if (newGameState.GetCurrentPlayer().IsBot() && !board.IsCheckmate && !board.IsDraw)
+            {
+                var actor = ActorProxy.Create<IChessFabrickActor>(new ActorId(gameId), chessActorUri);
+                actor.PerformMove();
+            }
+
+            return newGameState;
         }
 
         public async Task<List<string>> NewGameIdsAsync()
@@ -275,6 +308,40 @@ namespace ChessFabrickStateful
                 }
             }
             return games;
+        }
+
+        public async Task<ChessGameInfo> AddBot(string gameId)
+        {
+            var dictNewGames = await GetNewGameDict();
+            var dictActiveGames = await GetActiveGameDict();
+
+            ChessGameInfo activeGame;
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var player = new ChessPlayer(ChessFabrickUtils.BOT_NAME);
+                var game = await dictNewGames.TryGetValueAsync(tx, gameId);
+                if (!game.HasValue)
+                {
+                    throw new ArgumentException("Game does not exist.");
+                }
+                activeGame = game.Value.White == null ?
+                    new ChessGameInfo(game.Value.GameId, player, game.Value.Black) :
+                    new ChessGameInfo(game.Value.GameId, game.Value.White, player);
+                await dictNewGames.TryRemoveAsync(tx, gameId);
+                await dictActiveGames.AddAsync(tx, gameId, activeGame);
+                await tx.CommitAsync();
+            }
+
+            var chessSignalRClient = proxyFactory.CreateServiceProxy<IChessFabrickSignalRService>(chessSignalRUri/*, ChessFabrickUtils.GuidPartitionKey(gameId)*/);
+            chessSignalRClient.PlayerJoined(ChessFabrickUtils.BOT_NAME, activeGame);
+
+            if (activeGame.White.IsBot())
+            {
+                var actor = ActorProxy.Create<IChessFabrickActor>(new ActorId(gameId), chessActorUri);
+                actor.PerformMove();
+            }
+
+            return activeGame;
         }
     }
 }

@@ -9,7 +9,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace ChessFabrickWeb
 {
-    [EventSource(Name = "MyCompany-ChessFabrickApp-ChessFabrickWeb")]
+    [EventSource(Name = "Microsoft-ChessFabrickApp-ChessFabrickWeb")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

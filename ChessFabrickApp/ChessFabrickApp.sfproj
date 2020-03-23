@@ -33,6 +33,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChesFabricStatefulService\ChessFabrickStateful.csproj" />
+    <ProjectReference Include="..\ChessFabrickActor\ChessFabrickActor.csproj" />
+    <ProjectReference Include="..\ChessFabrickSignaler\ChessFabrickSignaler.csproj">
+      <ServiceLaunchUrl>http://{MachineName}:{ServicePort}/</ServiceLaunchUrl>
+    </ProjectReference>
     <ProjectReference Include="..\ChessFabrickUserService\ChessFabrickPlayersStateful.csproj" />
     <ProjectReference Include="..\ChessFabrickWeb\ChessFabrickWeb.csproj">
       <ServiceLaunchUrl>http://{MachineName}:{ServicePort}/</ServiceLaunchUrl>

@@ -9,7 +9,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\images\bishop_black.png" />
+    <Content Remove="wwwroot\images\bishop_white.png" />
+    <Content Remove="wwwroot\images\eye.png" />
+    <Content Remove="wwwroot\images\king_black.png" />
+    <Content Remove="wwwroot\images\king_white.png" />
+    <Content Remove="wwwroot\images\knight_black.png" />
+    <Content Remove="wwwroot\images\knight_white.png" />
+    <Content Remove="wwwroot\images\pawn_black.png" />
+    <Content Remove="wwwroot\images\pawn_white.png" />
+    <Content Remove="wwwroot\images\queen_black.png" />
+    <Content Remove="wwwroot\images\queen_white.png" />
+    <Content Remove="wwwroot\images\rook_black.png" />
+    <Content Remove="wwwroot\images\rook_white.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.0.464" />
     <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Kestrel" Version="4.0.464" />
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.0.464" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
@@ -18,6 +35,22 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChessFabrickCommons\ChessFabrickCommons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\bishop_black.png" />
+    <None Include="wwwroot\images\bishop_white.png" />
+    <None Include="wwwroot\images\eye.png" />
+    <None Include="wwwroot\images\king_black.png" />
+    <None Include="wwwroot\images\king_white.png" />
+    <None Include="wwwroot\images\knight_black.png" />
+    <None Include="wwwroot\images\knight_white.png" />
+    <None Include="wwwroot\images\pawn_black.png" />
+    <None Include="wwwroot\images\pawn_white.png" />
+    <None Include="wwwroot\images\queen_black.png" />
+    <None Include="wwwroot\images\queen_white.png" />
+    <None Include="wwwroot\images\rook_black.png" />
+    <None Include="wwwroot\images\rook_white.png" />
   </ItemGroup>
 
 

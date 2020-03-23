@@ -56,5 +56,7 @@ namespace ChessFabrickCommons.Models
             IsCheckmate = board.IsCheckmate;
             OnTurn = board.TurnColor;
         }
+
+        public ChessPlayer GetCurrentPlayer() => GameInfo.GetPlayer(OnTurn);
     }
 }

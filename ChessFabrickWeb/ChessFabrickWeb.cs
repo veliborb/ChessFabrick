@@ -13,6 +13,12 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Data;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration.Json;
+using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Models;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using ChessFabrickCommons.Utils;
 
 namespace ChessFabrickWeb
 {
@@ -24,16 +30,6 @@ namespace ChessFabrickWeb
         public ChessFabrickWeb(StatelessServiceContext context)
             : base(context)
         { }
-
-        internal static Uri GetChessFabrickStatefulServiceName(ServiceContext context)
-        {
-            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickStateful");
-        }
-
-        internal static Uri GetChessFabrickPlayersStatefulName(ServiceContext context)
-        {
-            return new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
-        }
 
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service instance.
@@ -47,8 +43,7 @@ namespace ChessFabrickWeb
                     new KestrelCommunicationListener(serviceContext, "ServiceEndpoint", (url, listener) =>
                     {
                         ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting Kestrel on {url}");
-
-                        return new WebHostBuilder()
+                        var webHost = new WebHostBuilder()
                                     .UseKestrel()
                                     .ConfigureAppConfiguration((builderContext, config) =>
                                     {
@@ -64,6 +59,7 @@ namespace ChessFabrickWeb
                                     .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseUrls(url)
                                     .Build();
+                        return webHost;
                     }))
             };
         }

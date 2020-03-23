@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ChessFabrickWeb.Hubs;
-using ChessFabrickWeb.Providers;
-using ChessFabrickWeb.Services;
-using ChessFabrickWeb.Utils;
+using ChessFabrickCommons.Services;
+using ChessFabrickCommons.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,23 +53,8 @@ namespace ChessFabrickWeb
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub/chess"))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
             });
 
-            services.AddSignalR();
-            services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
             services.AddScoped<IUserService, UserService>();
         }
 
@@ -88,7 +71,7 @@ namespace ChessFabrickWeb
             }
 
             var provider = new FileExtensionContentTypeProvider();
-            provider.Mappings.Add(".exe", "application/vnd.microsoft.portable-executable");
+            provider.Mappings[".exe"] = "application/vnd.microsoft.portable-executable";
             app.UseStaticFiles(new StaticFileOptions
             {
                 ContentTypeProvider = provider
@@ -102,7 +85,6 @@ namespace ChessFabrickWeb
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapHub<ChessGameHub>("/hub/chess");
             });
         }
     }

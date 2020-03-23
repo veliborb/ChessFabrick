@@ -1,31 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ChessFabrickAppType" ApplicationTypeVersion="1.1.1" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ChessFabrickAppType" ApplicationTypeVersion="1.3.4" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
+    <Parameter Name="ChessFabrickSignaler_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
+    <Parameter Name="ChessFabrickSignaler_InstanceCount" DefaultValue="1" />
+    <Parameter Name="ChessFabrickSignaler_PartitionCount" DefaultValue="5" />
     <Parameter Name="ChessFabrickPlayersStateful_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="ChessFabrickPlayersStateful_PartitionCount" DefaultValue="1" />
+    <Parameter Name="ChessFabrickPlayersStateful_PartitionCount" DefaultValue="5" />
     <Parameter Name="ChessFabrickPlayersStateful_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ChessFabrickWeb_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
     <Parameter Name="ChessFabrickWeb_InstanceCount" DefaultValue="-1" />
     <Parameter Name="ChessFabrickStateful_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ChessFabrickStateful_PartitionCount" DefaultValue="5" />
     <Parameter Name="ChessFabrickStateful_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ChessFabrickActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="ChessFabrickActorService_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="ChessFabrickActorService_TargetReplicaSetSize" DefaultValue="1" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickPlayersStatefulPkg" ServiceManifestVersion="1.1.0" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickSignalerPkg" ServiceManifestVersion="1.0.2" />
+    <ConfigOverrides />
+    <EnvironmentOverrides CodePackageRef="code">
+      <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ChessFabrickSignaler_ASPNETCORE_ENVIRONMENT]" />
+    </EnvironmentOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessFabrickActorPkg" ServiceManifestVersion="1.1.2" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="ChessFabrickPlayersStatefulPkg" ServiceManifestVersion="1.2.0" />
     <ConfigOverrides />
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickWebPkg" ServiceManifestVersion="1.1.1" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickWebPkg" ServiceManifestVersion="1.3.1" />
     <ConfigOverrides />
     <EnvironmentOverrides CodePackageRef="code">
       <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ChessFabrickWeb_ASPNETCORE_ENVIRONMENT]" />
     </EnvironmentOverrides>
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ChessFabrickStatefulPkg" ServiceManifestVersion="1.1.1" />
+    <ServiceManifestRef ServiceManifestName="ChessFabrickStatefulPkg" ServiceManifestVersion="1.3.2" />
     <ConfigOverrides />
   </ServiceManifestImport>
   <DefaultServices>
@@ -34,9 +50,15 @@
          ServiceFabric PowerShell module.
          
          The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
+    <Service Name="ChessFabrickSignaler" ServicePackageActivationMode="ExclusiveProcess">
+      <StatelessService ServiceTypeName="ChessFabrickSignalerType" InstanceCount="[ChessFabrickSignaler_InstanceCount]">
+        <SingletonPartition />
+        <!--<UniformInt64Partition PartitionCount="[ChessFabrickSignaler_PartitionCount]" LowKey="0" HighKey="4" />-->
+      </StatelessService>
+    </Service>
     <Service Name="ChessFabrickPlayersStateful" ServicePackageActivationMode="ExclusiveProcess">
       <StatefulService ServiceTypeName="ChessFabrickPlayersStatefulType" TargetReplicaSetSize="[ChessFabrickPlayersStateful_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickPlayersStateful_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[ChessFabrickPlayersStateful_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <UniformInt64Partition PartitionCount="[ChessFabrickPlayersStateful_PartitionCount]" LowKey="0" HighKey="4" />
       </StatefulService>
     </Service>
     <Service Name="ChessFabrickWeb" ServicePackageActivationMode="ExclusiveProcess">
@@ -47,6 +69,11 @@
     <Service Name="ChessFabrickStateful" ServicePackageActivationMode="ExclusiveProcess">
       <StatefulService ServiceTypeName="ChessFabrickStatefulType" TargetReplicaSetSize="[ChessFabrickStateful_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickStateful_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ChessFabrickStateful_PartitionCount]" LowKey="0" HighKey="4" />
+      </StatefulService>
+    </Service>
+    <Service Name="ChessFabrickActorService" GeneratedIdRef="f1e7a303-c415-4d59-9bfd-1ccbef912ea1|None">
+      <StatefulService ServiceTypeName="ChessFabrickActorServiceType" TargetReplicaSetSize="[ChessFabrickActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ChessFabrickActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ChessFabrickActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
       </StatefulService>
     </Service>
   </DefaultServices>

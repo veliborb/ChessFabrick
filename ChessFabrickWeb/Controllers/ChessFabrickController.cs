@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ChessCommons;
+using ChessFabrickCommons.Actors;
 using ChessFabrickCommons.Models;
 using ChessFabrickCommons.Services;
-using ChessFabrickWeb.Hubs;
-using ChessFabrickWeb.Utils;
+using ChessFabrickCommons.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
@@ -26,9 +29,8 @@ namespace ChessFabrickWeb.Controllers
         private readonly ServiceProxyFactory proxyFactory;
         private readonly Uri chessStatefulUri;
         private readonly Uri playerServiceUri;
-        private readonly IHubContext<ChessGameHub> gameHubContext;
 
-        public ChessFabrickController(HttpClient httpClient, StatelessServiceContext context, FabricClient fabricClient, IHubContext<ChessGameHub> gameHubContext)
+        public ChessFabrickController(HttpClient httpClient, StatelessServiceContext context, FabricClient fabricClient)
         {
             this.fabricClient = fabricClient;
             this.httpClient = httpClient;
@@ -37,9 +39,8 @@ namespace ChessFabrickWeb.Controllers
             {
                 return new FabricTransportServiceRemotingClientFactory();
             });
-            this.chessStatefulUri = ChessFabrickWeb.GetChessFabrickStatefulServiceName(context);
-            this.playerServiceUri = ChessFabrickWeb.GetChessFabrickPlayersStatefulName(context);
-            this.gameHubContext = gameHubContext;
+            this.chessStatefulUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickStateful");
+            this.playerServiceUri = new Uri($"{context.CodePackageActivationContext.ApplicationName}/ChessFabrickPlayersStateful");
         }
 
         [HttpGet]
@@ -113,10 +114,9 @@ namespace ChessFabrickWeb.Controllers
             ServiceEventSource.Current.ServiceMessage(context, $"PostNewGame({model.PlayerColor}): {User.Identity.Name}");
             try
             {
-                var gameId = Guid.NewGuid().ToString();
+                var gameId = $"{User.Identity.Name}-{Guid.NewGuid()}";
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var game = await chessClient.NewGameAsync(gameId, User.Identity.Name, model.PlayerColor);
-                await gameHubContext.Clients.All.SendAsync("OnGameCreated", game);
                 return Ok(game);
             } catch (Exception ex)
             {
@@ -133,8 +133,43 @@ namespace ChessFabrickWeb.Controllers
             {
                 var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
                 var game = await chessClient.JoinGameAsync(gameId, User.Identity.Name);
-                await gameHubContext.Clients.Group(ChessFabrickUtils.GameGroupName(gameId)).SendAsync("OnPlayerJoined", game, User.Identity.Name);
                 return Ok(game);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("new/{gameId}/addbot")]
+        public async Task<IActionResult> PostAddBot(string gameId)
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"PostAddBot({gameId}): {User.Identity.Name}");
+            try
+            {
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+                var game = await chessClient.AddBot(gameId);
+                return Ok(game);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("new/addbots")]
+        public async Task<IActionResult> PostBotGame()
+        {
+            ServiceEventSource.Current.ServiceMessage(context, $"PostBotGame(): {User.Identity.Name}");
+            try
+            {
+                var gameId = $"{ChessFabrickUtils.BOT_NAME}-{Guid.NewGuid()}";
+                var chessClient = proxyFactory.CreateServiceProxy<IChessFabrickStatefulService>(chessStatefulUri, ChessFabrickUtils.GuidPartitionKey(gameId));
+                var newGame = await chessClient.NewGameAsync(gameId, ChessFabrickUtils.BOT_NAME, PieceColor.White);
+                var startedGame = await chessClient.AddBot(gameId);
+                return Ok(startedGame);
             }
             catch (Exception ex)
             {
